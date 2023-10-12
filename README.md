@@ -1,1 +1,5 @@
 # EPM_WS2324_Strebinger_Aldakhelallah_Penner
+
+# Infos
+Notion: https://www.notion.so/visualsofpaul/EPM-8e95328aed79474aa89c68c3fb88dce4
+Figma: https://www.figma.com/file/FTqhqgK9zkIVd0gjewLxWi/EPM?type=whiteboard&node-id=0-1&t=rXCn2QV03wk5HcYY-0
