@@ -3,9 +3,8 @@
 # Plattformen für die Zusammenarbeit
 
 - [Notion](https://www.notion.so/visualsofpaul/EPM-8e95328aed79474aa89c68c3fb88dce4?pvs=4)
-- [Figma](https://www.figma.com/file/FTqhqgK9zkIVd0gjewLxWi/EPM?type=whiteboard&node-id=0%3A1&t=g24jlbYIQcP9oXrg-0)
-
-# Expose
+- [Figjam](https://www.figma.com/file/FTqhqgK9zkIVd0gjewLxWi/EPM?type=whiteboard&node-id=0%3A1&t=g24jlbYIQcP9oXrg-0)
+- [Figma](https://www.figma.com/file/GuDWpSkybEMcFFQyzGXbYY/SynergyHub?type=design&node-id=0%3A1&mode=design&t=3n6VvDQvF2JkEYLU-1)
 
 ## Einleitung
 
