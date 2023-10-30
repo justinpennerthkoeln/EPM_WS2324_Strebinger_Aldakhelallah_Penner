@@ -66,3 +66,9 @@ Wie jedes Projekt hat auch dieses seine Grenzen. Zunächst hat dieses Projekt ke
 ## Fazit
 
 Die vorgeschlagene Lösung zur integrierten Projektarbeit und Bewertung bietet eine innovative Möglichkeit, die Fragmentierung der Arbeitsbereiche zu überwinden, die Zusammenarbeit zu fördern und Projekte in ihrer Gesamtheit zu bewerten. Auf diese Weise wird ein Umfeld geschaffen, in dem Projekte effizienter durchgeführt werden können und die Qualität der Projekte verbessert wird.
+
+# Artefakte zu Audit 1
+- POC
+- Domänenmodelle
+- Stakeholderanalyse
+- Use Cases
