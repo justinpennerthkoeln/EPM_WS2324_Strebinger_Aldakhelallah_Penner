@@ -72,3 +72,15 @@ Die vorgeschlagene Lösung zur integrierten Projektarbeit und Bewertung bietet e
 - Domänenmodelle
 - Stakeholderanalyse
 - Use Cases
+
+# Artefakte zu Audit 2
+- Projektablaufplan
+- Benutzer- / Stakeholderanalyse
+- Domänenmodelle
+- Use Cases
+- Tech Stack
+- ERM
+- eERM
+- Relationenmodell
+- Projektrisiken
+- Artefakte Audit 3
