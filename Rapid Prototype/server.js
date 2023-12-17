@@ -33,10 +33,7 @@ APP.get("/register", (req, res) => {
 });
 
 APP.get("/:uuid", async (req, res) => {
-    const COLLECTION = await (await COLLECTIONSMODEL.getCollection(req.params.uuid)).rows[0];
-    const CONNECTIONS = await (await CONNECTIONSMODEL.getConnectionsFromCollectionId(await COLLECTION.id)).rows;
-
-    res.send(CONNECTIONS);
+    res.sendFile(__dirname + "/views/collection.html");
 });
 
 APP.get("/:uuid/alerts", async (req, res) => {
@@ -54,7 +51,10 @@ APP.get("/:uuid/tasks", async (req, res) => {
 });
 
 APP.get("/:uuid/inspection", async (req, res) => {
+    const COLLECTION = await (await COLLECTIONSMODEL.getCollection(req.params.uuid)).rows[0];
+    const CONNECTIONS = await (await CONNECTIONSMODEL.getConnectionsFromCollectionId(await COLLECTION.id)).rows;
 
+    res.send(CONNECTIONS);
 });
 
 APP.get("/:uuid/settings", async (req, res) => {
@@ -65,6 +65,18 @@ const IO = new SOCKETIO.Server(SERVER);
 
 IO.on('connection', async (socket) => {
     console.log(`Connected with ${socket.id}.`);
+
+    socket.on('get-details', async (uuid) => {
+        const COLLECTION = await (await COLLECTIONSMODEL.getCollection(uuid)).rows[0];
+        socket.emit('got-details', await COLLECTION);
+    })
+
+    socket.on('get-tasks', async (uuid) => {
+        const COLLECTION = await (await COLLECTIONSMODEL.getCollection(uuid)).rows[0];
+        const TASKS = await (await TASKSMODEL.getTasksByCollectionId(await COLLECTION.id)).rows;
+
+        socket.emit('got-tasks', await TASKS);
+    })
 
     socket.on('disconnect', () => {
         console.log(`Socket ${socket.id} disconnected.`);

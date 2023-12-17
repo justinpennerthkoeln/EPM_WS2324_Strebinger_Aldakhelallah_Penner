@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #reiter {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .selected {
+            background-color: blue;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1></h1>
+    <div id="reiter">
+        <form action="/tasks" method="get">
+            <button class="selected">Tasks</button>
+        </form>
+        <form action="/inspection" method="get">
+            <button>Inspection</button>
+        </form>
+        <form action="/settings" method="get">
+            <button>Settings</button>
+        </form>
+        <form action="/alerts" method="get">
+            <button>Alerts</button>
+        </form>
+    </div>
+    <section id="content">
+        <h2>Tasks</h2>
+        <pre><code></code></pre>
+    </section>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "socket.io-client": "https://cdn.socket.io/4.4.1/socket.io.esm.min.js"
+            }
+        }
+    </script>
+    <script type="module">
+        import { io } from 'socket.io-client';
+
+        // Establish a socket connection to the server
+        const socket = io('ws://localhost:80');
+
+        socket.on('connect', () => {
+
+            const h1 = document.querySelector('h1');
+            const forms = document.querySelectorAll('form');
+            const buttons = document.querySelectorAll('button');
+
+            socket.emit('get-details', (window.location.pathname.split('/')[1]));
+
+            socket.on('got-details', (collection) => {
+                h1.innerHTML = collection.name;
+
+                forms.forEach((element) => {
+                    element.action = collection.uuid + '/' + element.action.split('/')[3];
+                });
+            });
+
+            buttons.forEach((element) => {
+                if(element.classList.contains('selected')) {
+                    socket.emit(`get-${element.innerHTML.toLowerCase()}`, (window.location.pathname.split('/')[1]));
+                }
+            })
+
+            socket.on('got-tasks', (tasks) => {
+                const h2 = document.querySelector('h2');
+                const code = document.querySelector('code');
+
+                h2.innerHTML = 'Tasks';
+                code.innerHTML = JSON.stringify(tasks, null, 2);
+
+                console.log(tasks);
+            })
+
+            socket.on('disconnect', () => {
+                console.log('Disconnected from server');
+            });
+        });
+
+        
+
+    </script>
+</body>
+</html>
