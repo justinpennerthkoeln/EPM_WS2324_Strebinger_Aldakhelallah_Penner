@@ -25,3 +25,14 @@ exports.getTasksByCollectionId = async function (collection_id) {
 		return false;
     }
 }
+
+exports.createTask = async function (data) {
+	try {
+		const query = 'INSERT INTO tasks (id, collection_id, status, name, description) VALUES (DEFAULT, $1, $2, $3, $4)';
+		const values = [Number(data.collection_id), Number(data.status), data.name, data.description];
+		return await pool.query(query, values);
+	} catch (err) {
+		console.log(err);
+		return false;
+	}
+}

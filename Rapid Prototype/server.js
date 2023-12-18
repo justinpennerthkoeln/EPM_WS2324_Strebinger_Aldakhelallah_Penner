@@ -78,6 +78,13 @@ IO.on('connection', async (socket) => {
         socket.emit('got-tasks', await TASKS);
     })
 
+    socket.on('create-task', async (data) => {
+        const COLLECTION = await (await COLLECTIONSMODEL.getCollection(data.uuid)).rows[0];
+        data.collection_id = await COLLECTION.id;
+        TASKSMODEL.createTask(await data);
+        socket.emit('created-tasks', await data);
+    })
+
     socket.on('disconnect', () => {
         console.log(`Socket ${socket.id} disconnected.`);
     });

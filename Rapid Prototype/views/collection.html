@@ -11,8 +11,19 @@
         }
 
         .selected {
-            background-color: blue;
+            background-color: #553399;
             color: white;
+        }
+        #content {
+            display: flex;
+            flex-direction: row;
+            width: 60%;
+            justify-content: space-around;
+        }
+
+        .details {
+            background-color: white;
+            display: none;
         }
     </style>
 </head>
@@ -32,9 +43,36 @@
             <button>Alerts</button>
         </form>
     </div>
+    <button>Add Task</button>
+        <div class="details">
+            <h2>Details</h2>
+            <form id="create-new-form">
+                <input type="text" name="status" placeholder="Status">
+                <input type="text" name="name" placeholder="Name">
+                <input type="text" name="description" placeholder="Description">
+                <button type="submit" id="create-task-btn">Create New</button>
+            </form>
+        </div>
     <section id="content">
-        <h2>Tasks</h2>
-        <pre><code></code></pre>
+        <div id="tasks">
+            <h2>To Do</h2>
+            <div></div>
+        </div>
+
+        <div id="in-progress">
+            <h2>In Progress</h2>
+            <div></div>
+        </div>
+
+        <div id="in-review">
+            <h2>Review</h2>
+            <div></div>
+        </div>
+
+        <div id="done">
+            <h2>Done</h2>
+            <div></div>
+        </div>
     </section>
 
     <script type="importmap">
@@ -44,6 +82,28 @@
             }
         }
     </script>
+
+    <script>
+        const buttons = document.querySelectorAll('button');
+        const details = document.querySelector('.details');
+
+        buttons.forEach((element) => {
+            element.addEventListener('click', () => {
+                buttons.forEach((element) => {
+                    element.classList.remove('selected');
+                });
+                element.classList.add('selected');
+                if(element.innerHTML == 'Add Task') {
+                    details.style.display = 'block';
+                } else {
+                    details.style.display = 'none';
+                }
+            });
+        });
+
+        
+    </script>
+
     <script type="module">
         import { io } from 'socket.io-client';
 
@@ -73,13 +133,54 @@
             })
 
             socket.on('got-tasks', (tasks) => {
-                const h2 = document.querySelector('h2');
-                const code = document.querySelector('code');
+                tasks.forEach((task) => {
+                    switch(task.status) {
+                        case 1:
+                            document.querySelector('#tasks div').innerHTML += `<div>${task.name}</div>`;
+                            break;
+                        case 2:
+                            document.querySelector('#in-progress').innerHTML += `<div>${task.name}</div>`;
+                            break;
+                        case 3:
+                            document.querySelector('#in-review').innerHTML += `<div>${task.name}</div>`;
+                            break;
+                        case 4:
+                            document.querySelector('#done').innerHTML += `<div>${task.name}</div>`;
+                            break;
+                        default:
+                            break;
+                    }
+                });
+            })
 
-                h2.innerHTML = 'Tasks';
-                code.innerHTML = JSON.stringify(tasks, null, 2);
+            socket.on('created-tasks', (task) => {
+                switch(Number(task.status)) {
+                    case 1:
+                        document.querySelector('#tasks div').innerHTML += `<div>${task.name}</div>`;
+                        break;
+                    case 2:
+                        document.querySelector('#in-progress').innerHTML += `<div>${task.name}</div>`;
+                        break;
+                    case 3:
+                        document.querySelector('#in-review').innerHTML += `<div>${task.name}</div>`;
+                        break;
+                    case 4:
+                        document.querySelector('#done').innerHTML += `<div>${task.name}</div>`;
+                        break;
+                    default:
+                        break;
+                }
+            });
 
-                console.log(tasks);
+            document.querySelector('#create-new-form').addEventListener('submit', (el) => {
+                el.preventDefault();
+                const data = {
+                    status: document.querySelector('#create-new-form input[name="status"]').value,
+                    name: document.querySelector('#create-new-form input[name="name"]').value,
+                    description: document.querySelector('#create-new-form input[name="description"]').value,
+                    uuid: window.location.pathname.split('/')[1]
+                }
+                socket.emit('create-task', data);
             })
 
             socket.on('disconnect', () => {
@@ -90,5 +191,6 @@
         
 
     </script>
+
 </body>
 </html>
