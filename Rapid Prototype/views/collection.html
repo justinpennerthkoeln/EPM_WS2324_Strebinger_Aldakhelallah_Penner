@@ -122,7 +122,7 @@
                 h1.innerHTML = collection.name;
 
                 forms.forEach((element) => {
-                    element.action = collection.uuid + '/' + element.action.split('/')[3];
+                    element.action = '/' + collection.uuid + '/' + element.action.split('/')[3];
                 });
             });
 

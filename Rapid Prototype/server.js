@@ -44,10 +44,11 @@ APP.get("/:uuid/alerts", async (req, res) => {
 });
 
 APP.get("/:uuid/tasks", async (req, res) => {
-    const COLLECTION = await (await COLLECTIONSMODEL.getCollection(req.params.uuid)).rows[0];
-    const TASKS = await (await TASKSMODEL.getTasksByCollectionId(await COLLECTION.id)).rows;
+    res.sendFile(__dirname + "/views/collection.html");
+    // const COLLECTION = await (await COLLECTIONSMODEL.getCollection(req.params.uuid)).rows[0];
+    // const TASKS = await (await TASKSMODEL.getTasksByCollectionId(await COLLECTION.id)).rows;
 
-    res.send(TASKS);
+    // res.send(TASKS);
 });
 
 APP.get("/:uuid/inspection", async (req, res) => {
@@ -82,7 +83,7 @@ IO.on('connection', async (socket) => {
         const COLLECTION = await (await COLLECTIONSMODEL.getCollection(data.uuid)).rows[0];
         data.collection_id = await COLLECTION.id;
         TASKSMODEL.createTask(await data);
-        socket.emit('created-tasks', await data);
+        IO.emit('created-tasks', await data);
     })
 
     socket.on('disconnect', () => {
