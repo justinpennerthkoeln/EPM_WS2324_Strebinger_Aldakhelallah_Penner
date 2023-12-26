@@ -3,10 +3,14 @@ const HTTP = require('http');
 const EXPRESS = require('express');
 const SOCKETIO = require('socket.io');
 const DOTENV = require('dotenv');
+const BODYPARSER = require('body-parser');
 
 // App setup
 const APP = EXPRESS();
 const SERVER = HTTP.createServer(APP);
+
+var jsonParser = BODYPARSER.json()
+var urlencodedParser = BODYPARSER.urlencoded({ extended: false })
 
 //Middleware
 APP.use(EXPRESS.static(__dirname + '/static'));
@@ -19,6 +23,7 @@ const CONNECTIONSMODEL = require('./models/connectionsModel.js');
 const ALERTSMODEL = require('./models/alertsModel.js');
 const TASKSMODEL = require('./models/tasksModel.js');
 const MEMBERMODEL = require('./models/memberModel.js');
+const USERMODEL = require('./models/userModel.js');
 
 //Routing
 APP.get("/", (req, res) => {
@@ -26,13 +31,33 @@ APP.get("/", (req, res) => {
 });
 
 APP.get("/login", (req, res) => {
+    res.sendFile(__dirname + "/views/login.html");
+});
 
+APP.post("/login", urlencodedParser, async (req, res) => {
+    const USER = await USERMODEL.getByUsernameAndPassword(await req.body.username, await req.body.password);
+    if (USER.rows.length == 0) {
+        res.redirect('/login?error=Invalid username or password.');
+    } else {
+        res.redirect(`/?userId=${USER.rows[0].id}&role=programmer`);
+    }
 });
 
 APP.get("/register", (req, res) => {
-
+    res.sendFile(__dirname + "/views/register.html");
 });
 
+APP.post("/register", urlencodedParser, async (req, res) => {
+    const USER = await USERMODEL.getByEmail(await req.body.email);
+    if (USER.rows.length == 0) {
+        const USER = await USERMODEL.createUser(await req.body.username, await req.body.email, await req.body.password);
+        res.redirect('/login?success=Account created.');
+    } else {
+        res.redirect('/register?error=Email already in use.');
+    }
+});
+
+//Collection
 APP.get("/:uuid", async (req, res) => {
     res.sendFile(__dirname + "/views/collection.html");
 });
@@ -71,13 +96,23 @@ IO.on('connection', async (socket) => {
     //Collection
     socket.on('create-collection', async (data) => {
         const COLLECTION = await COLLECTIONSMODEL.createCollection(await data.name, await data.description);
+        MEMBERMODEL.createMember(await data.id, await COLLECTION.rows[0].collection_id, await data.role);
         socket.emit('created-collection', await COLLECTION);
+
     })
 
     socket.on('get-user-collections', async (userId) => {
         const MEMBER = await (await MEMBERMODEL.getMemberById(userId)).rows[0];
-        const COLLECTIONS = await (await COLLECTIONSMODEL.getCollectionById(await MEMBER.collection_id)).rows;
-        socket.emit('got-collections', await COLLECTIONS);
+        if (MEMBER) {
+            const MEMBERSHIPS = await (await MEMBERMODEL.getMembershipsByUserId(userId)).rows;
+            const COLLECTIONS = [];
+            for (const MEMBERSHIP of MEMBERSHIPS) {
+                COLLECTIONS.push(await (await COLLECTIONSMODEL.getCollectionById(await MEMBERSHIP.collection_id)).rows[0]);
+            }
+            socket.emit('got-collections', await COLLECTIONS);
+        } else {
+            socket.emit('got-collections', []);
+        }
     });
 
     //Task Board

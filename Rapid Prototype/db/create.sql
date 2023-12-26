@@ -70,7 +70,7 @@ ALTER TABLE alerts ADD CONSTRAINT fk_alerts_platform_84376588dsuifhi734 FOREIGN 
 CREATE TABLE tasks (
     task_id SERIAL PRIMARY KEY NOT NULL,
     collection_id INTEGER NOT NULL,
-    platform_id INTEGER NULL,
+    platform_id INTEGER NOT NULL,
     status status NOT NULL,
     name VARCHAR(200) NOT NULL,
     description VARCHAR(200) NOT NULL

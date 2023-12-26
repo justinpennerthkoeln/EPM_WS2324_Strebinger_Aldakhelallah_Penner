@@ -7,7 +7,7 @@ const SOCKET = io('ws://localhost:80');
 SOCKET.on('connect', () => {
     console.log(`Connected with ${SOCKET.id}.`);
 
-    SOCKET.emit('get-user-collections', 1);
+    SOCKET.emit('get-user-collections', new URLSearchParams(window.location.search).get('userId'));
 
     SOCKET.on('got-collections', (data) => {
         const COLLECTIONSECTION = document.getElementById('collections');
@@ -33,8 +33,10 @@ SOCKET.on('connect', () => {
 
         const COLLECTIONSDATA = new FormData(COLLECTIONCREATEFORM);
         SOCKET.emit('create-collection', {
+            id: new URLSearchParams(window.location.search).get('userId'),
             name: COLLECTIONSDATA.get('name'),
-            description: COLLECTIONSDATA.get('description')
+            description: COLLECTIONSDATA.get('description'),
+            role: new URLSearchParams(window.location.search).get('role')
         });
     });
 
@@ -47,6 +49,5 @@ SOCKET.on('connect', () => {
         div.classList.add('collection');
         div.appendChild(a);
         COLLECTIONSECTION.appendChild(div);
-        console.log(data);
     });
 });
