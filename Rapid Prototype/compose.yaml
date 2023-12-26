@@ -3,6 +3,7 @@ version: '3'
 services:
 
   database:
+    container_name: synhub-rapid-db
     image: postgres:13
     environment:
       POSTGRES_USER: postgres
