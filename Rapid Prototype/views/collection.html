@@ -135,16 +135,16 @@
             socket.on('got-tasks', (tasks) => {
                 tasks.forEach((task) => {
                     switch(task.status) {
-                        case 1:
+                        case 'todo':
                             document.querySelector('#tasks div').innerHTML += `<div>${task.name}</div>`;
                             break;
-                        case 2:
+                        case 'in progress':
                             document.querySelector('#in-progress').innerHTML += `<div>${task.name}</div>`;
                             break;
-                        case 3:
+                        case 'in review':
                             document.querySelector('#in-review').innerHTML += `<div>${task.name}</div>`;
                             break;
-                        case 4:
+                        case 'done':
                             document.querySelector('#done').innerHTML += `<div>${task.name}</div>`;
                             break;
                         default:
@@ -154,17 +154,17 @@
             })
 
             socket.on('created-tasks', (task) => {
-                switch(Number(task.status)) {
-                    case 1:
+                switch(task.status) {
+                    case 'todo':
                         document.querySelector('#tasks div').innerHTML += `<div>${task.name}</div>`;
                         break;
-                    case 2:
+                    case 'in progress':
                         document.querySelector('#in-progress').innerHTML += `<div>${task.name}</div>`;
                         break;
-                    case 3:
+                    case 'in review':
                         document.querySelector('#in-review').innerHTML += `<div>${task.name}</div>`;
                         break;
-                    case 4:
+                    case 'done':
                         document.querySelector('#done').innerHTML += `<div>${task.name}</div>`;
                         break;
                     default:

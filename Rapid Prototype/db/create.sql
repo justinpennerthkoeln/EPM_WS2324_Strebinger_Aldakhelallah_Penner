@@ -16,6 +16,8 @@ CREATE TYPE platform AS ENUM ('github', 'gitlab', 'obsidian', 'notion', 'figma',
 CREATE TYPE role AS ENUM ('designer', 'programmer');
 CREATE TYPE status AS ENUM ('todo', 'in progress', 'in review', 'done');
 
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 CREATE TABLE users (
     id SERIAL PRIMARY KEY NOT NULL,
     username VARCHAR(100) NOT NULL,
@@ -25,6 +27,7 @@ CREATE TABLE users (
 
 CREATE TABLE collections (
     collection_id SERIAL PRIMARY KEY NOT NULL,
+    uuid uuid DEFAULT uuid_generate_v4(),
     name VARCHAR(200) NOT NULL,
     description VARCHAR(200) NOT NULL,
     timestamp TIMESTAMP NOT NULL
@@ -67,7 +70,7 @@ ALTER TABLE alerts ADD CONSTRAINT fk_alerts_platform_84376588dsuifhi734 FOREIGN 
 CREATE TABLE tasks (
     task_id SERIAL PRIMARY KEY NOT NULL,
     collection_id INTEGER NOT NULL,
-    platform_id INTEGER NOT NULL,
+    platform_id INTEGER NULL,
     status status NOT NULL,
     name VARCHAR(200) NOT NULL,
     description VARCHAR(200) NOT NULL

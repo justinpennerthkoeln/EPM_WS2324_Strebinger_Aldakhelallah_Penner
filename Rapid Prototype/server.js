@@ -18,10 +18,11 @@ const COLLECTIONSMODEL = require('./models/collectionsModel.js');
 const CONNECTIONSMODEL = require('./models/connectionsModel.js');
 const ALERTSMODEL = require('./models/alertsModel.js');
 const TASKSMODEL = require('./models/tasksModel.js');
+const MEMBERMODEL = require('./models/memberModel.js');
 
 //Routing
 APP.get("/", (req, res) => {
-    res.send({"msg" : "Hello World!"});
+    res.sendFile(__dirname + "/views/createCollection.html");
 });
 
 APP.get("/login", (req, res) => {
@@ -67,6 +68,19 @@ const IO = new SOCKETIO.Server(SERVER);
 IO.on('connection', async (socket) => {
     console.log(`Connected with ${socket.id}.`);
 
+    //Collection
+    socket.on('create-collection', async (data) => {
+        const COLLECTION = await COLLECTIONSMODEL.createCollection(await data.name, await data.description);
+        socket.emit('created-collection', await COLLECTION);
+    })
+
+    socket.on('get-user-collections', async (userId) => {
+        const MEMBER = await (await MEMBERMODEL.getMemberById(userId)).rows[0];
+        const COLLECTIONS = await (await COLLECTIONSMODEL.getCollectionById(await MEMBER.collection_id)).rows;
+        socket.emit('got-collections', await COLLECTIONS);
+    });
+
+    //Task Board
     socket.on('get-details', async (uuid) => {
         const COLLECTION = await (await COLLECTIONSMODEL.getCollection(uuid)).rows[0];
         socket.emit('got-details', await COLLECTION);
@@ -74,14 +88,13 @@ IO.on('connection', async (socket) => {
 
     socket.on('get-tasks', async (uuid) => {
         const COLLECTION = await (await COLLECTIONSMODEL.getCollection(uuid)).rows[0];
-        const TASKS = await (await TASKSMODEL.getTasksByCollectionId(await COLLECTION.id)).rows;
-
+        const TASKS = await (await TASKSMODEL.getTasksByCollectionId(await COLLECTION.collection_id)).rows;
         socket.emit('got-tasks', await TASKS);
     })
 
     socket.on('create-task', async (data) => {
         const COLLECTION = await (await COLLECTIONSMODEL.getCollection(data.uuid)).rows[0];
-        data.collection_id = await COLLECTION.id;
+        data.collection_id = await COLLECTION.collection_id;
         TASKSMODEL.createTask(await data);
         IO.emit('created-tasks', await data);
     })
