@@ -24,6 +24,7 @@ const ALERTSMODEL = require('./models/alertsModel.js');
 const TASKSMODEL = require('./models/tasksModel.js');
 const MEMBERMODEL = require('./models/memberModel.js');
 const USERMODEL = require('./models/userModel.js');
+const PLATFORMSMODEL = require('./models/platformModel.js');
 
 //Routing
 APP.get("/", (req, res) => {
@@ -137,6 +138,12 @@ IO.on('connection', async (socket) => {
     socket.on('disconnect', () => {
         console.log(`Socket ${socket.id} disconnected.`);
     });
+
+    socket.on('get-platforms', async (uuid) => {
+        const COLLECTION = await (await COLLECTIONSMODEL.getCollection(uuid)).rows[0];
+        const PLATFORMS = await (await PLATFORMSMODEL.getPlatformsByCollectionId(await COLLECTION.collection_id)).rows;
+        socket.emit('got-platforms', await PLATFORMS);
+    })
 })
 
 // Host on port

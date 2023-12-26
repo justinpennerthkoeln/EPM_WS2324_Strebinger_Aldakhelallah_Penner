@@ -50,6 +50,9 @@
                 <input type="text" name="status" placeholder="Status">
                 <input type="text" name="name" placeholder="Name">
                 <input type="text" name="description" placeholder="Description">
+                <select name="platform" id="platform-select">
+
+                </select>
                 <button type="submit" id="create-task-btn">Create New</button>
             </form>
         </div>
@@ -126,6 +129,15 @@
                 });
             });
 
+            socket.emit('get-platforms', (window.location.pathname.split('/')[1]));
+
+            socket.on('got-platforms', (platforms) => {
+                const select = document.querySelector('#platform-select');
+                platforms.forEach((platform) => {
+                    select.innerHTML += `<option value="${platform.platform_id}">${platform.platform}</option>`;
+                });
+            });
+
             buttons.forEach((element) => {
                 if(element.classList.contains('selected')) {
                     socket.emit(`get-${element.innerHTML.toLowerCase()}`, (window.location.pathname.split('/')[1]));
@@ -178,7 +190,8 @@
                     status: document.querySelector('#create-new-form input[name="status"]').value,
                     name: document.querySelector('#create-new-form input[name="name"]').value,
                     description: document.querySelector('#create-new-form input[name="description"]').value,
-                    uuid: window.location.pathname.split('/')[1]
+                    uuid: window.location.pathname.split('/')[1],
+                    platform: document.querySelector('#platform-select').value
                 }
                 socket.emit('create-task', data);
             })
