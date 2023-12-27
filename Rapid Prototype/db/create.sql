@@ -12,8 +12,8 @@ DROP TABLE IF EXISTS todos;
 DROP TABLE IF EXISTS feedbacks;
 DROP TABLE IF EXISTS votes;
 
-CREATE TYPE platform AS ENUM ('github', 'gitlab', 'obsidian', 'notion', 'figma', 'dribbble');
-CREATE TYPE role AS ENUM ('designer', 'programmer');
+CREATE TYPE platform AS ENUM ('github', 'gitlab', 'markdown', 'notion', 'figma', 'dribbble');
+CREATE TYPE role AS ENUM ('designer', 'programmer', 'product owner', 'project manager');
 CREATE TYPE status AS ENUM ('todo', 'in progress', 'in review', 'done');
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -29,7 +29,7 @@ CREATE TABLE collections (
     collection_id SERIAL PRIMARY KEY NOT NULL,
     uuid uuid DEFAULT uuid_generate_v4(),
     name VARCHAR(200) NOT NULL,
-    description VARCHAR(200) NOT NULL,
+    description VARCHAR(200) NULL,
     timestamp TIMESTAMP NOT NULL
 );
 
@@ -49,7 +49,7 @@ CREATE TABLE memberships (
     membership_id SERIAL PRIMARY KEY NOT NULL,
     user_id INTEGER NOT NULL,
     collection_id INTEGER NOT NULL,
-    role role NOT NULL
+    role role NULL
 );
 
 ALTER TABLE memberships ADD CONSTRAINT fk_memberships_user_3948fbhrgz45i4ts FOREIGN KEY (user_id) REFERENCES users (id);
@@ -73,7 +73,7 @@ CREATE TABLE tasks (
     platform_id INTEGER NOT NULL,
     status status NOT NULL,
     name VARCHAR(200) NOT NULL,
-    description VARCHAR(200) NOT NULL
+    description VARCHAR(200) NULL
 );
 
 ALTER TABLE tasks ADD CONSTRAINT fk_tasks_collection_84376588dsuifhi734 FOREIGN KEY (collection_id) REFERENCES collections (collection_id);
