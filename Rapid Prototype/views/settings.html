@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #reiter {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .selected {
+            background-color: #553399;
+            color: white;
+        }
+        #content {
+            display: flex;
+            flex-direction: row;
+            width: 60%;
+            justify-content: space-around;
+        }
+
+        .details {
+            background-color: white;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1></h1>
+    <div id="reiter">
+        <form action="/tasks" method="get">
+            <button>Tasks</button>
+        </form>
+        <form action="/inspection" method="get">
+            <button>Inspection</button>
+        </form>
+        <form action="/settings" method="get">
+            <button class="selected">Settings</button>
+        </form>
+        <form action="/alerts" method="get">
+            <button>Alerts</button>
+        </form>
+    </div>
+    <aside>
+        <nav id="aside-nav">
+            <ul>
+                <li>Collection</li>
+                <li><a href="/settings/collection">Rename collection</a></li>
+                <li>Collaborators</li>
+                <li><a href="/settings/invite-collaborators">Invite collaborator</a></li>
+                <li><a href="/settings/manage-collaborators">Manage collaborator</a></li>
+                <li>Platforms</li>
+                <li><a href="/settings/add-project">Add a project</a></li>
+                <li><a href="/settings/manage-project">Manage projects</a></li>
+            </ul>
+        </nav>
+    </aside>
+    <aside>
+        <form id="add-platform-form">
+            <select name="platform" id="platform-select">
+                <option value="github">Github</option>
+                <option value="gitlab">Gitlab</option>
+                <option value="notion">Notion</option>
+                <option value="figma">Figma</option>
+                <option value="Dribbble">Dribbble</option>
+            </select>
+            <button id="add-platform-btn">Add platform</button>
+        </form>
+    </aside>
+    <script type="importmap">
+        {
+            "imports": {
+                "socket.io-client": "https://cdn.socket.io/4.4.1/socket.io.esm.min.js"
+            }
+        }
+    </script>
+    <script type="module" src="/js/settings.js"></script>
+</body>
+</html>

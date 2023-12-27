@@ -7,6 +7,8 @@ const SOCKET = io('ws://localhost:80');
 SOCKET.on('connect', () => {
     console.log(`Connected with ${SOCKET.id}.`);
 
+    document.cookie = `userId=${new URLSearchParams(window.location.search).get('userId')}`;
+
     SOCKET.emit('get-user-collections', new URLSearchParams(window.location.search).get('userId'));
 
     SOCKET.on('got-collections', (data) => {
@@ -35,8 +37,7 @@ SOCKET.on('connect', () => {
         SOCKET.emit('create-collection', {
             id: new URLSearchParams(window.location.search).get('userId'),
             name: COLLECTIONSDATA.get('name'),
-            description: COLLECTIONSDATA.get('description'),
-            role: new URLSearchParams(window.location.search).get('role')
+            description: COLLECTIONSDATA.get('description')
         });
     });
 

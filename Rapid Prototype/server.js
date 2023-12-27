@@ -38,9 +38,9 @@ APP.get("/login", (req, res) => {
 APP.post("/login", urlencodedParser, async (req, res) => {
     const USER = await USERMODEL.getByUsernameAndPassword(await req.body.username, await req.body.password);
     if (USER.rows.length == 0) {
-        res.redirect('/login?error=Invalid username or password.');
+        res.redirect('/login?error=Invalid_username_or_password');
     } else {
-        res.redirect(`/?userId=${USER.rows[0].id}&role=programmer`);
+        res.redirect(`/?userId=${USER.rows[0].id}`);
     }
 });
 
@@ -51,11 +51,35 @@ APP.get("/register", (req, res) => {
 APP.post("/register", urlencodedParser, async (req, res) => {
     const USER = await USERMODEL.getByEmail(await req.body.email);
     if (USER.rows.length == 0) {
-        const USER = await USERMODEL.createUser(await req.body.username, await req.body.email, await req.body.password);
-        res.redirect('/login?success=Account created.');
+        try {
+            const USER = await USERMODEL.createUser(await req.body.username, await req.body.email, await req.body.password);
+            if(USER == false) {
+                throw new Error('Error creating user.');
+            } else {
+                res.redirect('/login?success=Account_created');
+            }
+        } catch (error) {
+            res.redirect('/register?error=Username_already_in_use');
+        }
     } else {
-        res.redirect('/register?error=Email already in use.');
+        res.redirect('/register?error=Email_already_in_use');
     }
+});
+
+//AUTH
+APP.get("/github/oauth/:uuid/:plaformId", async (req, res) => {
+    const QUERY = `https://github.com/login/oauth/access_token?code=${req.query.code}&client_id=e82e9be1c2c8d95f719a&client_secret=cc9b2c76bcf27acf37dc41cc7da7b6cdec010395`
+    const RESPONSE = await fetch(QUERY, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        }
+    }).then((response) => response.json());
+
+    PLATFORMSMODEL.updatePlatform(req.params.plaformId, RESPONSE.access_token, '');
+
+    res.redirect(`/${req.params.uuid}/settings`);
 });
 
 //Collection
@@ -86,7 +110,7 @@ APP.get("/:uuid/inspection", async (req, res) => {
 });
 
 APP.get("/:uuid/settings", async (req, res) => {
-
+    res.sendFile(__dirname + "/views/settings.html");
 });
 
 const IO = new SOCKETIO.Server(SERVER);
@@ -97,7 +121,7 @@ IO.on('connection', async (socket) => {
     //Collection
     socket.on('create-collection', async (data) => {
         const COLLECTION = await COLLECTIONSMODEL.createCollection(await data.name, await data.description);
-        MEMBERMODEL.createMember(await data.id, await COLLECTION.rows[0].collection_id, await data.role);
+        MEMBERMODEL.createMember(await data.id, await COLLECTION.rows[0].collection_id, 'project manager');
         socket.emit('created-collection', await COLLECTION);
 
     })
@@ -144,7 +168,69 @@ IO.on('connection', async (socket) => {
         const PLATFORMS = await (await PLATFORMSMODEL.getPlatformsByCollectionId(await COLLECTION.collection_id)).rows;
         socket.emit('got-platforms', await PLATFORMS);
     })
-})
+
+    //Platforms
+    socket.on('create-platform', async (data) => {
+        const COLLECTION = await (await COLLECTIONSMODEL.getCollection(data.uuid)).rows[0];
+        var CONN = {};
+        data.collection_id = await COLLECTION.collection_id;
+        const PLATFORM = PLATFORMSMODEL.createPlatform(data.id, data.collection_id, data.platform, '', '');
+        Promise.resolve(PLATFORM).then(async (form) => {
+            switch(data.platform) {
+                case 'github':
+                    CONN = connectGithub(data, form.rows[0].platform_id);
+                    socket.emit('conn', await CONN);
+                    break;
+                case 'gitlab':
+                    CONN = connectGitlab()
+                    socket.emit('conn', await CONN);
+                    break;
+                case 'dribbble':
+                    CONN = connectDribbble()
+                    socket.emit('conn', await CONN);
+                    break;
+                case 'figma':
+                    CONN = connectFigma()
+                    socket.emit('conn', await CONN);
+                    break;
+                case 'notion':
+                    CONN = connectNotion()
+                    socket.emit('conn', await CONN);
+                    break;
+                default:
+                    break;
+            }
+        });
+    })
+});
+
+//Connections
+async function connectGithub(data, platformId) {
+    var CONN = {
+        oauth: `https://github.com/login/oauth/authorize?client_id=e82e9be1c2c8d95f719a&redirect_uri=http://localhost:80/github/oauth/${data.uuid}/${platformId}&allow_signup=true`
+    }
+    return CONN;
+}
+
+async function connectGitlab() {
+    const CONNECTION = await CONNECTIONSMODEL.createConnection('gitlab');
+    return CONNECTION;
+}
+
+async function connectDribbble() {
+    const CONNECTION = await CONNECTIONSMODEL.createConnection('dribbble');
+    return CONNECTION;
+}
+
+async function connectFigma() {
+    const CONNECTION = await CONNECTIONSMODEL.createConnection('figma');
+    return CONNECTION;
+}
+
+async function connectNotion() {
+    const CONNECTION = await CONNECTIONSMODEL.createConnection('notion');
+    return CONNECTION;
+}
 
 // Host on port
 SERVER.listen(80, () => {
