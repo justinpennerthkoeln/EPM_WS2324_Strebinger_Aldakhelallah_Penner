@@ -7,7 +7,7 @@ const SOCKET = io('ws://localhost:80');
 SOCKET.on('connect', () => {
     console.log(`Connected with ${SOCKET.id}.`);
 
-    document.cookie = `userId=${new URLSearchParams(window.location.search).get('userId')}`;
+    localStorage.setItem('userId', new URLSearchParams(window.location.search).get('userId'));
 
     SOCKET.emit('get-user-collections', new URLSearchParams(window.location.search).get('userId'));
 
