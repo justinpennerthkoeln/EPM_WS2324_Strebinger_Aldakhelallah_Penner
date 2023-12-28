@@ -155,6 +155,49 @@ APP.get('/notion/oauth', async (req, res) => {
     });
 });
 
+APP.get("/dribbble/oauth", async (req, res) => {
+    const TOKENURL = 'https://dribbble.com/oauth/token';
+    const CLIENTID = '40c594e9554be586ed8cffafe32c3ab44b3b62d16aecb00a8a68a52b3430d358';
+    const CLIENTSECRET = 'c283c1ebee3f4fb05777b650e379716ddba18e5a2552f28e53cb2a1974b1136a';
+    const REDIRECT_URI = 'http://localhost:80/dribbble/oauth';
+
+    const UUID = req.query.state.split('_')[0];
+    const PLATFORMID = req.query.state.split('_')[1];
+
+    const requestBody = {
+        code: req.query.code,
+        client_id: CLIENTID,
+        client_secret: CLIENTSECRET,
+        redirect_uri: REDIRECT_URI,
+        grant_type: 'authorization_code'
+    };
+
+    fetch(TOKENURL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        PLATFORMSMODEL.updatePlatform(PLATFORMID, data.access_token, '');
+        res.status(200).redirect(`/${UUID}/settings`);
+    })
+    .catch(error =>{
+        console.error('Error during token exchange:', error);
+        res.status(500).send('Internal Server Error');
+    });
+
+    
+});
+
 //Collection
 APP.get("/:uuid", async (req, res) => {
     res.sendFile(__dirname + "/views/collection.html");
@@ -315,9 +358,11 @@ async function connectGitlab(data, platformId) {
     return CONN;
 }
 
-async function connectDribbble() {
-    const CONNECTION = await CONNECTIONSMODEL.createConnection('dribbble');
-    return CONNECTION;
+async function connectDribbble(data, platformId) {
+    var CONN = {
+        oauth: `https://dribbble.com/oauth/authorize?client_id=40c594e9554be586ed8cffafe32c3ab44b3b62d16aecb00a8a68a52b3430d358&redirect_uri=http://localhost:80/dribbble/oauth&scope=public+write&state=${data.uuid+'_'+platformId}`
+    }
+    return CONN;
 }
 
 async function connectFigma() {
