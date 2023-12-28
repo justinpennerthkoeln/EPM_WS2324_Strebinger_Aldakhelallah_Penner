@@ -198,6 +198,29 @@ APP.get("/dribbble/oauth", async (req, res) => {
     
 });
 
+APP.get("/figma/oauth", async (req, res) => {
+    const UUID = req.query.state.split('_')[0];
+    const PLATFORMID = req.query.state.split('_')[1];
+    const CODE = req.query.code;
+    const CLIENTID = 'lran9jv5bDLcZamRAN3khE';
+    const CLIENTSECRET = '5y0PGZM8aRRcOt4TvOkWa8z5citlRj';
+
+    const test = fetch(`https://www.figma.com/api/oauth/token`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `client_id=${CLIENTID}&client_secret=${CLIENTSECRET}&code=${CODE}&grant_type=authorization_code&redirect_uri=http://localhost:80/figma/oauth`
+    }).then((response) => {
+        return response.json();
+    })
+    Promise.resolve(test).then((data) => {
+        console.log(data);
+        PLATFORMSMODEL.updatePlatform(PLATFORMID, data.access_token, '');
+        res.status(200).redirect(`/${UUID}/settings`);
+    });
+});
+
 //Collection
 APP.get("/:uuid", async (req, res) => {
     res.sendFile(__dirname + "/views/collection.html");
@@ -321,7 +344,7 @@ IO.on('connection', async (socket) => {
                     socket.emit('conn', await CONN);
                     break;
                 case 'figma':
-                    CONN = connectFigma()
+                    CONN = connectFigma(data, form.rows[0].platform_id)
                     socket.emit('conn', await CONN);
                     break;
                 case 'notion':
@@ -365,9 +388,11 @@ async function connectDribbble(data, platformId) {
     return CONN;
 }
 
-async function connectFigma() {
-    const CONNECTION = await CONNECTIONSMODEL.createConnection('figma');
-    return CONNECTION;
+async function connectFigma(data, platformId) {
+    var CONN = {
+        oauth: `https://www.figma.com/oauth?scope=files:read&state=${data.uuid}_${platformId}&response_type=code&client_id=lran9jv5bDLcZamRAN3khE&redirect_uri=http://localhost:80/figma/oauth`
+    }
+    return CONN;
 }
 
 async function connectNotion(data, platformId) {
