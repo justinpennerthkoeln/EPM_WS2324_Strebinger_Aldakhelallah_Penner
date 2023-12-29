@@ -34,6 +34,7 @@
 
     /* Colors */
     --color-background-dark: #141B1F;
+    --color-background-dark-transparent: #141B1FAA;
     --color-on-background-dark: #1E282D;
 
     --color-text-light: #F5F5F5;

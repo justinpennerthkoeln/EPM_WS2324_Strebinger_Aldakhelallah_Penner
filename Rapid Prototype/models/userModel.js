@@ -26,6 +26,17 @@ exports.getByEmail = async function (email) {
     }
 }
 
+exports.getInformation= async function (id) {
+    try {
+        const query = 'SELECT username, email FROM users WHERE id = $1';
+        const values = [id];
+        return await pool.query(query, values);
+    } catch (err) {
+        console.log(err);
+        return false;
+    }
+}
+
 exports.createUser = async function (username, email, password) {
     try {
         const query = 'INSERT INTO users VALUES (DEFAULT, $1, $2, $3) RETURNING *';

@@ -46,7 +46,12 @@ const PLATFORMSMODEL = require('./models/platformModel.js');
 
 //Routing
 APP.get("/", (req, res) => {
-    res.sendFile(__dirname + "/views/createCollection.html");
+    if(req.query.userId) {
+        res.sendFile(__dirname + "/views/overview.html");
+    }
+    else {
+        res.redirect('/signin');
+    }
 });
 
 APP.get("/signin", (req, res) => {
@@ -58,7 +63,7 @@ APP.post("/signin", urlencodedParser, async (req, res) => {
     if (USER.rows.length == 0) {
         res.redirect('/signin?error=Invalid_username_or_password');
     } else {
-        res.redirect(`/?userId=${USER.rows[0].id}`);
+        res.redirect(`/?userId=${USER.rows[0].id}&success=Signed_in`);
     }
 });
 
@@ -277,6 +282,12 @@ IO.on('connection', async (socket) => {
         socket.handshake.session.user = {
             id: userId
         }
+    });
+
+    // User informations
+    socket.on('get-user', async (userId) => {
+        const INFORMATION = await (await USERMODEL.getInformation(userId)).rows[0];
+        socket.emit('got-user', await INFORMATION);
     });
 
     //Collection

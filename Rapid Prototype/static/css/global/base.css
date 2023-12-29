@@ -26,7 +26,7 @@ body {
 }
 
 main {
-    padding: var(--space-m);
+    padding: var(--space-2xl);
 }
 
 p,
@@ -78,6 +78,43 @@ input:focus-visible {
     outline: var(--xs) solid var(--color-input-tertiary);
 }
 
+/* Textarea */
+textarea {
+    background-color: var(--color-input-background);
+    border: var(--xxs) solid var(--color-input-primary);
+    border-radius: var(--br-xs);
+    color: var(--color-text-light);
+    font-size: var(--base-font-size);
+    font-weight: var(--fw-normal);
+    padding: var(--space-m) var(--space-l);
+    transition: border-color var(--tr-fast) ease-in-out, outline-width var(--tr-fast) ease-in-out;
+    height: 10em;
+    resize: vertical;
+}
+
+textarea::placeholder {
+    color: var(--color-text-light);
+}
+
+textarea::-webkit-resizer,
+textarea::-webkit-scrollbar,
+textarea::-webkit-scrollbar-track,
+textarea::-webkit-scrollbar-track-piece,
+textarea::-webkit-scrollbar-thumb,
+textarea::-webkit-scrollbar-corner {
+    display: none;
+}
+
+textarea:focus {
+    border-color: var(--color-input-secondary);
+    outline: none;
+}
+
+textarea:focus-visible {
+    border-color: var(--color-input-secondary);
+    outline: var(--xs) solid var(--color-input-tertiary);
+}
+
 /* Button */
 button {
     background-color: var(--color-accent-primary);
@@ -89,6 +126,10 @@ button {
     font-weight: var(--fw-normal);
     padding: calc(var(--space-m) + var(--xxs)) calc(var(--space-xl) + var(--xxs));
     transition: background-color var(--tr-fast) ease-in-out, outline-width var(--tr-fast) ease-in-out;
+}
+
+button.add {
+    background-color: var(--color-on-background-dark);
 }
 
 button:hover {
