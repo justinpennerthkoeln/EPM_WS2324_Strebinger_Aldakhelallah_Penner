@@ -357,23 +357,16 @@ IO.on('connection', async (socket) => {
                 })
                 break;
             case 'figma':
-                fetch(`https://api.figma.com/v1/files/${PLATFORM.target_document}`, {
-                    method: 'GET',
+                fetch(`https://api.figma.com/v1/files/${PLATFORM.target_document}/comments`, {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-Figma-Token': 'Bearer ' + PLATFORM.platform_key,
-                    }
+                        'Authorization': 'Bearer ' + PLATFORM.platform_key,
+                    },
+                    body: JSON.stringify({
+                        "message": data.name + ' ' + data.description,
+                    })
                 }).then((response) => response.json()).then((data) => {console.log(data)});
-                // fetch(`https://api.figma.com/v1/files/${PLATFORM.target_document}/comments`, {
-                //     method: 'POST',
-                //     headers: {
-                //         'Content-Type': 'application/json',
-                //         'X-Figma-Token': 'Bearer ' + PLATFORM.platform_key,
-                //     },
-                //     body: JSON.stringify({
-                //         "message": data.name + ' ' + data.description,
-                //     })
-                // }).then((response) => response.json()).then((data) => {console.log(data)});
                 break;
             case 'dribbble':
                 IO.emit('created-task', await data);
