@@ -11,22 +11,70 @@ SOCKET.on('connect', () => {
 
     SOCKET.emit('get-user-collections', new URLSearchParams(window.location.search).get('userId'));
 
+    SOCKET.emit('get-user', new URLSearchParams(window.location.search).get('userId'));
+
+    const USERNAME = document.getElementById('username');
+
+    SOCKET.on('got-user', (data) => {
+        USERNAME.innerText = `@${data.username}`;
+    });
+
+    let collections;
+
     SOCKET.on('got-collections', (data) => {
-        const COLLECTIONSECTION = document.getElementById('collections');
-        for (const COLLECTION of data) {
-            const a = document.createElement('a');
-            a.href = `/${COLLECTION.uuid}`;
-            a.innerText = COLLECTION.name;
-            const div = document.createElement('div');
-            div.classList.add('collection');
-            div.appendChild(a);
-            COLLECTIONSECTION.appendChild(div);
-        }
+        collections = Vue.createApp({
+            data() {
+                return {
+                    collections: data,
+                    dateOptions: {
+                        year: 'numeric',
+                        month: 'numeric',
+                        day: 'numeric'
+                    }
+                }
+            },
+            template: `
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="collection in collections" @click="navigateToCollection(collection.uuid)">
+                        <td>{{ collection.name }}</td>
+                        <td>{{ new Date(collection.timestamp).toLocaleString('de-DE', this.dateOptions) }}</td>
+                    </tr>
+                </tbody>
+            `,
+            methods: {
+                navigateToCollection(uuid) {
+                    window.location.href = `/${uuid}`;
+                },
+                addCollection(data) {
+                    this.collections.push(data);
+                }
+            }
+        }).mount('#collections');
     });
 
     SOCKET.on('disconnect', () => {
         console.log(`Disconnected from ${SOCKET.id}.`);
     });
+
+    const CREATECOLLECTIONBUTTON = document.getElementById('create-collection');
+    const CREATECOLLECTIONCONTAINER = document.getElementById('create-collection-container');
+
+    CREATECOLLECTIONBUTTON.addEventListener('click', () => {
+        CREATECOLLECTIONCONTAINER.classList.toggle('hidden');
+    });
+
+    CREATECOLLECTIONCONTAINER.addEventListener('click', (event) => {
+        if (event.target === CREATECOLLECTIONCONTAINER) {
+            CREATECOLLECTIONCONTAINER.classList.toggle('hidden');
+        }
+    });
+
 
 
     const COLLECTIONCREATEFORM = document.getElementById('collection-create-form');
@@ -41,14 +89,9 @@ SOCKET.on('connect', () => {
         });
     });
 
-    const COLLECTIONSECTION = document.getElementById('collections');
     SOCKET.on('created-collection', (data) => {
-        const a = document.createElement('a');
-        a.href = `/${data.rows[0].uuid}`;
-        a.innerText = data.rows[0].name;
-        const div = document.createElement('div');
-        div.classList.add('collection');
-        div.appendChild(a);
-        COLLECTIONSECTION.appendChild(div);
+        collections.addCollection(data.rows[0]);
+
+        CREATECOLLECTIONCONTAINER.classList.toggle('hidden');
     });
 });
