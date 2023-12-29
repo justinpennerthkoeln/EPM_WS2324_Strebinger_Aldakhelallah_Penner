@@ -6,7 +6,7 @@ main {
     width: 100vw;
 }
 
-section {
+main section {
     display: flex;
     flex-direction: column;
     gap: var(--space-xl);

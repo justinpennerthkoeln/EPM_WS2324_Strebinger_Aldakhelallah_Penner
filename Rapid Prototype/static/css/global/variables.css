@@ -5,6 +5,7 @@
     /* Border radius */
     --br-none: 0;
     --br-xs: 0.25rem;
+    --br-full: 100rem;
 
     /* Sizes */
     --xxs: 0.125rem;
@@ -75,6 +76,9 @@
     --color-state-inprogress: #FFD16670;
     --color-state-review: #00B4D870;
     --color-state-done: #6A994E70;
+
+    --color-error: #E63946;
+    --color-success: #6A994E;
 
     /* Spaces */
     --space-xs: 0.25rem;
