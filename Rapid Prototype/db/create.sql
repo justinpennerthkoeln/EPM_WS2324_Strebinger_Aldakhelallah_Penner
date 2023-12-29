@@ -39,7 +39,8 @@ CREATE TABLE platforms (
     collection_id INTEGER NOT NULL,
     platform platform NOT NULL,
     platform_key VARCHAR(200) NOT NULL,
-    target_document VARCHAR(200) NOT NULL
+    target_document VARCHAR(200) NOT NULL,
+    username VARCHAR(200) NULL
 );
 
 ALTER TABLE platforms ADD CONSTRAINT fk_platforms_user_3948fbhrgz45i4ts FOREIGN KEY (user_id) REFERENCES users (id);

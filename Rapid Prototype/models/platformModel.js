@@ -26,10 +26,10 @@ exports.getPlatformsByCollectionId = async function (collection_id) {
     }
 }
 
-exports.createPlatform = async function (userId, collectionId, platform, platformKey, targetDocument) {
+exports.createPlatform = async function (userId, collectionId, platform, platformKey, targetDocument, username) {
     try {
-        const query = 'INSERT INTO platforms VALUES (DEFAULT, $1, $2, $3, $4, $5) RETURNING *';
-        const values = [Number(userId), Number(collectionId), platform, platformKey, targetDocument];
+        const query = 'INSERT INTO platforms VALUES (DEFAULT, $1, $2, $3, $4, $5, $6) RETURNING *';
+        const values = [Number(userId), Number(collectionId), platform, platformKey, targetDocument, username];
         return await pool.query(query, values);
     } catch (err) {
         console.log(err);
@@ -46,6 +46,17 @@ exports.updatePlatform = async function (platformId, platformKey, targetDocument
         const query2 = 'UPDATE platforms SET target_document = $2 WHERE platform_id = $1';
         const values2 = [platformId, targetDocument];
         await pool.query(query2, values2);
+    } catch (err) {
+        console.log(err);
+        return false;
+    }
+}
+
+exports.getPlatformById = async function (platformId) {
+    try {
+        const query = 'SELECT * FROM platforms WHERE platform_id = $1';
+        const values = [platformId];
+        return await pool.query(query, values);
     } catch (err) {
         console.log(err);
         return false;

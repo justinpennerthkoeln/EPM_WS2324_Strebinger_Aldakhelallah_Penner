@@ -309,6 +309,63 @@ IO.on('connection', async (socket) => {
         const COLLECTION = await (await COLLECTIONSMODEL.getCollection(data.uuid)).rows[0];
         data.collection_id = await COLLECTION.collection_id;
         TASKSMODEL.createTask(await data);
+        const PLATFORM = await (await PLATFORMSMODEL.getPlatformById(await data.platform)).rows[0];
+        switch(PLATFORM.platform) {
+            case 'github':
+                fetch(`https://api.github.com/repos/${PLATFORM.username}/${PLATFORM.target_document}/issues`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `token ${PLATFORM.platform_key}`,
+                    },
+                    body: JSON.stringify({
+                        title: data.name,
+                        body: data.description
+                    })
+                })
+                break;
+            case 'gitlab':
+                fetch(`https://gitlab.com/api/v4/projects/${PLATFORM.target_document}/issues`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${PLATFORM.platform_key}`,
+                    },
+                    body: JSON.stringify({
+                        title: data.name,
+                        description: data.description
+                    })
+                })
+                break;
+            case 'figma':
+                fetch(`https://api.figma.com/v1/files/${PLATFORM.target_document}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Figma-Token': 'Bearer ' + PLATFORM.platform_key,
+                    }
+                }).then((response) => response.json()).then((data) => {console.log(data)});
+                // fetch(`https://api.figma.com/v1/files/${PLATFORM.target_document}/comments`, {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/json',
+                //         'X-Figma-Token': 'Bearer ' + PLATFORM.platform_key,
+                //     },
+                //     body: JSON.stringify({
+                //         "message": data.name + ' ' + data.description,
+                //     })
+                // }).then((response) => response.json()).then((data) => {console.log(data)});
+                break;
+            case 'dribbble':
+                IO.emit('created-task', await data);
+                break;
+            case 'notion':
+                IO.emit('created-task', await data);
+                break;
+            default:
+                break;
+        }
+
         IO.emit('created-tasks', await data);
     })
 
@@ -328,7 +385,7 @@ IO.on('connection', async (socket) => {
         var CONN = {};
         data.collection_id = await COLLECTION.collection_id;
         console.log(data)
-        const PLATFORM = PLATFORMSMODEL.createPlatform(data.id, data.collection_id, data.platform, '', '');
+        const PLATFORM = PLATFORMSMODEL.createPlatform(data.id, data.collection_id, data.platform, '', '', '');
         Promise.resolve(PLATFORM).then(async (form) => {
             switch(data.platform) {
                 case 'github':
@@ -390,7 +447,7 @@ async function connectDribbble(data, platformId) {
 
 async function connectFigma(data, platformId) {
     var CONN = {
-        oauth: `https://www.figma.com/oauth?scope=files:read&state=${data.uuid}_${platformId}&response_type=code&client_id=lran9jv5bDLcZamRAN3khE&redirect_uri=http://localhost:80/figma/oauth`
+        oauth: `https://www.figma.com/oauth?scope=files:read,file_comments:write&state=${data.uuid}_${platformId}&response_type=code&client_id=lran9jv5bDLcZamRAN3khE&redirect_uri=http://localhost:80/figma/oauth`
     }
     return CONN;
 }

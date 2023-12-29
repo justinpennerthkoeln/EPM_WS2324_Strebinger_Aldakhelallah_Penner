@@ -28,7 +28,7 @@ exports.getTasksByCollectionId = async function (collection_id) {
 
 exports.createTask = async function (data) {
 	try {
-		const query = 'INSERT INTO tasks (task_id, collection_id, platform_id, status, name, description) VALUES (DEFAULT, $1, $2, $3, $4, $5)';
+		const query = 'INSERT INTO tasks (task_id, collection_id, platform_id, status, name, description) VALUES (DEFAULT, $1, $2, $3, $4, $5) RETURNING *';
 		const values = [Number(data.collection_id), Number(data.platform), data.status, data.name, data.description];
 		return await pool.query(query, values);
 	} catch (err) {
