@@ -364,14 +364,80 @@ IO.on('connection', async (socket) => {
                         'Authorization': 'Bearer ' + PLATFORM.platform_key,
                     },
                     body: JSON.stringify({
-                        "message": data.name + ' ' + data.description,
+                        "message": data.name + ' | ' + data.description,
                     })
                 }).then((response) => response.json()).then((data) => {console.log(data)});
                 break;
-            case 'dribbble':
+            case 'notion':
+                fetch(`https://api.notion.com/v1/comments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': PLATFORM.platform_key,
+                        'Notion-Version': '2022-02-22'
+                    },
+                    body: JSON.stringify({
+                        "parent": {
+                            "page_id": PLATFORM.target_document
+                        },
+                        "rich_text": [
+                            {
+                                "type": "text",
+                                "text": {
+                                  "content": `${data.name}:`,
+                                  "link": null
+                                },
+                                "annotations": {
+                                  "bold": true,
+                                  "italic": false,
+                                  "strikethrough": false,
+                                  "underline": false,
+                                  "code": false,
+                                  "color": "orange_background"
+                                },
+                                "plain_text": `${data.name}:`,
+                                "href": null
+                            },
+                            {
+                                "type": "text",
+                                "text": {
+                                  "content": ` ${data.description}`,
+                                  "link": null
+                                },
+                                "annotations": {
+                                  "bold": false,
+                                  "italic": false,
+                                  "strikethrough": false,
+                                  "underline": false,
+                                  "code": false,
+                                  "color": "default"
+                                },
+                                "plain_text": ` ${data.description}`,
+                                "href": null
+                            },
+                            {
+                                "type": "text",
+                                "text": {
+                                  "content": ` [${data.status}]`,
+                                  "link": null
+                                },
+                                "annotations": {
+                                  "bold": false,
+                                  "italic": true,
+                                  "strikethrough": false,
+                                  "underline": false,
+                                  "code": false,
+                                  "color": "default"
+                                },
+                                "plain_text": ` [${data.status}]`,
+                                "href": null
+                            }
+                        ]
+                    })
+                }).then((response) => response.json()).then((data) => {console.log(data)});
                 IO.emit('created-task', await data);
                 break;
-            case 'notion':
+            case 'dribbble':
                 IO.emit('created-task', await data);
                 break;
             default:
