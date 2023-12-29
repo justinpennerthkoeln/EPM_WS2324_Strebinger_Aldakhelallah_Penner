@@ -49,38 +49,46 @@ APP.get("/", (req, res) => {
     res.sendFile(__dirname + "/views/createCollection.html");
 });
 
-APP.get("/login", (req, res) => {
-    res.sendFile(__dirname + "/views/login.html");
+APP.get("/signin", (req, res) => {
+    res.sendFile(__dirname + "/views/signin.html");
 });
 
-APP.post("/login", urlencodedParser, async (req, res) => {
+APP.post("/signin", urlencodedParser, async (req, res) => {
     const USER = await USERMODEL.getByUsernameAndPassword(await req.body.username, await req.body.password);
     if (USER.rows.length == 0) {
-        res.redirect('/login?error=Invalid_username_or_password');
+        res.redirect('/signin?error=Invalid_username_or_password');
     } else {
         res.redirect(`/?userId=${USER.rows[0].id}`);
     }
 });
 
-APP.get("/register", (req, res) => {
-    res.sendFile(__dirname + "/views/register.html");
+APP.get("/signup", (req, res) => {
+    res.sendFile(__dirname + "/views/signup.html");
 });
 
-APP.post("/register", urlencodedParser, async (req, res) => {
-    const USER = await USERMODEL.getByEmail(await req.body.email);
-    if (USER.rows.length == 0) {
-        try {
-            const USER = await USERMODEL.createUser(await req.body.username, await req.body.email, await req.body.password);
-            if(USER == false) {
-                throw new Error('Error creating user.');
-            } else {
-                res.redirect('/login?success=Account_created');
+APP.post("/signup", urlencodedParser, async (req, res) => {
+    console.log(await req.body);
+
+    if (await req.body.password != await req.body.confirmPassword) {
+        res.redirect('/signup?error=Passwords_do_not_match');
+    }
+    else {
+        const USER = await USERMODEL.getByEmail(await req.body.email);
+
+        if (USER.rows.length == 0) {
+            try {
+                const USER = await USERMODEL.createUser(await req.body.username, await req.body.email, await req.body.password);
+                if(USER == false) {
+                    throw new Error('Error creating user.');
+                } else {
+                    res.redirect('/signin?success=Account_created');
+                }
+            } catch (error) {
+                res.redirect('/signup?error=Username_already_in_use');
             }
-        } catch (error) {
-            res.redirect('/register?error=Username_already_in_use');
+        } else {
+            res.redirect('/signup?error=Email_already_in_use');
         }
-    } else {
-        res.redirect('/register?error=Email_already_in_use');
     }
 });
 
