@@ -20,7 +20,7 @@
     /* Font */
     --font-family: "Inter", sans-serif;
     --base-font-size: var(--l);
-    --detail-font-size: var(--m);
+    --detail-font-size: calc(var(--base-font-size) * 0.875);
     --heading-font-size: var(--xl);
 
     /* Font weights */

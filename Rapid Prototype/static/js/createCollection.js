@@ -49,7 +49,7 @@ SOCKET.on('connect', () => {
             `,
             methods: {
                 navigateToCollection(uuid) {
-                    window.location.href = `/${uuid}`;
+                    window.location.href = `/${uuid}/tasks`;
                 },
                 addCollection(data) {
                     this.collections.push(data);

@@ -8,55 +8,61 @@
     <link rel="stylesheet" href="/css/global/base.css">
     <link rel="stylesheet" href="/css/collection.css">
     <link rel="stylesheet" href="/css/global/alert.css">
-    <title>Document</title>
+    <title>SynergyHub</title>
 </head>
 <body>
     <main>
         <header>
             <h1 id="collection-name"></h1>
-            <button>Logout</button>
-        </header>
-        <div id="details">
             <p id="collection-details"></p>
-        </div>
-        <section id="reiter">
-            <form action="/tasks" method="get">
-                <button class="selected">Tasks</button>
-            </form>
-            <form action="/inspection" method="get">
-                <button>Inspection</button>
-            </form>
-            <form action="/settings" method="get">
-                <button>Settings</button>
-            </form>
-            <form action="/alerts" method="get">
-                <button>Alerts</button>
-            </form>
+            <p id="collection-description"></p>
+            <nav id="navigation" class="navigation">
+                <a href="/tasks">Tasks</a>
+                <a href="/inspection">Inspection</a>
+                <a href="/settings">Settings</a>
+                <a href="/alerts">Alerts</a>
+            </nav>
+        </header>
+
+        <!-- Taskboard -->
+        <section id="taskboard" class="taskboard">
+            
+        </section>
+
+        <!-- Create task -->
+        <section id="create-task-container" class="create-task-container hidden">
+            <div>
+                <header>
+                    <h2>Create task</h2>
+                    <p>Please enter a name for your task. You can also add a description if you like.</p>
+                </header>
+                <form id="create-task-form">
+                    <input type="hidden" id="status" name="status">
+                    <div>
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" placeholder="Name">
+                    </div>
+                    <div>
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" placeholder="Description"></textarea>
+                    </div>
+                    <div>
+                        <label for="platform-select">Platform</label>
+                        <select name="platform" id="platform-select">
+                        </select>
+                    </div>
+                    <div id="send-notification-container" class="send-notification-container">
+                        <div class="switch">
+                            <input type="checkbox" name="send-notification" id="send-notification">
+                            <label for="send-notification"></label>
+                        </div>
+                        <p>Send notification?</p>
+                    </div>
+                    <button type="submit" id="create-task-btn">Create Task</button>
+            </div>
         </section>
         
-        <section id="content">
-            <div id="todo">
-                <h2> - To Do</h2>
-                <div class="cards"></div>
-                <button class="add-task-btn" value="todo">Add Task</button>
-            </div>
-            <div id="in-progress">
-                <h2> - In Progress</h2>
-                <div class="cards"></div>
-                <button class="add-task-btn" value="in progress">Add Task</button>
-            </div>
-            <div id="in-review">
-                <h2> - In Review</h2>
-                <div class="cards"></div>
-                <button class="add-task-btn" value="in review">Add Task</button>
-            </div>
-            <div id="done">
-                <h2> - Done</h2>
-                <div class="cards"></div>
-                <button class="add-task-btn" value="done">Add Task</button>
-            </div>
-        </section>
-        <section id="create-task-container" class="create-task-container hidden">
+        <!-- <section id="create-task-container" class="create-task-container hidden">
             <div>
                 <header>
                     <h2>Create task</h2>
@@ -84,7 +90,7 @@
                     <button type="submit" id="create-task-btn">Create Task</button>
                 </form>
             </div>
-        </section>
+        </section> -->
     </main>
 
     <script type="importmap">
@@ -94,398 +100,28 @@
             }
         }
     </script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
     <script>
-        const buttons = document.querySelectorAll('#reiter button');
-        const details = document.querySelector('.details');
+        // Navigation
+        const NAVIGATIONLINKS = document.querySelectorAll('#navigation a');
 
-        buttons.forEach((element) => {
-            element.addEventListener('click', () => {
-                buttons.forEach((element) => {
-                    element.classList.remove('selected');
-                });
+        NAVIGATIONLINKS.forEach((element) => {
+            element.addEventListener('click', ($event) => {
+                $event.preventDefault();
+                
+                const { target } = $event;
+
+                window.location.href = `/${window.location.pathname.split('/')[1]}/${target.href.split('/')[3]}`;
+            });
+
+            if(window.location.pathname.split('/')[2] == element.href.split('/')[3]) {
                 element.classList.add('selected');
-                if(element.innerHTML == 'Add Task') {
-                    details.style.display = 'block';
-                } else {
-                    details.style.display = 'none';
-                }
-            });
+            }
         });
-
-        
     </script>
 
-    <script type="module">
-        import { io } from 'socket.io-client';
-
-        // Establish a socket connection to the server
-        const socket = io('ws://localhost:80');
-
-        socket.on('connect', () => {
-
-            const h1 = document.querySelector('h1');
-            const forms = document.querySelectorAll('form');
-            const buttons = document.querySelectorAll('button');
-
-            socket.emit('get-details', (window.location.pathname.split('/')[1]));
-
-            socket.on('got-details', (collection) => {
-                const DATE = new Date(collection.timestamp);
-                const MEMBERS = collection.members;
-                document.querySelector('#collection-name').innerHTML = collection.name;
-                document.querySelector('#collection-details').innerHTML = `${DATE.getDay()}.${DATE.getMonth() + 1}.${DATE.getFullYear()}  -  `;
-                MEMBERS.forEach((element, index) => {
-                    if(index == MEMBERS.length - 1) {
-                        document.querySelector('#collection-details').innerHTML += `@${element.username} `;
-                    } else {
-                        document.querySelector('#collection-details').innerHTML += `@${element.username}, `;
-                    }
-                });
-                forms.forEach((element) => {
-                    element.action = '/' + collection.uuid + '/' + element.action.split('/')[3];
-                });
-            });
-
-            socket.emit('get-platforms', (window.location.pathname.split('/')[1]));
-
-            socket.on('got-platforms', (platforms) => {
-                const select = document.querySelector('#platform-select');
-                platforms.forEach((platform) => {
-                    select.innerHTML += `<option value="${platform.platform_id}">${platform.platform}</option>`;
-                });
-            });
-
-            buttons.forEach((element) => {
-                if(element.classList.contains('selected')) {
-                    socket.emit(`get-${element.innerHTML.toLowerCase()}`, (window.location.pathname.split('/')[1]));
-                }
-            })
-
-            socket.on('got-tasks', (tasks) => {
-                tasks.forEach((task) => {
-                    switch(task.status) {
-                        case 'todo':
-                            var checkbox = document.createElement('div');
-                            var input = document.createElement('input');
-                            input.setAttribute('type', 'checkbox');
-                            checkbox.append(input);
-
-                            var card = document.createElement('div');
-                            var info = document.createElement('div');
-                            var h3 = document.createElement('h3');
-                            var p = document.createElement('p');
-                            // var memberships = document.createElement('p');
-
-                            h3.innerHTML = task.name;
-                            p.innerHTML = task.description;
-                            // task.members.forEach((element, index) => {
-                            //     if(index == task.members.length - 1) {
-                            //         memberships.innerHTML += `@${element.username} `;
-                            //     } else {
-                            //         memberships.innerHTML += `@${element.username}, `;
-                            //     }
-                            // });
-                            card.classList.add('card');
-
-                            info.appendChild(h3);
-                            info.appendChild(p);
-
-                            card.appendChild(checkbox);
-                            card.appendChild(info);
-                            // card.appendChild(memberships);
-                            
-                            document.querySelector('#todo .cards').appendChild(card);
-                            break;
-                        case 'in progress':
-                           var checkbox = document.createElement('div');
-                            var input = document.createElement('input');
-                            input.setAttribute('type', 'checkbox');
-                            checkbox.append(input);
-
-                            var card = document.createElement('div');
-                            var info = document.createElement('div');
-                            var h3 = document.createElement('h3');
-                            var p = document.createElement('p');
-                            // var memberships = document.createElement('p');
-
-                            h3.innerHTML = task.name;
-                            p.innerHTML = task.description;
-                            // task.members.forEach((element, index) => {
-                            //     if(index == task.members.length - 1) {
-                            //         memberships.innerHTML += `@${element.username} `;
-                            //     } else {
-                            //         memberships.innerHTML += `@${element.username}, `;
-                            //     }
-                            // });
-                            card.classList.add('card');
-
-                            info.appendChild(h3);
-                            info.appendChild(p);
-
-                            card.appendChild(checkbox);
-                            card.appendChild(info);
-                            // card.appendChild(memberships);
-
-                            document.querySelector('#in-progress .cards').appendChild(card);
-                            break;
-                        case 'in review':
-                           var checkbox = document.createElement('div');
-                            var input = document.createElement('input');
-                            input.setAttribute('type', 'checkbox');
-                            checkbox.append(input);
-
-                            var card = document.createElement('div');
-                            var info = document.createElement('div');
-                            var h3 = document.createElement('h3');
-                            var p = document.createElement('p');
-                            // var memberships = document.createElement('p');
-
-                            h3.innerHTML = task.name;
-                            p.innerHTML = task.description;
-                            // task.members.forEach((element, index) => {
-                            //     if(index == task.members.length - 1) {
-                            //         memberships.innerHTML += `@${element.username} `;
-                            //     } else {
-                            //         memberships.innerHTML += `@${element.username}, `;
-                            //     }
-                            // });
-                            card.classList.add('card');
-
-                            info.appendChild(h3);
-                            info.appendChild(p);
-
-                            card.appendChild(checkbox);
-                            card.appendChild(info);
-                            // card.appendChild(memberships);
-
-                            document.querySelector('#in-review .cards').appendChild(card);
-                            break;
-                        case 'done':
-                           var checkbox = document.createElement('div');
-                            var input = document.createElement('input');
-                            input.setAttribute('type', 'checkbox');
-                            checkbox.append(input);
-
-                            var card = document.createElement('div');
-                            var info = document.createElement('div');
-                            var h3 = document.createElement('h3');
-                            var p = document.createElement('p');
-                            // var memberships = document.createElement('p');
-
-                            h3.innerHTML = task.name;
-                            p.innerHTML = task.description;
-                            // task.members.forEach((element, index) => {
-                            //     if(index == task.members.length - 1) {
-                            //         memberships.innerHTML += `@${element.username} `;
-                            //     } else {
-                            //         memberships.innerHTML += `@${element.username}, `;
-                            //     }
-                            // });
-                            card.classList.add('card');
-
-                            info.appendChild(h3);
-                            info.appendChild(p);
-
-                            card.appendChild(checkbox);
-                            card.appendChild(info);
-                            // card.appendChild(memberships);
-
-                            document.querySelector('#done .cards').appendChild(card);
-                            break;
-                        default:
-                            break;
-                    }
-                });
-            })
-
-            socket.on('created-tasks', (task) => {
-                switch(task.status) {
-                    case 'todo':
-                        var checkbox = document.createElement('div');
-                            var input = document.createElement('input');
-                            input.setAttribute('type', 'checkbox');
-                            checkbox.append(input);
-
-                            var card = document.createElement('div');
-                            var info = document.createElement('div');
-                            var h3 = document.createElement('h3');
-                            var p = document.createElement('p');
-                            // var memberships = document.createElement('p');
-
-                            h3.innerHTML = task.name;
-                            p.innerHTML = task.description;
-                            // task.members.forEach((element, index) => {
-                            //     if(index == task.members.length - 1) {
-                            //         memberships.innerHTML += `@${element.username} `;
-                            //     } else {
-                            //         memberships.innerHTML += `@${element.username}, `;
-                            //     }
-                            // });
-                            card.classList.add('card');
-
-                            info.appendChild(h3);
-                            info.appendChild(p);
-
-                            card.appendChild(checkbox);
-                            card.appendChild(info);
-
-                        document.querySelector('#todo .cards').appendChild(card);
-                        break;
-                    case 'in progress':
-                        var checkbox = document.createElement('div');
-                            var input = document.createElement('input');
-                            input.setAttribute('type', 'checkbox');
-                            checkbox.append(input);
-
-                            var card = document.createElement('div');
-                            var info = document.createElement('div');
-                            var h3 = document.createElement('h3');
-                            var p = document.createElement('p');
-                            // var memberships = document.createElement('p');
-
-                            h3.innerHTML = task.name;
-                            p.innerHTML = task.description;
-                            // task.members.forEach((element, index) => {
-                            //     if(index == task.members.length - 1) {
-                            //         memberships.innerHTML += `@${element.username} `;
-                            //     } else {
-                            //         memberships.innerHTML += `@${element.username}, `;
-                            //     }
-                            // });
-                            card.classList.add('card');
-
-                            info.appendChild(h3);
-                            info.appendChild(p);
-
-                            card.appendChild(checkbox);
-                            card.appendChild(info);
-
-                        document.querySelector('#in-progress .cards').appendChild(card);
-                        break;
-                    case 'in review':
-                        var checkbox = document.createElement('div');
-                            var input = document.createElement('input');
-                            input.setAttribute('type', 'checkbox');
-                            checkbox.append(input);
-
-                            var card = document.createElement('div');
-                            var info = document.createElement('div');
-                            var h3 = document.createElement('h3');
-                            var p = document.createElement('p');
-                            // var memberships = document.createElement('p');
-
-                            h3.innerHTML = task.name;
-                            p.innerHTML = task.description;
-                            // task.members.forEach((element, index) => {
-                            //     if(index == task.members.length - 1) {
-                            //         memberships.innerHTML += `@${element.username} `;
-                            //     } else {
-                            //         memberships.innerHTML += `@${element.username}, `;
-                            //     }
-                            // });
-                            card.classList.add('card');
-
-                            info.appendChild(h3);
-                            info.appendChild(p);
-
-                            card.appendChild(checkbox);
-                            card.appendChild(info);
-
-                        document.querySelector('#in-review .cards').appendChild(card);
-                        break;
-                    case 'done':
-                        var checkbox = document.createElement('div');
-                            var input = document.createElement('input');
-                            input.setAttribute('type', 'checkbox');
-                            checkbox.append(input);
-
-                            var card = document.createElement('div');
-                            var info = document.createElement('div');
-                            var h3 = document.createElement('h3');
-                            var p = document.createElement('p');
-                            // var memberships = document.createElement('p');
-
-                            h3.innerHTML = task.name;
-                            p.innerHTML = task.description;
-                            // task.members.forEach((element, index) => {
-                            //     if(index == task.members.length - 1) {
-                            //         memberships.innerHTML += `@${element.username} `;
-                            //     } else {
-                            //         memberships.innerHTML += `@${element.username}, `;
-                            //     }
-                            // });
-                            card.classList.add('card');
-
-                            info.appendChild(h3);
-                            info.appendChild(p);
-
-                            card.appendChild(checkbox);
-                            card.appendChild(info);
-
-                        document.querySelector('#done .cards').appendChild(card);
-                        break;
-                    default:
-                        break;
-                }
-            });
-
-            const ADDTASKBTN = document.querySelectorAll('.add-task-btn');
-            const CREATETASKCONTAINER = document.querySelector('#create-task-container');
-            const FORM = document.querySelector('#task-create-form');
-
-            ADDTASKBTN.forEach((btn) => {
-                btn.addEventListener('click', ($event) => {
-                    document.querySelector('#task-create-form input[name="status"]').value = $event.target.value;
-                    CREATETASKCONTAINER.classList.remove('hidden');
-                    document.addEventListener('keydown', (event) => {
-                        if (event.key === 'Escape') {
-                            CREATETASKCONTAINER.classList.add('hidden');
-                            document.querySelector('#task-create-form input[name="status"]').value = "";
-                            document.querySelector('#task-create-form input[name="name"]').value = "";
-                            document.querySelector('#task-create-form textarea[name="description"]').value = "";
-                            document.querySelector('#platform-select').selectedIndex = 0;
-                        }
-                    });
-                });
-            })
-
-            CREATETASKCONTAINER.addEventListener('click', (event) => {
-                if(event.target == CREATETASKCONTAINER) {
-                    CREATETASKCONTAINER.classList.add('hidden');
-                    document.querySelector('#task-create-form input[name="status"]').value = "";
-                    document.querySelector('#task-create-form input[name="name"]').value = "";
-                    document.querySelector('#task-create-form textarea[name="description"]').value = "";
-                    document.querySelector('#platform-select').selectedIndex = 0;
-                }
-            });
-
-            document.querySelector('#task-create-form').addEventListener('submit', (el) => {
-                el.preventDefault();
-                const data = {
-                    status: document.querySelector('#task-create-form input[name="status"]').value,
-                    name: document.querySelector('#task-create-form input[name="name"]').value,
-                    description: document.querySelector('#task-create-form textarea[name="description"]').value,
-                    uuid: window.location.pathname.split('/')[1],
-                    platform: document.querySelector('#platform-select').value,
-                    createIssue: document.querySelector('#createIssue').checked
-                }
-                socket.emit('create-task', data);
-                CREATETASKCONTAINER.classList.add('hidden');
-                document.querySelector('#task-create-form input[name="status"]').value = "";
-                document.querySelector('#task-create-form input[name="name"]').value = "";
-                document.querySelector('#task-create-form textarea[name="description"]').value = "";
-                document.querySelector('#platform-select').selectedIndex = 0;
-            })
-
-            socket.on('disconnect', () => {
-                console.log('Disconnected from server');
-            });
-        });
-
-        
-
-    </script>
+    <script src="/js/collection.js" type="module"></script>
 
 </body>
 </html>

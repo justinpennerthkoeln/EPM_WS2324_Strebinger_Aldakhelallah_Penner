@@ -1,119 +1,216 @@
 main {
     display: flex;
     flex-direction: column;
-    gap: var(--space-m);
+    gap: var(--space-2xl);
     height: 100vh;
     width: 100vw;
 }
 
-main > header {
+main>header {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-#reiter {
-    display: flex;
-    flex-direction: row;
+    flex-direction: column;
     gap: var(--space-l);
 }
 
-#reiter form > button {
+main>header>p:nth-child(2) {
+    font-size: var(--detail-font-size);
+}
+
+main>header>p:nth-child(3) {
+    color: var(--color-text-light);
+}
+
+.navigation {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-xl);
+}
+
+.navigation>a {
     background-color: var(--color-on-background-dark);
+    color: var(--color-text-light);
     border: none;
     border-radius: var(--br-xs);
     padding: var(--space-s) var(--space-xl);
 }
 
-#reiter form > button.selected {
+.navigation>a.selected {
     background-color: var(--color-accent-primary);
 }
 
-#content {
-    margin-top: var(--space-2xl);
+.taskboard {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-2xl);
     width: 70vw;
-    display: flex;
-    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
-#content > * {
+.taskboard::-webkit-scrollbar {
+    height: var(--xs);
+}
+
+.taskboard::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.taskboard::-webkit-scrollbar-thumb {
+    border-radius: var(--br-full);
+    background: var(--color-text-light);
+}
+
+.taskboard>section {
     display: flex;
     flex-direction: column;
-    width: 100vw;
-    padding: var(--space-xl) var(--space-xxl);
-}
-
-#content > div {
+    gap: var(--space-xl);
+    padding: var(--space-l);
+    border-radius: var(--br-xs);
     height: fit-content;
+    min-width: calc(var(--3xl) * 2);
 }
 
-#content > div .add-task-btn {
-    margin-top: var(--xl);
-    background-color: var(--color-on-background-dark);
-}
-
-#content > div h2 {
-    color: var(--color-text-light);
-    font-size: calc(var(--base-font-size) * 1.5);
-    margin-bottom: var(--xxs);
-}
-
-#content > div > .cards {
-    overflow: scroll;
-}
-
-#content > #todo {
+.state-todo {
     background-color: var(--color-state-todo);
-    padding: 1rem;
-    border: none;
-    border-radius: var(--br-xs);
-    margin-right: 2rem;
 }
 
-#content > #in-progress {
+.state-in-progress {
     background-color: var(--color-state-inprogress);
-    padding: 1rem;
-    border: none;
-    border-radius: var(--br-xs);
-    margin: 0 2rem;
 }
 
-#content > #in-review {
+.state-review {
     background-color: var(--color-state-review);
-    padding: 1rem;
-    border: none;
-    border-radius: var(--br-xs);
-    margin: 0 2rem;
 }
 
-#content > #done {
+.state-done {
     background-color: var(--color-state-done);
-    padding: 1rem;
-    border: none;
-    border-radius: var(--br-xs);
-    margin: 0 2rem;
 }
 
-.cards > div {
-    background-color: var(--color-on-background-dark);
-    border: none;
-    border-radius: var(--br-xs);
-    padding: var(--space-s);
-    margin-top: var(--xl);
+.cards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+    max-height: 40vh;
+    overflow: auto;
 }
 
-.cards > .card {
+.cards::-webkit-scrollbar {
+    width: var(--xs);
+}
+
+.cards::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.cards::-webkit-scrollbar-thumb {
+    border-radius: var(--br-full);
+    background: var(--color-text-light);
+}
+
+.card {
     display: flex;
     flex-direction: row;
-    overflow: hidden;
+    gap: var(--space-s);
+    align-items: flex-start;
+    background-color: var(--color-on-background-dark);
+    border-radius: var(--br-xs);
+    padding: var(--space-s) var(--space-l);
+    cursor: pointer;
+    user-select: none;
 }
 
-.cards > .card > div {
-    margin-left: 0.5rem;
-}
-
-.create-task {
+.checkbox-container {
+    display: block;
+    position: relative;
+    padding-left: var(--space-l);
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
     width: fit-content;
+}
+
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: var(--l);
+    width: var(--l);
+    background-color: transparent;
+    border: var(--xxs) solid var(--color-text-light)
+}
+
+.checkbox-container input:checked~.checkmark {
+    background-color: var(--color-accent-primary);
+    border-color: var(--color-accent-primary);
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.checkbox-container input:checked~.checkmark:after {
+    display: block;
+}
+
+.checkbox-container .checkmark:after {
+    left: var(--space-xs);
+    top: var(--space-xxs);
+    width: var(--xs);
+    height: var(--s);
+    border: solid white;
+    border-width: 0 var(--xxs) var(--xxs) 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+.taskboard>section>div>div>div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+}
+
+.card>div>p:nth-child(1) {
+    color: var(--color-text-light);
+}
+
+.card>div>p:nth-child(2),
+.card>div>p:nth-child(3) {
+    font-size: var(--detail-font-size);
+}
+
+.task-stats {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-l);
+    align-items: center;
+}
+
+.task-stats>span {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-xs);
+    align-items: center;
+}
+
+.task-stats>span>p {
+    font-size: var(--detail-font-size);
+}
+
+.taskboard>section>button {
+    background-color: var(--color-on-background-dark);
 }
 
 .create-task-container {
@@ -139,7 +236,7 @@ main > header {
 .create-task-container > div {
     display: flex;
     flex-direction: column;
-    gap: var(--space-xl);
+    gap: var(--space-l);
     background-color: var(--color-on-background-dark);
     border-radius: var(--br-xs);
     padding: var(--space-xl);
@@ -156,13 +253,13 @@ main > header {
     flex-direction: column;
 }
 
-.create-task-container > div > form > div {
+.create-task-container > div > form > div:not([class="send-notification-container"]) {
     display: flex;
     flex-direction: column;
     gap: var(--space-xxs);
 }
 
-.create-task-container > div > form > div:nth-child(2) {
+.create-task-container > div > form > div:not(:first-child) {
     margin-top: var(--space-l);
 }
 
@@ -170,9 +267,9 @@ main > header {
     margin-top: var(--space-xl);
 }
 
-#create-issue-container {
-    margin-top: 0.5rem;
+.send-notification-container {
     display: flex;
     flex-direction: row;
     gap: var(--space-s);
+    align-items: center;
 }

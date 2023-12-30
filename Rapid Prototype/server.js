@@ -326,7 +326,8 @@ IO.on('connection', async (socket) => {
 
     socket.on('get-tasks', async (uuid) => {
         const COLLECTION = await (await COLLECTIONSMODEL.getCollection(uuid)).rows[0];
-        const TASKS = await (await TASKSMODEL.getTasksByCollectionId(await COLLECTION.collection_id)).rows;
+        const TASKS = await (await TASKSMODEL.getTasksWithOwnershipsByCollectionId(await COLLECTION.collection_id)).rows;
+
         socket.emit('got-tasks', await TASKS);
     })
 

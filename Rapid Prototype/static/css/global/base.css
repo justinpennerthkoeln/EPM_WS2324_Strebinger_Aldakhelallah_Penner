@@ -78,6 +78,30 @@ input:focus-visible {
     outline: var(--xs) solid var(--color-input-tertiary);
 }
 
+/* Select */
+select {
+    appearance: none;
+    background-color: var(--color-input-background);
+    border: var(--xxs) solid var(--color-input-primary);
+    border-radius: var(--br-xs);
+    color: var(--color-text-light);
+    font-size: var(--base-font-size);
+    font-weight: var(--fw-normal);
+    padding: var(--space-m) var(--space-l);
+    transition: border-color var(--tr-fast) ease-in-out, outline-width var(--tr-fast) ease-in-out;
+    cursor: pointer;
+}
+
+select:focus {
+    border-color: var(--color-input-secondary);
+    outline: none;
+}
+
+select:focus-visible {
+    border-color: var(--color-input-secondary);
+    outline: var(--xs) solid var(--color-input-tertiary);
+}
+
 /* Textarea */
 textarea {
     background-color: var(--color-input-background);
@@ -162,4 +186,58 @@ a:focus {
 a:focus-visible {
     border-radius: var(--br-xs);
     outline: var(--xxs) solid var(--color-accent-primary);
+}
+
+/* Switch */
+div[class='switch'] {
+    position: relative;
+    display: inline-block;
+    width: var(--xl);
+    height: var(--l);
+}
+
+div[class='switch'] input {
+    position: absolute;
+    width: var(--xl);
+    height: var(--l);
+    opacity: 0;
+    cursor: pointer;
+}
+
+div[class='switch'] label {
+    position: relative;
+    display: inline-block;
+    width: var(--xl);
+    height: var(--l);
+    pointer-events: none;
+}
+
+div[class='switch'] label::before {
+    position: absolute;
+    border-radius: var(--br-full);
+    background-color: var(--color-code-secondary);
+    content: '';
+    cursor: pointer;
+    inset: 0;
+    transition: background-color var(--tr-fast) ease-in-out;
+}
+
+div[class='switch'] label::after {
+    position: absolute;
+    top: var(--xxs);
+    left: var(--xxs);
+    width: calc(var(--l) - var(--xxs) * 2);
+    height: calc(var(--l) - var(--xxs) * 2);
+    border-radius: 50%;
+    background-color: var(--color-text-light);
+    content: '';
+    transition: transform var(--tr-fast) ease-in-out;
+}
+
+div[class='switch'] input:checked + label::before {
+    background-color: var(--color-accent-primary);
+}
+
+div[class='switch'] input:checked+label::after {
+    transform: translateX(var(--l));
 }
