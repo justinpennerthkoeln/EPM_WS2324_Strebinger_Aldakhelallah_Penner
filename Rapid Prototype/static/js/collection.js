@@ -1,13 +1,13 @@
 import { io } from 'socket.io-client';
 
 // Establish a socket connection to the server
-const socket = io('ws://localhost:80');
+const SOCKET = io('ws://localhost:80');
 
-socket.on('connect', () => {
+SOCKET.on('connect', () => {
 
     // Collection details
-    socket.emit('get-details', (window.location.pathname.split('/')[1]));
-    socket.on('got-details', (details) => {
+    SOCKET.emit('get-details', (window.location.pathname.split('/')[1]));
+    SOCKET.on('got-details', (details) => {
         const HEADER = document.querySelector('main > header');
         const DATEOPTIONS = {
             year: 'numeric',
@@ -91,14 +91,14 @@ socket.on('connect', () => {
     }).mount('#taskboard');
 
     // Get tasks
-    socket.emit('get-tasks', (window.location.pathname.split('/')[1]));
-    socket.on('got-tasks', (tasks) => {
+    SOCKET.emit('get-tasks', (window.location.pathname.split('/')[1]));
+    SOCKET.on('got-tasks', (tasks) => {
         TASKBOARD.loadTasks(tasks);
     });
 
     // Get platforms
-    socket.emit('get-platforms', (window.location.pathname.split('/')[1]));
-    socket.on('got-platforms', (platforms) => {
+    SOCKET.emit('get-platforms', (window.location.pathname.split('/')[1]));
+    SOCKET.on('got-platforms', (platforms) => {
         const SELECT = document.querySelector('#platform-select');
         platforms.forEach((platform) => {
             SELECT.innerHTML += `<option value="${platform.platform_id}">${platform.platform.charAt(0).toUpperCase() + platform.platform.slice(1)}</option>`;
@@ -144,19 +144,19 @@ socket.on('connect', () => {
             createIssue: FORM.querySelector('#send-notification').checked
         };
 
-        socket.emit('create-task', DATA);
+        SOCKET.emit('create-task', DATA);
 
         CREATETASK.classList.add('hidden');
         
         clearForm();
     });
 
-    socket.on('created-tasks', (task) => {
+    SOCKET.on('created-tasks', (task) => {
         TASKBOARD.tasks.push(task);
     });
 
     // Disconnect from server
-    socket.on('disconnect', () => {
+    SOCKET.on('disconnect', () => {
         console.log('Disconnected from server');
     });
 });
