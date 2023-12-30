@@ -314,7 +314,13 @@ IO.on('connection', async (socket) => {
 
     //Task Board
     socket.on('get-details', async (uuid) => {
+        const MEMBERARRAY = [];
         const COLLECTION = await (await COLLECTIONSMODEL.getCollection(uuid)).rows[0];
+        const MEMBERS = await (await MEMBERMODEL.getMembershipsByCollectionId(await COLLECTION.collection_id)).rows;
+        for (const MEMBER of MEMBERS) {
+            MEMBERARRAY.push(await (await USERMODEL.getInformation(await MEMBER.user_id)).rows[0]);
+        }
+        COLLECTION.members = await MEMBERARRAY;
         socket.emit('got-details', await COLLECTION);
     })
 
@@ -329,119 +335,125 @@ IO.on('connection', async (socket) => {
         data.collection_id = await COLLECTION.collection_id;
         TASKSMODEL.createTask(await data);
         const PLATFORM = await (await PLATFORMSMODEL.getPlatformById(await data.platform)).rows[0];
-        switch(PLATFORM.platform) {
-            case 'github':
-                fetch(`https://api.github.com/repos/${PLATFORM.username}/${PLATFORM.target_document}/issues`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `token ${PLATFORM.platform_key}`,
-                    },
-                    body: JSON.stringify({
-                        title: data.name,
-                        body: data.description
-                    })
-                })
-                break;
-            case 'gitlab':
-                fetch(`https://gitlab.com/api/v4/projects/${PLATFORM.target_document}/issues`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${PLATFORM.platform_key}`,
-                    },
-                    body: JSON.stringify({
-                        title: data.name,
-                        description: data.description
-                    })
-                })
-                break;
-            case 'figma':
-                fetch(`https://api.figma.com/v1/files/${PLATFORM.target_document}/comments`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + PLATFORM.platform_key,
-                    },
-                    body: JSON.stringify({
-                        "message": data.name + ' | ' + data.description,
-                    })
-                }).then((response) => response.json()).then((data) => {console.log(data)});
-                break;
-            case 'notion':
-                fetch(`https://api.notion.com/v1/comments`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': PLATFORM.platform_key,
-                        'Notion-Version': '2022-02-22'
-                    },
-                    body: JSON.stringify({
-                        "parent": {
-                            "page_id": PLATFORM.target_document
+        console.log(data);
+        if(data.createIssue) {
+            switch(PLATFORM.platform) {
+                case 'github':
+                    fetch(`https://api.github.com/repos/${PLATFORM.username}/${PLATFORM.target_document}/issues`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `token ${PLATFORM.platform_key}`,
                         },
-                        "rich_text": [
-                            {
-                                "type": "text",
-                                "text": {
-                                  "content": `${data.name}:`,
-                                  "link": null
-                                },
-                                "annotations": {
-                                  "bold": true,
-                                  "italic": false,
-                                  "strikethrough": false,
-                                  "underline": false,
-                                  "code": false,
-                                  "color": "orange_background"
-                                },
-                                "plain_text": `${data.name}:`,
-                                "href": null
-                            },
-                            {
-                                "type": "text",
-                                "text": {
-                                  "content": ` ${data.description}`,
-                                  "link": null
-                                },
-                                "annotations": {
-                                  "bold": false,
-                                  "italic": false,
-                                  "strikethrough": false,
-                                  "underline": false,
-                                  "code": false,
-                                  "color": "default"
-                                },
-                                "plain_text": ` ${data.description}`,
-                                "href": null
-                            },
-                            {
-                                "type": "text",
-                                "text": {
-                                  "content": ` [${data.status}]`,
-                                  "link": null
-                                },
-                                "annotations": {
-                                  "bold": false,
-                                  "italic": true,
-                                  "strikethrough": false,
-                                  "underline": false,
-                                  "code": false,
-                                  "color": "default"
-                                },
-                                "plain_text": ` [${data.status}]`,
-                                "href": null
-                            }
-                        ]
+                        body: JSON.stringify({
+                            title: data.name,
+                            body: data.description
+                        })
                     })
-                }).then((response) => response.json()).then((data) => {console.log(data)});
-                IO.emit('created-task', await data);
-                break;
-            case 'dribbble':
-                IO.emit('created-task', await data);
-                break;
-            default:
-                break;
+                    break;
+                case 'gitlab':
+                    fetch(`https://gitlab.com/api/v4/projects/${PLATFORM.target_document}/issues`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${PLATFORM.platform_key}`,
+                        },
+                        body: JSON.stringify({
+                            title: data.name,
+                            description: data.description
+                        })
+                    })
+                    break;
+                case 'figma':
+                    fetch(`https://api.figma.com/v1/files/${PLATFORM.target_document}/comments`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + PLATFORM.platform_key,
+                        },
+                        body: JSON.stringify({
+                            "message": data.name + ' | ' + data.description,
+                        })
+                    }).then((response) => response.json()).then((data) => {console.log(data)});
+                    break;
+                case 'notion':
+                    fetch(`https://api.notion.com/v1/comments`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': PLATFORM.platform_key,
+                            'Notion-Version': '2022-02-22'
+                        },
+                        body: JSON.stringify({
+                            "parent": {
+                                "page_id": PLATFORM.target_document
+                            },
+                            "rich_text": [
+                                {
+                                    "type": "text",
+                                    "text": {
+                                      "content": `${data.name}:`,
+                                      "link": null
+                                    },
+                                    "annotations": {
+                                      "bold": true,
+                                      "italic": false,
+                                      "strikethrough": false,
+                                      "underline": false,
+                                      "code": false,
+                                      "color": "orange_background"
+                                    },
+                                    "plain_text": `${data.name}:`,
+                                    "href": null
+                                },
+                                {
+                                    "type": "text",
+                                    "text": {
+                                      "content": ` ${data.description}`,
+                                      "link": null
+                                    },
+                                    "annotations": {
+                                      "bold": false,
+                                      "italic": false,
+                                      "strikethrough": false,
+                                      "underline": false,
+                                      "code": false,
+                                      "color": "default"
+                                    },
+                                    "plain_text": ` ${data.description}`,
+                                    "href": null
+                                },
+                                {
+                                    "type": "text",
+                                    "text": {
+                                      "content": ` [${data.status}]`,
+                                      "link": null
+                                    },
+                                    "annotations": {
+                                      "bold": false,
+                                      "italic": true,
+                                      "strikethrough": false,
+                                      "underline": false,
+                                      "code": false,
+                                      "color": "default"
+                                    },
+                                    "plain_text": ` [${data.status}]`,
+                                    "href": null
+                                }
+                            ]
+                        })
+                    }).then((response) => response.json()).then((data) => {console.log(data)});
+                    IO.emit('created-task', await data);
+                    break;
+                case 'dribbble':
+                    IO.emit('created-task', await data);
+                    break;
+                case '-': 
+                    IO.emit('created-task', await data);
+                    break;
+                default:
+                    break;
+            }
         }
 
         IO.emit('created-tasks', await data);

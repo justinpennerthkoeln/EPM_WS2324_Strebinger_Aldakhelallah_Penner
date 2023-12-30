@@ -47,3 +47,14 @@ exports.getMembershipsByUserId = async function (userId) {
 		return false;
 	}
 }
+
+exports.getMembershipsByCollectionId = async function (collectionId) {
+	try {
+		const query = 'SELECT * FROM memberships WHERE collection_id = $1';
+		const values = [Number(collectionId)];
+		return await pool.query(query, values);
+	} catch (err) {
+		console.log(err);
+		return false;
+	}
+}

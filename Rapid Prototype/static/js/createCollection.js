@@ -67,6 +67,11 @@ SOCKET.on('connect', () => {
 
     CREATECOLLECTIONBUTTON.addEventListener('click', () => {
         CREATECOLLECTIONCONTAINER.classList.toggle('hidden');
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                CREATECOLLECTIONCONTAINER.classList.add('hidden');
+            }
+        });
     });
 
     CREATECOLLECTIONCONTAINER.addEventListener('click', (event) => {
@@ -75,7 +80,7 @@ SOCKET.on('connect', () => {
         }
     });
 
-
+    
 
     const COLLECTIONCREATEFORM = document.getElementById('collection-create-form');
     COLLECTIONCREATEFORM.addEventListener('submit', ($event) => {

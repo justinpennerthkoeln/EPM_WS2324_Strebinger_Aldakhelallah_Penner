@@ -1,0 +1,178 @@
+main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+    height: 100vh;
+    width: 100vw;
+}
+
+main > header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#reiter {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-l);
+}
+
+#reiter form > button {
+    background-color: var(--color-on-background-dark);
+    border: none;
+    border-radius: var(--br-xs);
+    padding: var(--space-s) var(--space-xl);
+}
+
+#reiter form > button.selected {
+    background-color: var(--color-accent-primary);
+}
+
+#content {
+    margin-top: var(--space-2xl);
+    width: 70vw;
+    display: flex;
+    flex-direction: row;
+}
+
+#content > * {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    padding: var(--space-xl) var(--space-xxl);
+}
+
+#content > div {
+    height: fit-content;
+}
+
+#content > div .add-task-btn {
+    margin-top: var(--xl);
+    background-color: var(--color-on-background-dark);
+}
+
+#content > div h2 {
+    color: var(--color-text-light);
+    font-size: calc(var(--base-font-size) * 1.5);
+    margin-bottom: var(--xxs);
+}
+
+#content > div > .cards {
+    overflow: scroll;
+}
+
+#content > #todo {
+    background-color: var(--color-state-todo);
+    padding: 1rem;
+    border: none;
+    border-radius: var(--br-xs);
+    margin-right: 2rem;
+}
+
+#content > #in-progress {
+    background-color: var(--color-state-inprogress);
+    padding: 1rem;
+    border: none;
+    border-radius: var(--br-xs);
+    margin: 0 2rem;
+}
+
+#content > #in-review {
+    background-color: var(--color-state-review);
+    padding: 1rem;
+    border: none;
+    border-radius: var(--br-xs);
+    margin: 0 2rem;
+}
+
+#content > #done {
+    background-color: var(--color-state-done);
+    padding: 1rem;
+    border: none;
+    border-radius: var(--br-xs);
+    margin: 0 2rem;
+}
+
+.cards > div {
+    background-color: var(--color-on-background-dark);
+    border: none;
+    border-radius: var(--br-xs);
+    padding: var(--space-s);
+    margin-top: var(--xl);
+}
+
+.cards > .card {
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+}
+
+.cards > .card > div {
+    margin-left: 0.5rem;
+}
+
+.create-task {
+    width: fit-content;
+}
+
+.create-task-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    background-color: var(--color-background-dark-transparent);
+    backdrop-filter: blur(var(--xxs));
+    transition: var(--tr-fast) ease-in-out;
+}
+
+.create-task-container.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.create-task-container > div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+    background-color: var(--color-on-background-dark);
+    border-radius: var(--br-xs);
+    padding: var(--space-xl);
+}
+
+.create-task-container > div > header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+}
+
+.create-task-container > div > form {
+    display: flex;
+    flex-direction: column;
+}
+
+.create-task-container > div > form > div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xxs);
+}
+
+.create-task-container > div > form > div:nth-child(2) {
+    margin-top: var(--space-l);
+}
+
+.create-task-container > div > form > button {
+    margin-top: var(--space-xl);
+}
+
+#create-issue-container {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-s);
+}

@@ -3,80 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/global/reset.css">
+    <link rel="stylesheet" href="/css/global/variables.css">
+    <link rel="stylesheet" href="/css/global/base.css">
+    <link rel="stylesheet" href="/css/collection.css">
+    <link rel="stylesheet" href="/css/global/alert.css">
     <title>Document</title>
-    <style>
-        #reiter {
-            display: flex;
-            flex-direction: row;
-        }
-
-        .selected {
-            background-color: #553399;
-            color: white;
-        }
-        #content {
-            display: flex;
-            flex-direction: row;
-            width: 60%;
-            justify-content: space-around;
-        }
-
-        .details {
-            background-color: white;
-            display: none;
-        }
-    </style>
 </head>
 <body>
-    <h1></h1>
-    <div id="reiter">
-        <form action="/tasks" method="get">
-            <button class="selected">Tasks</button>
-        </form>
-        <form action="/inspection" method="get">
-            <button>Inspection</button>
-        </form>
-        <form action="/settings" method="get">
-            <button>Settings</button>
-        </form>
-        <form action="/alerts" method="get">
-            <button>Alerts</button>
-        </form>
-    </div>
-    <button>Add Task</button>
-        <div class="details">
-            <h2>Details</h2>
-            <form id="create-new-form">
-                <input type="text" name="status" placeholder="Status">
-                <input type="text" name="name" placeholder="Name">
-                <input type="text" name="description" placeholder="Description">
-                <select name="platform" id="platform-select">
-
-                </select>
-                <button type="submit" id="create-task-btn">Create New</button>
+    <main>
+        <header>
+            <h1 id="collection-name"></h1>
+            <button>Logout</button>
+        </header>
+        <div id="details">
+            <p id="collection-details"></p>
+        </div>
+        <section id="reiter">
+            <form action="/tasks" method="get">
+                <button class="selected">Tasks</button>
             </form>
-        </div>
-    <section id="content">
-        <div id="tasks">
-            <h2>To Do</h2>
-            <div></div>
-        </div>
-
-        <div id="in-progress">
-            <h2>In Progress</h2>
-            <div></div>
-        </div>
-
-        <div id="in-review">
-            <h2>Review</h2>
-            <div></div>
-        </div>
-
-        <div id="done">
-            <h2>Done</h2>
-            <div></div>
-        </div>
-    </section>
+            <form action="/inspection" method="get">
+                <button>Inspection</button>
+            </form>
+            <form action="/settings" method="get">
+                <button>Settings</button>
+            </form>
+            <form action="/alerts" method="get">
+                <button>Alerts</button>
+            </form>
+        </section>
+        
+        <section id="content">
+            <div id="todo">
+                <h2> - To Do</h2>
+                <div class="cards"></div>
+                <button class="add-task-btn" value="todo">Add Task</button>
+            </div>
+            <div id="in-progress">
+                <h2> - In Progress</h2>
+                <div class="cards"></div>
+                <button class="add-task-btn" value="in progress">Add Task</button>
+            </div>
+            <div id="in-review">
+                <h2> - In Review</h2>
+                <div class="cards"></div>
+                <button class="add-task-btn" value="in review">Add Task</button>
+            </div>
+            <div id="done">
+                <h2> - Done</h2>
+                <div class="cards"></div>
+                <button class="add-task-btn" value="done">Add Task</button>
+            </div>
+        </section>
+        <section id="create-task-container" class="create-task-container hidden">
+            <div>
+                <header>
+                    <h2>Create task</h2>
+                    <p>Please enter a name for your task. You can also add a description if you like.</p>
+                </header>
+                <form id="task-create-form">
+                    <input type="hidden" id="status" name="status">
+                    <div>
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" placeholder="Name">
+                    </div>
+                    <div>
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" placeholder="Description"></textarea>
+                    </div>
+                    <div>
+                        <label for="platform-select">Platform</label>
+                        <select name="platform" id="platform-select">
+                        </select>
+                    </div>
+                    <div id="create-issue-container">
+                        <input type="checkbox" name="createIssue" id="createIssue">
+                        <p>Create Issue / Comment?</p>
+                    </div>
+                    <button type="submit" id="create-task-btn">Create Task</button>
+                </form>
+            </div>
+        </section>
+    </main>
 
     <script type="importmap">
         {
@@ -87,7 +96,7 @@
     </script>
 
     <script>
-        const buttons = document.querySelectorAll('button');
+        const buttons = document.querySelectorAll('#reiter button');
         const details = document.querySelector('.details');
 
         buttons.forEach((element) => {
@@ -122,8 +131,17 @@
             socket.emit('get-details', (window.location.pathname.split('/')[1]));
 
             socket.on('got-details', (collection) => {
-                h1.innerHTML = collection.name;
-
+                const DATE = new Date(collection.timestamp);
+                const MEMBERS = collection.members;
+                document.querySelector('#collection-name').innerHTML = collection.name;
+                document.querySelector('#collection-details').innerHTML = `${DATE.getDay()}.${DATE.getMonth() + 1}.${DATE.getFullYear()}  -  `;
+                MEMBERS.forEach((element, index) => {
+                    if(index == MEMBERS.length - 1) {
+                        document.querySelector('#collection-details').innerHTML += `@${element.username} `;
+                    } else {
+                        document.querySelector('#collection-details').innerHTML += `@${element.username}, `;
+                    }
+                });
                 forms.forEach((element) => {
                     element.action = '/' + collection.uuid + '/' + element.action.split('/')[3];
                 });
@@ -148,16 +166,132 @@
                 tasks.forEach((task) => {
                     switch(task.status) {
                         case 'todo':
-                            document.querySelector('#tasks div').innerHTML += `<div>${task.name}</div>`;
+                            var checkbox = document.createElement('div');
+                            var input = document.createElement('input');
+                            input.setAttribute('type', 'checkbox');
+                            checkbox.append(input);
+
+                            var card = document.createElement('div');
+                            var info = document.createElement('div');
+                            var h3 = document.createElement('h3');
+                            var p = document.createElement('p');
+                            // var memberships = document.createElement('p');
+
+                            h3.innerHTML = task.name;
+                            p.innerHTML = task.description;
+                            // task.members.forEach((element, index) => {
+                            //     if(index == task.members.length - 1) {
+                            //         memberships.innerHTML += `@${element.username} `;
+                            //     } else {
+                            //         memberships.innerHTML += `@${element.username}, `;
+                            //     }
+                            // });
+                            card.classList.add('card');
+
+                            info.appendChild(h3);
+                            info.appendChild(p);
+
+                            card.appendChild(checkbox);
+                            card.appendChild(info);
+                            // card.appendChild(memberships);
+                            
+                            document.querySelector('#todo .cards').appendChild(card);
                             break;
                         case 'in progress':
-                            document.querySelector('#in-progress').innerHTML += `<div>${task.name}</div>`;
+                           var checkbox = document.createElement('div');
+                            var input = document.createElement('input');
+                            input.setAttribute('type', 'checkbox');
+                            checkbox.append(input);
+
+                            var card = document.createElement('div');
+                            var info = document.createElement('div');
+                            var h3 = document.createElement('h3');
+                            var p = document.createElement('p');
+                            // var memberships = document.createElement('p');
+
+                            h3.innerHTML = task.name;
+                            p.innerHTML = task.description;
+                            // task.members.forEach((element, index) => {
+                            //     if(index == task.members.length - 1) {
+                            //         memberships.innerHTML += `@${element.username} `;
+                            //     } else {
+                            //         memberships.innerHTML += `@${element.username}, `;
+                            //     }
+                            // });
+                            card.classList.add('card');
+
+                            info.appendChild(h3);
+                            info.appendChild(p);
+
+                            card.appendChild(checkbox);
+                            card.appendChild(info);
+                            // card.appendChild(memberships);
+
+                            document.querySelector('#in-progress .cards').appendChild(card);
                             break;
                         case 'in review':
-                            document.querySelector('#in-review').innerHTML += `<div>${task.name}</div>`;
+                           var checkbox = document.createElement('div');
+                            var input = document.createElement('input');
+                            input.setAttribute('type', 'checkbox');
+                            checkbox.append(input);
+
+                            var card = document.createElement('div');
+                            var info = document.createElement('div');
+                            var h3 = document.createElement('h3');
+                            var p = document.createElement('p');
+                            // var memberships = document.createElement('p');
+
+                            h3.innerHTML = task.name;
+                            p.innerHTML = task.description;
+                            // task.members.forEach((element, index) => {
+                            //     if(index == task.members.length - 1) {
+                            //         memberships.innerHTML += `@${element.username} `;
+                            //     } else {
+                            //         memberships.innerHTML += `@${element.username}, `;
+                            //     }
+                            // });
+                            card.classList.add('card');
+
+                            info.appendChild(h3);
+                            info.appendChild(p);
+
+                            card.appendChild(checkbox);
+                            card.appendChild(info);
+                            // card.appendChild(memberships);
+
+                            document.querySelector('#in-review .cards').appendChild(card);
                             break;
                         case 'done':
-                            document.querySelector('#done').innerHTML += `<div>${task.name}</div>`;
+                           var checkbox = document.createElement('div');
+                            var input = document.createElement('input');
+                            input.setAttribute('type', 'checkbox');
+                            checkbox.append(input);
+
+                            var card = document.createElement('div');
+                            var info = document.createElement('div');
+                            var h3 = document.createElement('h3');
+                            var p = document.createElement('p');
+                            // var memberships = document.createElement('p');
+
+                            h3.innerHTML = task.name;
+                            p.innerHTML = task.description;
+                            // task.members.forEach((element, index) => {
+                            //     if(index == task.members.length - 1) {
+                            //         memberships.innerHTML += `@${element.username} `;
+                            //     } else {
+                            //         memberships.innerHTML += `@${element.username}, `;
+                            //     }
+                            // });
+                            card.classList.add('card');
+
+                            info.appendChild(h3);
+                            info.appendChild(p);
+
+                            card.appendChild(checkbox);
+                            card.appendChild(info);
+                            // card.appendChild(memberships);
+
+                            document.querySelector('#done .cards').appendChild(card);
                             break;
                         default:
                             break;
@@ -168,32 +302,180 @@
             socket.on('created-tasks', (task) => {
                 switch(task.status) {
                     case 'todo':
-                        document.querySelector('#tasks div').innerHTML += `<div>${task.name}</div>`;
+                        var checkbox = document.createElement('div');
+                            var input = document.createElement('input');
+                            input.setAttribute('type', 'checkbox');
+                            checkbox.append(input);
+
+                            var card = document.createElement('div');
+                            var info = document.createElement('div');
+                            var h3 = document.createElement('h3');
+                            var p = document.createElement('p');
+                            // var memberships = document.createElement('p');
+
+                            h3.innerHTML = task.name;
+                            p.innerHTML = task.description;
+                            // task.members.forEach((element, index) => {
+                            //     if(index == task.members.length - 1) {
+                            //         memberships.innerHTML += `@${element.username} `;
+                            //     } else {
+                            //         memberships.innerHTML += `@${element.username}, `;
+                            //     }
+                            // });
+                            card.classList.add('card');
+
+                            info.appendChild(h3);
+                            info.appendChild(p);
+
+                            card.appendChild(checkbox);
+                            card.appendChild(info);
+
+                        document.querySelector('#todo .cards').appendChild(card);
                         break;
                     case 'in progress':
-                        document.querySelector('#in-progress').innerHTML += `<div>${task.name}</div>`;
+                        var checkbox = document.createElement('div');
+                            var input = document.createElement('input');
+                            input.setAttribute('type', 'checkbox');
+                            checkbox.append(input);
+
+                            var card = document.createElement('div');
+                            var info = document.createElement('div');
+                            var h3 = document.createElement('h3');
+                            var p = document.createElement('p');
+                            // var memberships = document.createElement('p');
+
+                            h3.innerHTML = task.name;
+                            p.innerHTML = task.description;
+                            // task.members.forEach((element, index) => {
+                            //     if(index == task.members.length - 1) {
+                            //         memberships.innerHTML += `@${element.username} `;
+                            //     } else {
+                            //         memberships.innerHTML += `@${element.username}, `;
+                            //     }
+                            // });
+                            card.classList.add('card');
+
+                            info.appendChild(h3);
+                            info.appendChild(p);
+
+                            card.appendChild(checkbox);
+                            card.appendChild(info);
+
+                        document.querySelector('#in-progress .cards').appendChild(card);
                         break;
                     case 'in review':
-                        document.querySelector('#in-review').innerHTML += `<div>${task.name}</div>`;
+                        var checkbox = document.createElement('div');
+                            var input = document.createElement('input');
+                            input.setAttribute('type', 'checkbox');
+                            checkbox.append(input);
+
+                            var card = document.createElement('div');
+                            var info = document.createElement('div');
+                            var h3 = document.createElement('h3');
+                            var p = document.createElement('p');
+                            // var memberships = document.createElement('p');
+
+                            h3.innerHTML = task.name;
+                            p.innerHTML = task.description;
+                            // task.members.forEach((element, index) => {
+                            //     if(index == task.members.length - 1) {
+                            //         memberships.innerHTML += `@${element.username} `;
+                            //     } else {
+                            //         memberships.innerHTML += `@${element.username}, `;
+                            //     }
+                            // });
+                            card.classList.add('card');
+
+                            info.appendChild(h3);
+                            info.appendChild(p);
+
+                            card.appendChild(checkbox);
+                            card.appendChild(info);
+
+                        document.querySelector('#in-review .cards').appendChild(card);
                         break;
                     case 'done':
-                        document.querySelector('#done').innerHTML += `<div>${task.name}</div>`;
+                        var checkbox = document.createElement('div');
+                            var input = document.createElement('input');
+                            input.setAttribute('type', 'checkbox');
+                            checkbox.append(input);
+
+                            var card = document.createElement('div');
+                            var info = document.createElement('div');
+                            var h3 = document.createElement('h3');
+                            var p = document.createElement('p');
+                            // var memberships = document.createElement('p');
+
+                            h3.innerHTML = task.name;
+                            p.innerHTML = task.description;
+                            // task.members.forEach((element, index) => {
+                            //     if(index == task.members.length - 1) {
+                            //         memberships.innerHTML += `@${element.username} `;
+                            //     } else {
+                            //         memberships.innerHTML += `@${element.username}, `;
+                            //     }
+                            // });
+                            card.classList.add('card');
+
+                            info.appendChild(h3);
+                            info.appendChild(p);
+
+                            card.appendChild(checkbox);
+                            card.appendChild(info);
+
+                        document.querySelector('#done .cards').appendChild(card);
                         break;
                     default:
                         break;
                 }
             });
 
-            document.querySelector('#create-new-form').addEventListener('submit', (el) => {
+            const ADDTASKBTN = document.querySelectorAll('.add-task-btn');
+            const CREATETASKCONTAINER = document.querySelector('#create-task-container');
+            const FORM = document.querySelector('#task-create-form');
+
+            ADDTASKBTN.forEach((btn) => {
+                btn.addEventListener('click', ($event) => {
+                    document.querySelector('#task-create-form input[name="status"]').value = $event.target.value;
+                    CREATETASKCONTAINER.classList.remove('hidden');
+                    document.addEventListener('keydown', (event) => {
+                        if (event.key === 'Escape') {
+                            CREATETASKCONTAINER.classList.add('hidden');
+                            document.querySelector('#task-create-form input[name="status"]').value = "";
+                            document.querySelector('#task-create-form input[name="name"]').value = "";
+                            document.querySelector('#task-create-form textarea[name="description"]').value = "";
+                            document.querySelector('#platform-select').selectedIndex = 0;
+                        }
+                    });
+                });
+            })
+
+            CREATETASKCONTAINER.addEventListener('click', (event) => {
+                if(event.target == CREATETASKCONTAINER) {
+                    CREATETASKCONTAINER.classList.add('hidden');
+                    document.querySelector('#task-create-form input[name="status"]').value = "";
+                    document.querySelector('#task-create-form input[name="name"]').value = "";
+                    document.querySelector('#task-create-form textarea[name="description"]').value = "";
+                    document.querySelector('#platform-select').selectedIndex = 0;
+                }
+            });
+
+            document.querySelector('#task-create-form').addEventListener('submit', (el) => {
                 el.preventDefault();
                 const data = {
-                    status: document.querySelector('#create-new-form input[name="status"]').value,
-                    name: document.querySelector('#create-new-form input[name="name"]').value,
-                    description: document.querySelector('#create-new-form input[name="description"]').value,
+                    status: document.querySelector('#task-create-form input[name="status"]').value,
+                    name: document.querySelector('#task-create-form input[name="name"]').value,
+                    description: document.querySelector('#task-create-form textarea[name="description"]').value,
                     uuid: window.location.pathname.split('/')[1],
-                    platform: document.querySelector('#platform-select').value
+                    platform: document.querySelector('#platform-select').value,
+                    createIssue: document.querySelector('#createIssue').checked
                 }
                 socket.emit('create-task', data);
+                CREATETASKCONTAINER.classList.add('hidden');
+                document.querySelector('#task-create-form input[name="status"]').value = "";
+                document.querySelector('#task-create-form input[name="name"]').value = "";
+                document.querySelector('#task-create-form textarea[name="description"]').value = "";
+                document.querySelector('#platform-select').selectedIndex = 0;
             })
 
             socket.on('disconnect', () => {
