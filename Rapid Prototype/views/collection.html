@@ -62,35 +62,29 @@
             </div>
         </section>
         
-        <!-- <section id="create-task-container" class="create-task-container hidden">
+        <!-- View task -->
+        <section id="view-task-container" class="view-task-container hidden">
             <div>
                 <header>
-                    <h2>Create task</h2>
-                    <p>Please enter a name for your task. You can also add a description if you like.</p>
+                    <h2>Header</h2>
+                    <p>Assignees</p>
+                    <p>Description</p>
+                    <p>Connected with <a>platform</a></p>
                 </header>
-                <form id="task-create-form">
-                    <input type="hidden" id="status" name="status">
+                <section>
+                    <h2>Subtasks</h2>
+                    <button>Add task</button>
+                </section>
+                <section>
+                    <h2>Feedback</h2>
+                    <textarea></textarea>
+                    <button>Post feedback</button>
                     <div>
-                        <label for="name">Name</label>
-                        <input type="text" id="name" name="name" placeholder="Name">
+                        Feedback
                     </div>
-                    <div>
-                        <label for="description">Description</label>
-                        <textarea id="description" name="description" placeholder="Description"></textarea>
-                    </div>
-                    <div>
-                        <label for="platform-select">Platform</label>
-                        <select name="platform" id="platform-select">
-                        </select>
-                    </div>
-                    <div id="create-issue-container">
-                        <input type="checkbox" name="createIssue" id="createIssue">
-                        <p>Create Issue / Comment?</p>
-                    </div>
-                    <button type="submit" id="create-task-btn">Create Task</button>
-                </form>
+                </section>
             </div>
-        </section> -->
+        </section>
     </main>
 
     <script type="importmap">

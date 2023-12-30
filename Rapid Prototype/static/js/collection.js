@@ -40,8 +40,8 @@ SOCKET.on('connect', () => {
             <section v-for="state in states" :class="'state-' + state">
                 <h2>{{ state.charAt(0).toUpperCase() + state.slice(1).replace('-', ' ')}}</h2>
                     <div :id="state + '-cards'" class="cards" v-if="hasTasks(state)">
-                        <template v-for="task in tasks">
-                            <div :value="state" class="card" id="card" v-if="task.status == state.replaceAll('-', ' ')">
+                        <template v-for="(task, index) in tasks">
+                            <div :value="state" class="card" id="card" v-if="task.status == state.replaceAll('-', ' ')" @click="openTask(index)">
                                 <label class="checkbox-container">
                                     <input type="checkbox" :id="task.task_id" :name="task.task_id" />
                                     <span class="checkmark"></span>
@@ -86,7 +86,10 @@ SOCKET.on('connect', () => {
                 return this.tasks.some((task) => {
                     return task.status == state;
                 });
-            }
+            },
+            openTask(index) {
+                console.log(this.tasks[index]);
+            },
         }
     }).mount('#taskboard');
 
