@@ -65,22 +65,32 @@
         <!-- View task -->
         <section id="view-task-container" class="view-task-container hidden">
             <div>
+                <input type="hidden" name="task_id" class="task_id_input">
                 <header>
-                    <h2>Header</h2>
-                    <p>Assignees</p>
-                    <p>Description</p>
-                    <p>Connected with <a>platform</a></p>
+                    <div class="task-intro">
+                        <h2></h2>
+                        <p></p>
+                    </div>
+                    <div class="task-info">
+                        <p></p>
+                        <p>Connected with <a>platform</a></p>
+                    </div>
                 </header>
-                <section>
+                <section class="task-subtasks">
                     <h2>Subtasks</h2>
-                    <button>Add task</button>
+                    <div class="todos"></div>
+                    <div class="add-todo">
+                        <input type="text" name="task-description" placeholder="Description">
+                        <button class="add-todo-btn">Add todo</button>
+                    </div>
+                    <p class="error hidden">Add Description first</p>
                 </section>
-                <section>
+                <section class="task-feedback">
                     <h2>Feedback</h2>
-                    <textarea></textarea>
+                    <textarea placeholder="Feedback"></textarea>
                     <button>Post feedback</button>
-                    <div>
-                        Feedback
+                    <div class="feedbacks">
+                        
                     </div>
                 </section>
             </div>

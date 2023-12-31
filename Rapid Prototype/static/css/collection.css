@@ -273,3 +273,207 @@ main>header>p:nth-child(3) {
     gap: var(--space-s);
     align-items: center;
 }
+
+.view-task-container.hidden {
+    display: none;
+}
+
+.view-task-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    background-color: var(--color-background-dark-transparent);
+    backdrop-filter: blur(var(--xxs));
+    transition: var(--tr-fast) ease-in-out;
+}
+
+.view-task-container.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.view-task-container > div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+    background-color: var(--color-on-background-dark);
+    border-radius: var(--br-xs);
+    padding: var(--space-xl);
+}
+
+.view-task-container > div > header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+}
+
+.view-task-container > div > form {
+    display: flex;
+    flex-direction: column;
+}
+
+.view-task-container > div > form > div:not([class="send-notification-container"]) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xxs);
+}
+
+.view-task-container > div > form > div:not(:first-child) {
+    margin-top: var(--space-l);
+}
+
+.view-task-container > div > form > button {
+    margin-top: var(--space-xl);
+}
+
+.error {
+    color: var(--color-error);
+}
+
+p.hidden {
+    display: none;
+}
+
+.task-header-info {
+    background-color: red;
+}
+
+/* View Task
+***************************************/
+.view-task-container {
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.view-task-container > div {
+    max-width: 40vw;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+    background-color: var(--color-on-background-dark);
+    border-radius: var(--br-xs);
+    padding: var(--space-xl);
+}
+
+.view-task-container .task-intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+}
+
+.view-task-container .task-intro p {
+    color: var(--color-text-light);
+    font-size: var(--detail-font-size);
+}
+
+.view-task-container .task-info {
+    margin-top: var(--space-l);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+}
+
+.task-subtasks {
+    margin-top: var(--space-l);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+}
+
+.task-subtasks h2 {
+    color: var(--color-text-light);
+    font-weight: var(--base-font-size);
+}
+
+.todos {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+}
+
+.todos .todo {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-m);
+    align-items: flex-start;
+}
+
+.add-todo {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+}
+
+.add-todo input {
+    background-color: var(--color-background-dark-transparent);
+    border: none;
+    font-size: var(--detail-font-size);
+    font-weight: var(--fw-normal);
+}
+
+.add-todo button {
+    max-width: 15rem;
+    height: 3rem;
+}
+
+.task-feedback {
+    margin-top: var(--space-l);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+}
+
+.task-feedback textarea {
+    resize: none;
+    height: 7vh;
+    background-color: var(--color-background-dark-transparent);
+    border: none;
+    font-size: var(--detail-font-size);
+    font-weight: var(--fw-normal);
+}
+
+.task-feedback button {
+    max-width: 15rem;
+    height: 3rem;
+}
+
+.feedbacks {
+    max-height: 20vh;
+    overflow: auto;
+    margin-top: var(--space-s);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+}
+
+.feedbacks > * {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+}
+
+.feedback {
+    display: flex;
+    flex-direction: column;
+}
+
+.feedback div  {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-m);
+}
+
+.feedback .feedback-info {
+    font-size: var(--detail-font-size);
+}

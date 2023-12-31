@@ -41,8 +41,7 @@ const TASKSMODEL = require('./models/tasksModel.js');
 const MEMBERMODEL = require('./models/memberModel.js');
 const USERMODEL = require('./models/userModel.js');
 const PLATFORMSMODEL = require('./models/platformModel.js');
-
-
+const TODOMODEL = require('./models/todoModel.js');
 
 //Routing
 APP.get("/", (req, res) => {
@@ -458,6 +457,10 @@ IO.on('connection', async (socket) => {
         }
 
         IO.emit('created-tasks', await data);
+    })
+
+    socket.on('save-todo', async (data) => {
+        TODOMODEL.createTodo(await data);
     })
 
     socket.on('disconnect', () => {
