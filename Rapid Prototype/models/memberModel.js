@@ -58,3 +58,14 @@ exports.getMembershipsByCollectionId = async function (collectionId) {
 		return false;
 	}
 }
+
+exports.getMembershipsByCollectionIdAndUserId = async function (userId, collectionId) {
+	try {
+		const query = 'SELECT * FROM memberships WHERE collection_id = $1 AND user_id = $2';
+		const values = [Number(userId), Number(collectionId)];
+		return await pool.query(query, values);
+	} catch (err) {
+		console.log(err);
+		return false;
+	}
+}

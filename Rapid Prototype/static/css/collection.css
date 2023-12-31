@@ -398,6 +398,8 @@ p.hidden {
     display: flex;
     flex-direction: column;
     gap: var(--space-m);
+    max-height: 7vh;
+    overflow: auto;
 }
 
 .todos .todo {

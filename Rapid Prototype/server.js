@@ -42,6 +42,7 @@ const MEMBERMODEL = require('./models/memberModel.js');
 const USERMODEL = require('./models/userModel.js');
 const PLATFORMSMODEL = require('./models/platformModel.js');
 const TODOMODEL = require('./models/todoModel.js');
+const FEEDBACKMODEL = require('./models/feedbackModel.js');
 
 //Routing
 APP.get("/", (req, res) => {
@@ -289,6 +290,14 @@ IO.on('connection', async (socket) => {
         socket.emit('got-user', await INFORMATION);
     });
 
+    socket.on('get-member', async (data) => {
+        const COLLECTION = await (await COLLECTIONSMODEL.getCollection(data.uuid)).rows[0];
+        const MEMBER = await (await MEMBERMODEL.getMembershipsByCollectionIdAndUserId(data.userId, await COLLECTION.collection_id)).rows[0];
+        const USER = await (await USERMODEL.getInformation(data.userId)).rows[0];
+        MEMBER.username = await USER.username;
+        socket.emit('got-member', await MEMBER);
+    });
+
     //Collection
     socket.on('create-collection', async (data) => {
         const COLLECTION = await COLLECTIONSMODEL.createCollection(await data.name, await data.description);
@@ -461,6 +470,10 @@ IO.on('connection', async (socket) => {
 
     socket.on('save-todo', async (data) => {
         TODOMODEL.createTodo(await data);
+    })
+
+    socket.on('save-feedback', async (data) => {
+        FEEDBACKMODEL.saveFeedback(await data);
     })
 
     socket.on('disconnect', () => {
