@@ -35,7 +35,6 @@ APP.disable('etag');
 
 //modules
 const COLLECTIONSMODEL = require('./models/collectionsModel.js');
-const CONNECTIONSMODEL = require('./models/connectionsModel.js');
 const ALERTSMODEL = require('./models/alertsModel.js');
 const TASKSMODEL = require('./models/tasksModel.js');
 const MEMBERMODEL = require('./models/memberModel.js');
@@ -72,7 +71,6 @@ APP.get("/signup", (req, res) => {
 });
 
 APP.post("/signup", urlencodedParser, async (req, res) => {
-    console.log(await req.body);
 
     if (await req.body.password != await req.body.confirmPassword) {
         res.redirect('/signup?error=Passwords_do_not_match');
@@ -228,7 +226,6 @@ APP.get("/figma/oauth", async (req, res) => {
         return response.json();
     })
     Promise.resolve(test).then((data) => {
-        console.log(data);
         PLATFORMSMODEL.updatePlatform(PLATFORMID, data.access_token, '');
         res.status(200).redirect(`/${UUID}/settings`);
     });
@@ -256,9 +253,9 @@ APP.get("/:uuid/tasks", async (req, res) => {
 
 APP.get("/:uuid/inspection", async (req, res) => {
     const COLLECTION = await (await COLLECTIONSMODEL.getCollection(req.params.uuid)).rows[0];
-    const CONNECTIONS = await (await CONNECTIONSMODEL.getConnectionsFromCollectionId(await COLLECTION.id)).rows;
+    const PLATFORMS = await (await PLATFORMSMODEL.getPlatformsByCollectionId(await COLLECTION.id)).rows;
 
-    res.send(CONNECTIONS);
+    res.send(PLATFORMS);
 });
 
 APP.get("/:uuid/settings", async (req, res) => {
@@ -344,7 +341,6 @@ IO.on('connection', async (socket) => {
         data.collection_id = await COLLECTION.collection_id;
         TASKSMODEL.createTask(await data);
         const PLATFORM = await (await PLATFORMSMODEL.getPlatformById(await data.platform)).rows[0];
-        console.log(data);
         if(data.createIssue) {
             switch(PLATFORM.platform) {
                 case 'github':
@@ -383,7 +379,7 @@ IO.on('connection', async (socket) => {
                         body: JSON.stringify({
                             "message": data.name + ' | ' + data.description,
                         })
-                    }).then((response) => response.json()).then((data) => {console.log(data)});
+                    }).then((response) => response.json());
                     break;
                 case 'notion':
                     fetch(`https://api.notion.com/v1/comments`, {
@@ -451,7 +447,7 @@ IO.on('connection', async (socket) => {
                                 }
                             ]
                         })
-                    }).then((response) => response.json()).then((data) => {console.log(data)});
+                    }).then((response) => response.json());
                     IO.emit('created-task', await data);
                     break;
                 case 'dribbble':
@@ -470,7 +466,11 @@ IO.on('connection', async (socket) => {
 
     socket.on('save-todo', async (data) => {
         TODOMODEL.createTodo(await data);
-    })
+    });
+
+    socket.on('update-todo', async (data) => {
+        TODOMODEL.updateTodoStatus(data.todo_id, data.status);
+    });
 
     socket.on('save-feedback', async (data) => {
         FEEDBACKMODEL.saveFeedback(await data);
@@ -491,7 +491,6 @@ IO.on('connection', async (socket) => {
         const COLLECTION = await (await COLLECTIONSMODEL.getCollection(data.uuid)).rows[0];
         var CONN = {};
         data.collection_id = await COLLECTION.collection_id;
-        console.log(data)
         const PLATFORM = PLATFORMSMODEL.createPlatform(data.id, data.collection_id, data.platform, '', '', '');
         Promise.resolve(PLATFORM).then(async (form) => {
             switch(data.platform) {

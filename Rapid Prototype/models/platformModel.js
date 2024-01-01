@@ -62,3 +62,14 @@ exports.getPlatformById = async function (platformId) {
         return false;
     }
 }
+
+exports.getConnectionsFromCollectionId = async function (collectionId) {
+	try {
+		const query = 'SELECT * FROM platforms WHERE collection_id = $1';
+		const values = [collectionId];
+		return await pool.query(query, values);
+	} catch (err) {
+        console.log(err);
+		return false;
+    }
+}

@@ -25,3 +25,14 @@ exports.createTodo = async function (todo) {
         return false;
     }
 }
+
+exports.updateTodoStatus = async function (todoId, status) {
+    try {
+        const query = 'UPDATE todos SET done = $2 WHERE todo_id = $1';
+        const values = [todoId, status];
+        return await pool.query(query, values);
+    } catch (err) {
+        console.log(err);
+        return false;
+    }
+}

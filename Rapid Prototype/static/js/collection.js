@@ -151,7 +151,7 @@ SOCKET.on('connect', () => {
                         `;
                         const FEEDBACKSECTION = document.querySelector('.task-feedback .feedbacks');
                         FEEDBACKSECTION.appendChild(FEEDBACK);
-                        document.querySelector('.task-feedback textarea').value = "";
+                        this.tasks[index].feedbacks_count = Number(this.tasks[index].feedbacks_count) + 1;
                     } else {
                         ERRORPARAGRAPHFEEDBACK.classList.remove('hidden');
                     }
@@ -224,6 +224,7 @@ SOCKET.on('connect', () => {
     });
 
     SOCKET.on('created-tasks', (task) => {
+        task.todos_progress = 0;
         TASKBOARD.tasks.push(task);
     });
 
@@ -279,20 +280,40 @@ SOCKET.on('connect', () => {
             TASKVIEW.querySelector('.task-intro p').innerHTML = task.assigned_users.map((user) => {
                 return `@${user.username}`;
             }).join(', ');
+        } else {
+            TASKVIEW.querySelector('.task-intro p').innerHTML = "<i>No users assigned to this task.</i>";
         }
+
+        function updateTodo(todoId, status) {
+            SOCKET.emit('update-todo', {
+                todo_id: todoId,
+                status: status
+            });
+        }
+
         TASKVIEW.querySelector('.task-info p').innerHTML = `${task.description}`;
-        if(task.todos != null) {
-            TASKVIEW.querySelector('.todos').innerHTML = task.todos.map((todo) => {
+        if (task.todos != null) {
+            const todosContainer = TASKVIEW.querySelector('.todos');
+            todosContainer.innerHTML = task.todos.map((todo) => {
                 return `
                     <div class="todo">
                         <label class="checkbox-container">
-                            <input type="checkbox" :id="task.task_id" :name="task.task_id" ${(todo.done)?'checked':''}/>
+                            <input type="checkbox" task_id="${task.task_id}" todo_id="${todo.todo_id}" :name="${todo.description}" ${(todo.done)?'checked':''}/>
                             <span class="checkmark"></span>
                         </label>
                         <p>${todo.description}</p>
                     </div>
                 `;
             }).join('');
+
+            // Attach a single event listener to the todosContainer for the click event
+            todosContainer.addEventListener('click', function(event) {
+                const target = event.target;
+                if (target.classList.contains('checkmark')) {
+                    const todoId = target.parentElement.querySelector('input[type="checkbox"]').getAttribute('todo_id');
+                    updateTodo(todoId, !target.previousElementSibling.checked);
+                }
+            });
         }
 
         if(task.feedbacks != null) {

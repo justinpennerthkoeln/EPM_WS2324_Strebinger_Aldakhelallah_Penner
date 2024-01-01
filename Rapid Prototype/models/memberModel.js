@@ -69,3 +69,14 @@ exports.getMembershipsByCollectionIdAndUserId = async function (userId, collecti
 		return false;
 	}
 }
+
+exports.getMembershipsWithUserData = async function (collectionId) {
+	try {
+		const query = 'SELECT * FROM memberships LEFT JOIN users ON memberships.user_id = users.id WHERE collection_id = $1';
+		const values = [Number(collectionId)];
+		return await pool.query(query, values);
+	} catch (err) {
+		console.log(err);
+		return false;
+	}
+}
