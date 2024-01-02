@@ -104,3 +104,44 @@ main .content aside:first-child {
 #aside-nav ul li a.active {
     color: var(--color-accent-primary);
 }
+
+/* Invite collaborators
+******************************************************************************************************************************/
+.invite-collaborators div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+}
+
+.invite-collaborators div button {
+    padding: var(--space-s) var(--space-xl);
+}
+
+.invite-collaborators div button:disabled {
+    opacity: 50%;
+}
+
+.invite-collaborators div .disabled {
+    opacity: 50%;
+}
+
+.invite-collaborators ul {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+    list-style: none;
+    padding: var(--space-l) var(--space-xl);
+}
+
+.invite-collaborators ul li {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-l);
+    align-items: center;
+    background-color: var(--color-on-background-dark);
+    padding: var(--space-s) var(--space-xl);
+}
+
+.invite-collaborators ul li.selected {
+    background-color: var(--color-accent-primary);
+}

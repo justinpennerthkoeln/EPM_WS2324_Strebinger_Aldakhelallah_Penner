@@ -28,9 +28,9 @@ SOCKET.on('connect', () => {
 
     SOCKET.emit('get-member', {userId: localStorage.getItem('userId'), uuid: window.location.pathname.split('/')[1]});
 
-    SOCKET.on('got-member', (member) => {
-        localStorage.setItem('username', member.username)
-        localStorage.setItem('membershipId', member.membership_id);
+    SOCKET.on('got-member', (data) => {
+        localStorage.setItem('username', data.username)
+        localStorage.setItem('membershipId', data.membershipId);
     });
 
     // Taskboard

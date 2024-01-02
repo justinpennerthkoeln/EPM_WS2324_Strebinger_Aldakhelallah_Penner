@@ -28,7 +28,7 @@ exports.getMemberById = async function (userId) {
 
 exports.createMember = async function (userId, collectionId, role) {
 	try {
-		const query = 'INSERT INTO memberships VALUES (DEFAULT, $1, $2, $3)';
+		const query = 'INSERT INTO memberships VALUES (DEFAULT, $1, $2, $3) RETURNING *';
 		const values = [Number(userId), Number(collectionId), role];
 		return await pool.query(query, values);
 	} catch (err) {
@@ -62,6 +62,17 @@ exports.getMembershipsByCollectionId = async function (collectionId) {
 exports.getMembershipsByCollectionIdAndUserId = async function (userId, collectionId) {
 	try {
 		const query = 'SELECT * FROM memberships WHERE collection_id = $1 AND user_id = $2';
+		const values = [Number(collectionId), Number(userId)];
+		return await pool.query(query, values);
+	} catch (err) {
+		console.log(err);
+		return false;
+	}
+}
+
+exports.checkMembership = async function (userId, collectionId) {
+	try {
+		const query = 'SELECT count(*) FROM memberships WHERE user_id = $1 AND collection_id = $2';
 		const values = [Number(userId), Number(collectionId)];
 		return await pool.query(query, values);
 	} catch (err) {

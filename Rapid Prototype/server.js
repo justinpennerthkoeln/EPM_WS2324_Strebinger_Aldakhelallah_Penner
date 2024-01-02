@@ -53,6 +53,19 @@ APP.get("/", (req, res) => {
     }
 });
 
+APP.get("/logout", (req, res) => {
+    req.session.destroy();
+    res.redirect('/signin');
+});
+
+APP.get("/login", (req, res) => {
+    res.redirect('/signin');
+});
+
+APP.get("/register", (req, res) => {
+    res.redirect('/signup');
+});
+
 APP.get("/signin", (req, res) => {
     res.sendFile(__dirname + "/views/signin.html");
 });
@@ -266,6 +279,15 @@ APP.get("/:uuid/settings/:setting", async (req, res) => {
     res.sendFile(__dirname + "/views/settings.html");
 });
 
+
+//API
+
+APP.get("/api/users", async (req, res) => {
+    const SEARCHTERM = req.query.searchTerm;
+    const USERS = await (await USERMODEL.getAllUsers(SEARCHTERM.toLowerCase())).rows;
+    res.send(USERS);
+});
+
 const IO = new SOCKETIO.Server(SERVER);
 
 // Use socket.io-express-session middleware for session handling
@@ -293,10 +315,10 @@ IO.on('connection', async (socket) => {
 
     socket.on('get-member', async (data) => {
         const COLLECTION = await (await COLLECTIONSMODEL.getCollection(data.uuid)).rows[0];
-        const MEMBER = await (await MEMBERMODEL.getMembershipsByCollectionIdAndUserId(data.userId, await COLLECTION.collection_id)).rows[0];
+        var member = await (await MEMBERMODEL.getMembershipsByCollectionIdAndUserId(data.userId, await COLLECTION.collection_id)).rows[0];
+        console.log(member);
         const USER = await (await USERMODEL.getInformation(data.userId)).rows[0];
-        MEMBER.username = await USER.username;
-        socket.emit('got-member', await MEMBER);
+        socket.emit('got-member', {membershipId: await member.membership_id, username: await USER.username});
     });
 
     //Collection
@@ -453,20 +475,20 @@ IO.on('connection', async (socket) => {
                             ]
                         })
                     }).then((response) => response.json());
-                    IO.emit('created-task', await data);
+                    socket.emit('created-task', await data);
                     break;
                 case 'dribbble':
-                    IO.emit('created-task', await data);
+                    socket.emit('created-task', await data);
                     break;
                 case '-': 
-                    IO.emit('created-task', await data);
+                    socket.emit('created-task', await data);
                     break;
                 default:
                     break;
             }
         }
 
-        IO.emit('created-tasks', await data);
+        socket.emit('created-tasks', await data);
     })
 
     socket.on('save-todo', async (data) => {
@@ -530,6 +552,21 @@ IO.on('connection', async (socket) => {
             socketId: socket.id,
             uuid: data.uuid,
             platformId: data.platformId
+        }
+    });
+
+    //Settings
+
+    //Invite Collaborators
+    socket.on('invite-collaborator', async (data) => {
+        const COLLECTION = await (await COLLECTIONSMODEL.getCollection(data.uuid)).rows[0];
+        const MEMBER = await (await MEMBERMODEL.checkMembership(data.userId, await COLLECTION.collection_id)).rows[0];
+        if(MEMBER.count > 0) {
+            socket.emit('error', 'User already invited.');
+        } else {
+            const MEMBER = await (await MEMBERMODEL.createMember(data.userId, await COLLECTION.collection_id)).rows[0];
+            MEMBER.success = 'User invited.';
+            socket.emit('invited-collaborator', await MEMBER);
         }
     });
 });

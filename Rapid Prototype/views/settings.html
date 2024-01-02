@@ -63,17 +63,21 @@
                     <button>Rename collection</button>
                 </div>
             </aside>
-            <aside id="invite-collaborators" class="hidden">
+            <aside id="invite-collaborators" class="invite-collaborators hidden">
                 <h2>Collaborators</h2>
                 <h3>Invite a Collaborator</h3>
                 <p>Please enter the username of the person you want to invite to your collection</p>
                 <div>
-                    <input type="text">
-                    <button>Invite collaborator</button>
+                    <input type="text" class="search-user">
+                    <ul class="users"></ul>
+                    <button disabled>Invite collaborator</button>
                 </div>
             </aside>
         </div>
     </main>
+    <p id="alert" class="alert">
+        Alert
+    </p>
     <script type="importmap">
         {
             "imports": {
@@ -99,6 +103,8 @@
             }
         });
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js" integrity="sha512-EZI2cBcGPnmR89wTgVnN3602Yyi7muWo8y1B3a8WmIv1J9tYG+udH4LvmYjLiGp37yHB7FfaPBo8ly178m9g4Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script type="module" src="/js/settings.js"></script>
+    <script src="/js/alert.js" type="module"></script>
 </body>
 </html>

@@ -58,3 +58,14 @@ exports.getByUsernameAndPassword = async function (username, password) {
         return false;
     }
 }
+
+exports.getAllUsers = async function (searchTerm) {
+    try {
+        const query = 'SELECT username, id FROM users WHERE username ILIKE $1';
+        const values = [searchTerm + '%'];
+        return await pool.query(query, values);
+    } catch (err) {
+        console.log(err);
+        return false;
+    }
+}

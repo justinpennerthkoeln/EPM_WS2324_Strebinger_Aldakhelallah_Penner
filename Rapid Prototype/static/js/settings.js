@@ -59,6 +59,7 @@ SOCKET.on('connect', () => {
         element.href = '/' + window.location.pathname.split('/')[1] + '/settings/' + element.href.split('/')[4];
     });
 
+    // Show and mark the active setting
     const SETTING = window.location.pathname.split('/')[3];
     if(SETTING == undefined) {
         document.querySelector('aside#rename-collection').classList.remove('hidden');
@@ -77,6 +78,60 @@ SOCKET.on('connect', () => {
             }
         });
     }
+
+    // Invite Collaborators
+    const SEARCHINPUT = document.querySelector('.invite-collaborators input');
+    const SEARCHRESULTS = document.querySelector('.invite-collaborators ul');
+    const INVITEBUTTON = document.querySelector('.invite-collaborators button');
+
+    SEARCHINPUT.addEventListener('input', () => {
+        if(SEARCHINPUT.value.length > 0) {
+            SEARCHRESULTS.classList.add('disabled');
+            INVITEBUTTON.setAttribute('disabled', true);
+            fetch(`/api/users?searchTerm=${SEARCHINPUT.value.toLowerCase()}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then((response) => {
+                return response.json();
+            }).then((users) => {
+                SEARCHRESULTS.classList.remove('disabled');
+                SEARCHRESULTS.innerHTML = '';
+                users.forEach((user) => {
+                    const LI = document.createElement('li');
+                    LI.setAttribute('userId', user.id);
+                    LI.innerHTML = user.username;
+                    SEARCHRESULTS.appendChild(LI);
+                    LI.addEventListener('click', () => {
+                        SEARCHRESULTS.innerHTML = '';
+                        SEARCHRESULTS.appendChild(LI);
+                        LI.classList.toggle('selected');
+                        INVITEBUTTON.toggleAttribute('disabled');
+                    });
+                });
+            });
+        } else {
+            SEARCHRESULTS.innerHTML = '';
+        }
+    });
+
+    INVITEBUTTON.addEventListener('click', ($event) => {
+        $event.preventDefault();
+        const USERID = SEARCHRESULTS.children[0].getAttribute('userId');
+        SOCKET.emit('invite-collaborator', {
+            userId: USERID,
+            uuid: window.location.pathname.split('/')[1]
+        });
+    });
+
+    SOCKET.on('error', (data) => {
+        window.location = `${window.location.origin}${window.location.pathname}?error=${data}`;
+    });
+
+    SOCKET.on('invited-collaborator', (data) => {
+        window.location = `${window.location.origin}${window.location.pathname}?success=${data.success}`;
+    });
 
     SOCKET.on('disconnect', () => {
         console.log(`Disconnected from ${SOCKET.id}.`);
