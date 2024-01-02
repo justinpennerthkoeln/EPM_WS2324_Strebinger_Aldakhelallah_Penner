@@ -59,6 +59,8 @@ SOCKET.on('connect', () => {
         element.href = '/' + window.location.pathname.split('/')[1] + '/settings/' + element.href.split('/')[4];
     });
 
+    SOCKET.emit('join', window.location.pathname.split('/')[1]);
+
     // Show and mark the active setting
     const SETTING = window.location.pathname.split('/')[3];
     if(SETTING == undefined) {

@@ -316,9 +316,15 @@ IO.on('connection', async (socket) => {
     socket.on('get-member', async (data) => {
         const COLLECTION = await (await COLLECTIONSMODEL.getCollection(data.uuid)).rows[0];
         var member = await (await MEMBERMODEL.getMembershipsByCollectionIdAndUserId(data.userId, await COLLECTION.collection_id)).rows[0];
-        console.log(member);
         const USER = await (await USERMODEL.getInformation(data.userId)).rows[0];
         socket.emit('got-member', {membershipId: await member.membership_id, username: await USER.username});
+    });
+
+    // User Socket Conn
+    socket.on('join' , async (data) => {
+        socket.join("room-" + data.uuid);
+        socket.handshake.session.uuid = "room-" + data.uuid;
+        socket.handshake.session.save();
     });
 
     //Collection
@@ -363,7 +369,6 @@ IO.on('connection', async (socket) => {
     })
 
     socket.on('create-task', async (data) => {
-        console.log(data);
         const COLLECTION = await (await COLLECTIONSMODEL.getCollection(data.uuid)).rows[0];
         data.collection_id = await COLLECTION.collection_id;
         TASKSMODEL.createTask(await data);
@@ -475,20 +480,16 @@ IO.on('connection', async (socket) => {
                             ]
                         })
                     }).then((response) => response.json());
-                    socket.emit('created-task', await data);
                     break;
                 case 'dribbble':
-                    socket.emit('created-task', await data);
                     break;
                 case '-': 
-                    socket.emit('created-task', await data);
                     break;
                 default:
                     break;
             }
         }
-
-        socket.emit('created-tasks', await data);
+        IO.in(socket.handshake.session.uuid).emit('created-tasks', await data);
     })
 
     socket.on('save-todo', async (data) => {

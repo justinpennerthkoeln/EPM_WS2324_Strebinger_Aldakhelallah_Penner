@@ -34,6 +34,7 @@ SOCKET.on('connect', () => {
     });
 
     // Taskboard
+    SOCKET.emit('join', {uuid: window.location.pathname.split('/')[1]});
 
     // Create taskboard
     const TASKBOARD = Vue.createApp({
