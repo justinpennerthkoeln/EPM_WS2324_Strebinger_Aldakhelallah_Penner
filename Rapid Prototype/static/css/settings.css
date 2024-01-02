@@ -55,21 +55,6 @@ main .content aside:first-child {
     border-radius: var(--br-xs);
 }
 
-main .content aside:last-child {
-    display: flex;
-    flex-direction: column;
-    margin-left: var(--space-2xl);
-}
-
-main .content aside:last-child h2 {
-    margin-bottom: var(--space-xl);
-}
-
-main .content aside:last-child:not(:first-child) {
-    display: flex;
-    gap: var(--space-l);
-}
-
 #aside-nav {
     display: flex;
     flex-direction: column;
@@ -95,4 +80,27 @@ main .content aside:last-child:not(:first-child) {
     color: var(--color-text-light);
     text-decoration: none;
     margin-left: var(--space-l);
+}
+
+#aside-nav ul li a:hover {
+    color: var(--color-accent-primary);
+}
+
+.content>:not(:first-child) {
+    display: flex;
+    flex-direction: column;
+    margin-left: var(--space-2xl);
+    gap: var(--space-l);
+}
+
+.content aside h2 {
+    margin-bottom: var(--space-l);
+}
+
+.content > aside:not(:first-child).hidden {
+    display: none;
+}
+
+#aside-nav ul li a.active {
+    color: var(--color-accent-primary);
 }

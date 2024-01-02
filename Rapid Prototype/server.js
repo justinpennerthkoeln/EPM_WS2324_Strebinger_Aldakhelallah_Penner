@@ -262,6 +262,10 @@ APP.get("/:uuid/settings", async (req, res) => {
     res.sendFile(__dirname + "/views/settings.html");
 });
 
+APP.get("/:uuid/settings/:setting", async (req, res) => {
+    res.sendFile(__dirname + "/views/settings.html");
+});
+
 const IO = new SOCKETIO.Server(SERVER);
 
 // Use socket.io-express-session middleware for session handling

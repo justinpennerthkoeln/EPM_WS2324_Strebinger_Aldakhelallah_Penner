@@ -29,17 +29,17 @@
                 <nav id="aside-nav">
                     <ul>
                         <li>Collection</li>
-                        <li><a href="/settings/collection">Rename collection</a></li>
+                        <li><a href="/settings/rename-collection">Rename collection</a></li>
                         <li>Collaborators</li>
-                        <li><a href="/settings/invite-collaborators">Invite collaborator</a></li>
-                        <li><a href="/settings/manage-collaborators">Manage collaborator</a></li>
+                        <li><a href="/settings/invite-collaborators">Invite collaborators</a></li>
+                        <li><a href="/settings/manage-collaborators">Manage collaborators</a></li>
                         <li>Platforms</li>
-                        <li><a href="/settings/add-project">Add a project</a></li>
+                        <li><a href="/settings/add-projects">Add projects</a></li>
                         <li><a href="/settings/manage-project">Manage projects</a></li>
                     </ul>
                 </nav>
             </aside>
-            <aside>
+            <aside id="add-projects" class="hidden">
                 <h2>Platforms</h2>
                 <h3>Add a Platform to your Collection</h3>
                 <p>Please select a platform u want to connect with</p>
@@ -53,6 +53,24 @@
                     </select>
                     <button id="add-platform-btn">Add platform</button>
                 </form>
+            </aside>
+            <aside id="rename-collection" class="hidden">
+                <h2>Collection</h2>
+                <h3>Rename your Collection</h3>
+                <p>Please enter a new name for your collection. You can rename your collection at any time</p>
+                <div>
+                    <input type="text">
+                    <button>Rename collection</button>
+                </div>
+            </aside>
+            <aside id="invite-collaborators" class="hidden">
+                <h2>Collaborators</h2>
+                <h3>Invite a Collaborator</h3>
+                <p>Please enter the username of the person you want to invite to your collection</p>
+                <div>
+                    <input type="text">
+                    <button>Invite collaborator</button>
+                </div>
             </aside>
         </div>
     </main>

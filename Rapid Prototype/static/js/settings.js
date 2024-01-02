@@ -37,18 +37,19 @@ SOCKET.on('connect', () => {
         localStorage.setItem('membershipId', member.membership_id);
     });
 
-    platformForm.addEventListener('submit', ($event) => {
-        $event.preventDefault();
-
-        const COLLECTIONSDATA = new FormData(platformForm);
-        const COLLECTIONSECTION = document.getElementById('platform-select');
-        SOCKET.emit('create-platform', {
-            id: Number(localStorage.getItem('userId')),
-            platform: COLLECTIONSECTION.value,
-            uuid: window.location.pathname.split('/')[1]
+    if(platformForm) {
+        platformForm.addEventListener('submit', ($event) => {
+            $event.preventDefault();
+    
+            const COLLECTIONSDATA = new FormData(platformForm);
+            const COLLECTIONSECTION = document.getElementById('platform-select');
+            SOCKET.emit('create-platform', {
+                id: Number(localStorage.getItem('userId')),
+                platform: COLLECTIONSECTION.value,
+                uuid: window.location.pathname.split('/')[1]
+            });
         });
-    });
-
+    }
 
     SOCKET.on('conn', (CONN) => {
         window.location.href = CONN.oauth;
@@ -57,6 +58,25 @@ SOCKET.on('connect', () => {
     sideNav.forEach((element) => {
         element.href = '/' + window.location.pathname.split('/')[1] + '/settings/' + element.href.split('/')[4];
     });
+
+    const SETTING = window.location.pathname.split('/')[3];
+    if(SETTING == undefined) {
+        document.querySelector('aside#rename-collection').classList.remove('hidden');
+        const LINKS = document.querySelectorAll('#aside-nav ul a');
+        LINKS.forEach((link) => {
+            if(link.innerHTML == 'Rename collection') {
+                link.classList.add('active');
+            }
+        });
+    } else {
+        document.querySelector(`aside#${SETTING}`).classList.remove('hidden');
+        const LINKS = document.querySelectorAll('#aside-nav ul a');
+        LINKS.forEach((link) => {
+            if(link.innerHTML.toLowerCase() == SETTING.toLowerCase().replaceAll('-', ' ')) {
+                link.classList.add('active');
+            }
+        });
+    }
 
     SOCKET.on('disconnect', () => {
         console.log(`Disconnected from ${SOCKET.id}.`);
