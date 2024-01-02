@@ -337,6 +337,7 @@ IO.on('connection', async (socket) => {
     })
 
     socket.on('create-task', async (data) => {
+        console.log(data);
         const COLLECTION = await (await COLLECTIONSMODEL.getCollection(data.uuid)).rows[0];
         data.collection_id = await COLLECTION.collection_id;
         TASKSMODEL.createTask(await data);

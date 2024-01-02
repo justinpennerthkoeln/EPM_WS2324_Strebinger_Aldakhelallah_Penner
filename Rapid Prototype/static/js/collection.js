@@ -91,7 +91,7 @@ SOCKET.on('connect', () => {
             },
             hasTasks(state) {
                 return this.tasks.some((task) => {
-                    return task.status == state;
+                    return task.status == state.replaceAll('-', ' ');
                 });
             },
             openTask(index) {
