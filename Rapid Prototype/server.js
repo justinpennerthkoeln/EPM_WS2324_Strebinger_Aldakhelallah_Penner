@@ -288,6 +288,11 @@ APP.get("/api/users", async (req, res) => {
     res.send(USERS);
 });
 
+APP.get("/api/tasks/:taskId/todos", async (req, res) => {
+    const TODOS = await (await TODOMODEL.getTodosByTaskId(req.params.taskId)).rows;
+    res.send(TODOS);
+});
+
 const IO = new SOCKETIO.Server(SERVER);
 
 // Use socket.io-express-session middleware for session handling
@@ -366,7 +371,12 @@ IO.on('connection', async (socket) => {
         const TASKS = await (await TASKSMODEL.getTasksWithOwnershipsByCollectionId(await COLLECTION.collection_id)).rows;
 
         socket.emit('got-tasks', await TASKS);
-    })
+    });
+
+    socket.on('get-todos-of-task', async (taskId) => {
+        const TODOS = await (await TODOMODEL.getTodosByTaskId(taskId)).rows;
+        socket.emit('got-todos-of-task', await TODOS);
+    });
 
     socket.on('create-task', async (data) => {
         const COLLECTION = await (await COLLECTIONSMODEL.getCollection(data.uuid)).rows[0];
@@ -498,6 +508,9 @@ IO.on('connection', async (socket) => {
 
     socket.on('update-todo', async (data) => {
         TODOMODEL.updateTodoStatus(data.todo_id, data.status);
+        data.todo_count = await (await TODOMODEL.getTodosByTaskId(data.task_id)).rowCount;
+        console.log(data);
+        IO.to(socket.handshake.session.uuid).emit('updated-todo', await data);
     });
 
     socket.on('save-feedback', async (data) => {

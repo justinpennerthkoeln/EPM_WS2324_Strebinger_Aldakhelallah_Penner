@@ -36,3 +36,14 @@ exports.updateTodoStatus = async function (todoId, status) {
         return false;
     }
 }
+
+exports.getTodosByTaskId = async function (taskId) {
+    try {
+        const query = 'SELECT * FROM todos WHERE task_id = $1';
+        const values = [taskId];
+        return await pool.query(query, values);
+    } catch (err) {
+        console.log(err);
+        return false;
+    }
+}

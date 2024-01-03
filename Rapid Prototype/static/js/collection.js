@@ -95,7 +95,7 @@ SOCKET.on('connect', () => {
                     return task.status == state.replaceAll('-', ' ');
                 });
             },
-            openTask(index) {
+            async openTask(index) {
                 const TASKCONTAINER = document.querySelector('.view-task-container');
                 const ADDFEEDBACKBTN = document.querySelector('.add-feedback-btn');
                 const ERRORPARAGRAPHFEEDBACK = document.querySelector('.task-feedback p');
@@ -157,8 +157,14 @@ SOCKET.on('connect', () => {
                         ERRORPARAGRAPHFEEDBACK.classList.remove('hidden');
                     }
                 });
-
-                genTaskView(this.tasks[index]);
+                fetch(`/api/tasks/${this.tasks[index].task_id}/todos`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then((response) => {
+                    return response.json();
+                }).then((data) => {genTaskView(this.tasks[index], data)});
             },
         }
     }).mount('#taskboard');
@@ -231,8 +237,7 @@ SOCKET.on('connect', () => {
 
     //view task
     const TASKVIEW = document.querySelector('.view-task-container');
-    function genTaskView(task) {
-
+    function genTaskView(task, todos) {
         const ADDTODOBTN = document.querySelector('.add-todo-btn');
         const ERRORPARAGRAPH = document.querySelector('.task-subtasks p');
         const ADDTODOINPUT = document.querySelector('.add-todo input');
@@ -288,14 +293,34 @@ SOCKET.on('connect', () => {
         function updateTodo(todoId, status) {
             SOCKET.emit('update-todo', {
                 todo_id: todoId,
-                status: status
+                status: status,
+                task_id: task.task_id
             });
         }
 
+        SOCKET.on('updated-todo', (data) => {
+            const TODOS = document.querySelectorAll('.todo');
+            const TASKS = document.querySelectorAll('.card');
+            var checkedCount = 0;
+            for(const TODO of TODOS) {
+                if(TODO.querySelector('input[type="checkbox"]').getAttribute('todo_id') == data.todo_id) {
+                    TODO.querySelector('input[type="checkbox"]').checked = data.status;
+                }
+                if(TODO.querySelector('input[type="checkbox"]').checked) {
+                    checkedCount++;
+                }
+            }
+            TASKS.forEach((task) => {
+                if(task.querySelector('input[type="checkbox"]').getAttribute('id') == data.task_id) {
+                    task.querySelectorAll('.task-stats')[0].children[1].children[1].innerHTML = `${Math.round((checkedCount / data.todo_count) * 100)}%`;
+                }
+            });
+        });
+
         TASKVIEW.querySelector('.task-info p').innerHTML = `${task.description}`;
-        if (task.todos != null) {
+        if (todos != null) {
             const todosContainer = TASKVIEW.querySelector('.todos');
-            todosContainer.innerHTML = task.todos.map((todo) => {
+            todosContainer.innerHTML = todos.map((todo) => {
                 return `
                     <div class="todo">
                         <label class="checkbox-container">
