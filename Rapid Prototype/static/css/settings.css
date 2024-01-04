@@ -145,3 +145,7 @@ main .content aside:first-child {
 .invite-collaborators ul li.selected {
     background-color: var(--color-accent-primary);
 }
+
+#delete-collection div button {
+    background-color: red;
+}

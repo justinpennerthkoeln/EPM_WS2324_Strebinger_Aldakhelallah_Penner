@@ -359,6 +359,17 @@ IO.on('connection', async (socket) => {
         }
     });
 
+    socket.on('delete-collection', async (data) => {
+        try {
+            const COLLECTION = await (await COLLECTIONSMODEL.getCollection(data.uuid)).rows[0];
+            await COLLECTIONSMODEL.deleteCollectionById(COLLECTION.collection_id);
+            socket.emit('deleted-collection', "Collection deleted.");
+        } catch (error) {
+            console.log(error);
+            socket.emit('error', 'Something went wrong. Please try again later.');
+        }
+    });
+
     //Task Board
     socket.on('get-details', async (uuid) => {
         const MEMBERARRAY = [];

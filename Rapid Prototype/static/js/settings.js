@@ -127,12 +127,34 @@ SOCKET.on('connect', () => {
         });
     });
 
+    // Delete Collection
+    const DELETEFORM = document.querySelector('#delete-collection div form');
+    DELETEFORM.addEventListener('submit', ($event) => {
+        $event.preventDefault();
+        const DELETEINPUT = document.querySelector('#delete-collection div form input');
+        const COLLECTIONNAME = document.querySelector('#collection-name').innerHTML;
+        console.log(COLLECTIONNAME);
+        if(DELETEINPUT.value == COLLECTIONNAME) {
+            SOCKET.emit('delete-collection', {
+                uuid: window.location.pathname.split('/')[1]
+            });
+        } else {
+            window.location = `${window.location.origin}${window.location.pathname}?error=The Collection's name doesnt match.`;
+        }
+    });
+    
+
+    // ERROR OR SUCCESS HANDLING
     SOCKET.on('error', (data) => {
         window.location = `${window.location.origin}${window.location.pathname}?error=${data}`;
     });
 
     SOCKET.on('invited-collaborator', (data) => {
         window.location = `${window.location.origin}${window.location.pathname}?success=${data.success}`;
+    });
+
+    SOCKET.on('deleted-collection', (data) => {
+        window.location = `${window.location.origin}/?userId=${localStorage.userId}&success=${data}`;
     });
 
     SOCKET.on('disconnect', () => {

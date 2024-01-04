@@ -30,6 +30,7 @@
                     <ul>
                         <li>Collection</li>
                         <li><a href="/settings/rename-collection">Rename collection</a></li>
+                        <li><a href="/settings/delete-collection">Delete collection</a></li>
                         <li>Collaborators</li>
                         <li><a href="/settings/invite-collaborators">Invite collaborators</a></li>
                         <li><a href="/settings/manage-collaborators">Manage collaborators</a></li>
@@ -61,6 +62,17 @@
                 <div>
                     <input type="text">
                     <button>Rename collection</button>
+                </div>
+            </aside>
+            <aside id="delete-collection" class="hidden">
+                <h2>Collection</h2>
+                <h3>Delete your Collection</h3>
+                <p>Are you sure you want to delete your collection? This action cannot be undone</p>
+                <div>
+                    <form method="get">
+                        <input type="text" placeholder="Collection name">
+                        <button>Delete collection</button>
+                    </form>
                 </div>
             </aside>
             <aside id="invite-collaborators" class="invite-collaborators hidden">
