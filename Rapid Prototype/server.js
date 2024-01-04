@@ -293,6 +293,11 @@ APP.get("/api/tasks/:taskId/todos", async (req, res) => {
     res.send(TODOS);
 });
 
+APP.get("/api/tasks/:taskId/feedbacks", async (req, res) => {
+    const FEEDBACKS = await (await FEEDBACKMODEL.getFeedbacksWithUsersByTaskId(req.params.taskId)).rows;
+    res.send(FEEDBACKS);
+})
+
 const IO = new SOCKETIO.Server(SERVER);
 
 // Use socket.io-express-session middleware for session handling
@@ -509,12 +514,13 @@ IO.on('connection', async (socket) => {
     socket.on('update-todo', async (data) => {
         TODOMODEL.updateTodoStatus(data.todo_id, data.status);
         data.todo_count = await (await TODOMODEL.getTodosByTaskId(data.task_id)).rowCount;
-        console.log(data);
         IO.to(socket.handshake.session.uuid).emit('updated-todo', await data);
     });
 
     socket.on('save-feedback', async (data) => {
-        FEEDBACKMODEL.saveFeedback(await data);
+        const FEEDBACK = await (await FEEDBACKMODEL.saveFeedback(await data)).rows[0];
+        FEEDBACK.username = data.username;
+        IO.in(socket.handshake.session.uuid).emit('saved-feedback', await FEEDBACK);
     })
 
     socket.on('disconnect', () => {
