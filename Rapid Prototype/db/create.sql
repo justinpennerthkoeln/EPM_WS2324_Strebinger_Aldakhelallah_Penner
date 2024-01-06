@@ -11,8 +11,9 @@ DROP TABLE IF EXISTS ownerships;
 DROP TABLE IF EXISTS todos;
 DROP TABLE IF EXISTS feedbacks;
 DROP TABLE IF EXISTS votes;
+DROP TABLE IF EXISTS replies;
 
-CREATE TYPE platform AS ENUM ('github', 'gitlab', 'markdown', 'notion', 'figma', 'dribbble');
+CREATE TYPE platform AS ENUM ('github', 'gitlab', 'markdown', 'notion', 'figma', 'dribbble', '-');
 CREATE TYPE role AS ENUM ('designer', 'programmer', 'product owner', 'project manager');
 CREATE TYPE status AS ENUM ('todo', 'in progress', 'review', 'done');
 
@@ -116,3 +117,13 @@ CREATE TABLE votes (
 );
 
 ALTER TABLE votes ADD CONSTRAINT fk_votes_feedback_84376588dsuifhi734 FOREIGN KEY (feedback_id) REFERENCES feedbacks (feedback_id);
+
+CREATE TABLE replies (
+    reply_id SERIAL PRIMARY KEY NOT NULL,
+    username VARCHAR(200) NOT NULL,
+    feedback_id INTEGER NOT NULL,
+    comment VARCHAR(200) NOT NULL,
+    timestamp TIMESTAMP NOT NULL
+);
+
+ALTER TABLE replies ADD CONSTRAINT fk_replies_feedback_84376588dsuifhi734 FOREIGN KEY (feedback_id) REFERENCES feedbacks (feedback_id);

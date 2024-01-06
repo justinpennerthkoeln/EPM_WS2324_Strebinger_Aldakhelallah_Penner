@@ -53,6 +53,7 @@ exports.deleteCollectionById = async function (collectionId) {
 	try {
 		pool.query('BEGIN;');
 
+		const DELETEREPLIES = 'DELETE FROM replies WHERE feedback_id IN (SELECT feedback_id FROM feedbacks WHERE task_id IN (SELECT task_id FROM tasks WHERE collection_id = $1))';
 		const DELETEVOTES = 'DELETE FROM votes WHERE feedback_id IN (SELECT feedback_id FROM feedbacks WHERE task_id IN (SELECT task_id FROM tasks WHERE collection_id = $1))';
 		const DELETEFEEDBACKS = 'DELETE FROM feedbacks WHERE task_id IN (SELECT task_id FROM tasks WHERE collection_id = $1)';
 		const DELETETODOS = 'DELETE FROM todos WHERE task_id IN (SELECT task_id FROM tasks WHERE collection_id = $1)';
@@ -63,6 +64,7 @@ exports.deleteCollectionById = async function (collectionId) {
 		const DELETECOLLECTION = 'DELETE FROM collections WHERE collection_id = $1';
   		const values = [collectionId];
 
+		await pool.query(DELETEREPLIES, values);
 		await pool.query(DELETEVOTES, values);
 		await pool.query(DELETEFEEDBACKS, values);
 		await pool.query(DELETETODOS, values);

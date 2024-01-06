@@ -42,6 +42,7 @@ const USERMODEL = require('./models/userModel.js');
 const PLATFORMSMODEL = require('./models/platformModel.js');
 const TODOMODEL = require('./models/todoModel.js');
 const FEEDBACKMODEL = require('./models/feedbackModel.js');
+const REPLIESMODEL = require('./models/repliesModel.js');
 
 //Routing
 APP.get("/", (req, res) => {
@@ -249,6 +250,10 @@ APP.get("/:uuid", async (req, res) => {
     res.sendFile(__dirname + "/views/collection.html");
 });
 
+APP.get("/:uuid/feedback/:feedbackId", async (req, res) => {
+    res.sendFile(__dirname + "/views/collection.html");
+});
+
 APP.get("/:uuid/alerts", async (req, res) => {
     const COLLECTION = await (await COLLECTIONSMODEL.getCollection(req.params.uuid)).rows[0];
     const ALERTS = await (await ALERTSMODEL.getAlerts(await COLLECTION.id)).rows;
@@ -294,7 +299,7 @@ APP.get("/api/tasks/:taskId/todos", async (req, res) => {
 });
 
 APP.get("/api/tasks/:taskId/feedbacks", async (req, res) => {
-    const FEEDBACKS = await (await FEEDBACKMODEL.getFeedbacksWithUsersByTaskId(req.params.taskId)).rows;
+    const FEEDBACKS = await (await FEEDBACKMODEL.getFeedbacksWithUsersAndRepliesByTaskId(req.params.taskId)).rows;
     res.send(FEEDBACKS);
 })
 
@@ -509,7 +514,8 @@ IO.on('connection', async (socket) => {
                     break;
                 case 'dribbble':
                     break;
-                case '-': 
+                case '-':
+                    console.log('No platform connected.');
                     break;
                 default:
                     break;
@@ -533,6 +539,11 @@ IO.on('connection', async (socket) => {
         FEEDBACK.username = data.username;
         IO.in(socket.handshake.session.uuid).emit('saved-feedback', await FEEDBACK);
     })
+
+    socket.on('save-reply-feedback', async (data) => {
+        const REPLY = await (await REPLIESMODEL.saveReply(await data)).rows[0];
+        IO.in(socket.handshake.session.uuid).emit('saved-reply-feedback', await REPLY);
+    });
 
     socket.on('disconnect', () => {
         console.log(`Socket ${socket.id} disconnected.`);

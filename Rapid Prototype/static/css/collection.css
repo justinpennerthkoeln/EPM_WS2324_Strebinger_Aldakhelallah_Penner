@@ -2,7 +2,6 @@ main {
     display: flex;
     flex-direction: column;
     gap: var(--space-2xl);
-    height: 100vh;
     width: 100vw;
 }
 
@@ -478,4 +477,119 @@ p.hidden {
 
 .feedback .feedback-info {
     font-size: var(--detail-font-size);
+}
+
+
+/* Reply Feedback
+***************************************/
+.feedback-reply-container {
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.feedback-reply-container > div {
+    width: 40vw;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+    background-color: var(--color-on-background-dark);
+    border-radius: var(--br-xs);
+    padding: var(--space-xl);
+}
+
+.feedback-reply-container .task-intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+}
+
+.feedback-reply-container .task-intro p {
+    color: var(--color-text-light);
+    font-size: var(--detail-font-size);
+}
+
+.feedback-reply-container .task-info {
+    margin-top: var(--space-l);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+}
+
+.feedback-reply-container.hidden {
+    display: none;
+}
+
+.feedback-reply-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    background-color: var(--color-background-dark-transparent);
+    backdrop-filter: blur(var(--xxs));
+    transition: var(--tr-fast) ease-in-out;
+}
+
+.feedback-reply-container.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.feedback-reply-container > div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+    background-color: var(--color-on-background-dark);
+    border-radius: var(--br-xs);
+    padding: var(--space-xl);
+}
+
+.feedback-reply-container > div > header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+}
+
+.feedback-reply-container > div > form {
+    display: flex;
+    flex-direction: column;
+}
+
+.feedback-reply-container > div > form > div:not([class="send-notification-container"]) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xxs);
+}
+
+.feedback-reply-container > div > form > div:not(:first-child) {
+    margin-top: var(--space-l);
+}
+
+.feedback-reply-container > div > form > button {
+    margin-top: var(--space-xl);
+}
+
+/* Replies
+****************************************************************/
+
+.replies {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+}
+
+.reply  {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-background-dark-transparent);
+    padding: var(--space-l);
+    border-radius: var(--br-xs);
 }

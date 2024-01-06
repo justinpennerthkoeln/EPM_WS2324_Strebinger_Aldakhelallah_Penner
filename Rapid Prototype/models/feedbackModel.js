@@ -27,18 +27,34 @@ exports.saveFeedback = async function (feedback) {
     }
 }
 
-exports.getFeedbacksWithUsersByTaskId = async function (task_id) {
+exports.getFeedbacksWithUsersAndRepliesByTaskId = async function (task_id) {
     try {
         const query = `
-            SELECT 
-                feedbacks.*,
-                users.username
-            FROM 
-                feedbacks
-                INNER JOIN memberships ON feedbacks.membership_id = memberships.membership_id
-                INNER JOIN users ON memberships.user_id = users.id
-            WHERE 
-                feedbacks.task_id = $1`;
+        SELECT 
+        feedbacks.*,
+        users.username,
+        COUNT(DISTINCT replies.reply_id) AS reply_count,
+        CASE
+            WHEN COUNT(DISTINCT replies.reply_id) > 0
+            THEN jsonb_agg(DISTINCT jsonb_build_object(
+                'reply_id', replies.reply_id,
+                'username', replies.username,
+                'comment', replies.comment,
+                'timestamp', replies.timestamp
+            ))
+            ELSE NULL
+        END AS replies
+    FROM 
+        feedbacks
+        INNER JOIN memberships ON feedbacks.membership_id = memberships.membership_id
+        INNER JOIN users ON memberships.user_id = users.id
+        LEFT JOIN replies ON feedbacks.feedback_id = replies.feedback_id
+    WHERE 
+        feedbacks.task_id = $1
+    GROUP BY
+        feedbacks.feedback_id,
+        users.username;`;
+        
         const values = [Number(task_id)];
         return await pool.query(query, values);
     } catch (error) {
