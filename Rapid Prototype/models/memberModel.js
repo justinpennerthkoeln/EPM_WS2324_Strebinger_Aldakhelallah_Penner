@@ -91,3 +91,14 @@ exports.getMembershipsWithUserData = async function (collectionId) {
 		return false;
 	}
 }
+
+exports.deleteMembershipById = async function (membershipId) {
+	try {
+		const query = 'DELETE FROM memberships WHERE membership_id = $1';
+		const values = [Number(membershipId)];
+		return await pool.query(query, values);
+	} catch (error) {
+		console.log(error);
+		throw new Error(error);
+	}
+}

@@ -286,3 +286,25 @@ main .content aside:first-child {
     outline: var(--color-accent-primary) solid var(--xs);
 }
 
+/* Manage collaborators
+******************************************************************************************************************************/
+
+.collaborators > div {
+    margin-top: var(--space-l);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-l);
+    background-color: var(--color-on-background-dark);
+    padding: var(--space-s) var(--space-xl);
+}
+
+.collaborators button {
+    background-color: var(--color-accent-primary);
+    color: var(--color-text-light);
+    border: none;
+    border-radius: var(--br-xs);
+    padding: var(--space-s) var(--space-xl);
+    margin-left: var(--space-xs);
+}
