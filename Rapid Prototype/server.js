@@ -556,9 +556,8 @@ IO.on('connection', async (socket) => {
     });
 
     socket.on('update-task-status', async (data) => {
-        TASKSMODEL.updateTaskStatus(await data);
-
-        IO.in(socket.handshake.session.uuid).emit('updated-task-status', await data);
+        if(TASKSMODEL.updateTaskStatus(await data))
+            IO.in(socket.handshake.session.uuid).emit('updated-task-status', await data);
     });
 
     //Platforms
