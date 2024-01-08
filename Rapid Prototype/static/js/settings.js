@@ -148,6 +148,53 @@ SOCKET.on('connect', () => {
             }
         })
     });
+
+    // Manage Platforms
+    const PLATFORMSDIV = document.querySelector('#manage-projects .platforms');
+    SOCKET.emit('get-platforms', window.location.pathname.split('/')[1]);
+    SOCKET.on('got-platforms', (platforms) => {
+        PLATFORMSDIV.innerHTML = '';
+        platforms.forEach((platform) => {
+            const DIV = document.createElement('div');
+            DIV.classList.add('platform');
+            DIV.innerHTML = `
+                    <h3>${capitalizeFirstLetter(platform.platform)}</h3>
+                    <form>
+                        <div>
+                            <label for="target-document">Target Document</label>
+                            <input type="text" name="target-document" value="${platform.target_document}" id="target-document" class="target-document">
+                        </div>
+                        <div class="platform-setting-buttons">
+                            <button class="update-platform" value="${platform.platform_id}">Update</button>
+                            <button class="delete-platform" value="${platform.platform_id}">Delete</button>
+                        </div>
+                    </form>
+            `;
+            PLATFORMSDIV.appendChild(DIV);
+
+            const UPDATEBUTTON = DIV.querySelector('.update-platform');
+            UPDATEBUTTON.addEventListener('click', ($event) => {
+                const TARGETDOCUMENT = DIV.querySelector('.target-document');
+                $event.preventDefault();
+                SOCKET.emit('update-target-document', {
+                    platformId: UPDATEBUTTON.value,
+                    targetDocument: TARGETDOCUMENT.value,
+                });
+            });
+
+            const DELETEBUTTON = DIV.querySelector('.delete-platform');
+            DELETEBUTTON.addEventListener('click', ($event) => {
+                $event.preventDefault();
+                SOCKET.emit('delete-platform', {
+                    platformId: DELETEBUTTON.value
+                });
+            });
+        });
+    });
+
+    function capitalizeFirstLetter(word) {
+        return word.slice(0, 1).toUpperCase() + word.slice(1);
+    }
     
     // ERROR OR SUCCESS HANDLING
     SOCKET.on('error', (data) => {
@@ -160,6 +207,14 @@ SOCKET.on('connect', () => {
 
     SOCKET.on('deleted-collection', (data) => {
         window.location = `${window.location.origin}/?userId=${localStorage.userId}&success=${data}`;
+    });
+
+    SOCKET.on('updated-target-document', (data) => {
+        window.location = `${window.location.origin}${window.location.pathname}?success=${data}`;
+    });
+
+    SOCKET.on('deleted-platform', (data) => {
+        window.location = `${window.location.origin}${window.location.pathname}?success=${data}`;
     });
 
     SOCKET.on('disconnect', () => {

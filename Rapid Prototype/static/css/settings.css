@@ -236,3 +236,53 @@ main .content aside:first-child {
     background-color: var(--color-notion-secondary);
     outline: var(--color-notion-tertiary) solid var(--xs);
 }
+
+/* Manage platforms
+******************************************************************************************************************************/
+
+.platform {
+    margin-top: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+}
+
+.platform form {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-l);
+    justify-self: center;
+    align-items: flex-end;
+}
+
+.platform form div:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.platform form button {
+    background-color: var(--color-accent-primary);
+    color: var(--color-text-light);
+    border: none;
+    border-radius: var(--br-xs);
+    padding: var(--space-s) var(--space-xl);
+    margin-left: var(--space-xs);
+}
+
+.platform form input {
+    background-color: var(--color-on-background-dark);
+    color: var(--color-text-light);
+    border: none;
+    border-radius: var(--br-xs);
+    padding: var(--space-s) var(--space-xl);
+}
+
+.platform form input::placeholder {
+    color: var(--color-text-light-detail);
+}
+
+.platform form input:focus {
+    outline: var(--color-accent-primary) solid var(--xs);
+}
+

@@ -84,7 +84,22 @@ exports.updateTargetDocument = async function (platformId, documentName) {
         const values = [platformId, documentName];
         await pool.query(query, values);
     } catch (err) {
+        pool.query("ROLLBACK;");
         console.log(err);
-        return false;
+        throw new Error(err);
     }
 }
+
+exports.deletePlatformById = async function (platformId) {
+    try {
+        pool.query("BEGIN;");
+        const query = 'DELETE FROM platforms WHERE platform_id = $1';
+        const values = [platformId];
+        pool.query("COMMIT;");
+        return await pool.query(query, values);
+    } catch (err) {
+        pool.query("ROLLBACK;");
+        console.log(err);
+        throw new Error(err);
+    }
+};

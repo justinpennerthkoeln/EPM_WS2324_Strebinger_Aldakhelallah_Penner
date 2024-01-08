@@ -651,7 +651,23 @@ IO.on('connection', async (socket) => {
     });
 
     socket.on('update-target-document', async (data) => {
-        PLATFORMSMODEL.updateTargetDocument(data.platformId, data.targetDocument);
+        try {
+            await PLATFORMSMODEL.updateTargetDocument(data.platformId, data.targetDocument);
+            socket.emit('updated-target-document', 'Target document updated.');
+        } catch (error) {
+            socket.emit('error', 'Could not be updated. Please try again later.');
+            console.log(error);
+        }
+    });
+
+    socket.on('delete-platform', async (data) => {
+        try {
+            await PLATFORMSMODEL.deletePlatformById(data.platformId);
+            socket.emit('deleted-platform', 'Platform deleted.');
+        } catch (error) {
+            socket.emit('error', 'Could not be deleted. Please try again later.');
+            console.log(error);
+        }
     });
 
     //Settings
