@@ -109,6 +109,10 @@ APP.post("/signup", urlencodedParser, async (req, res) => {
     }
 });
 
+APP.get("/reposelections", (req, res) => {
+    res.sendFile(__dirname + "/views/reposelections.html");
+});
+
 //AUTH
 APP.get("/github/oauth/:uuid/:plaformId", async (req, res) => {
     const QUERY = `https://github.com/login/oauth/access_token?code=${req.query.code}&client_id=e82e9be1c2c8d95f719a&client_secret=cc9b2c76bcf27acf37dc41cc7da7b6cdec010395`
@@ -120,9 +124,18 @@ APP.get("/github/oauth/:uuid/:plaformId", async (req, res) => {
         }
     }).then((response) => response.json());
 
-    PLATFORMSMODEL.updatePlatform(req.params.plaformId, RESPONSE.access_token, '');
+    const QUERY2 = `https://api.github.com/user`;
+    const RESPONSE2 = await fetch(QUERY2, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `token ${RESPONSE.access_token}`
+        }
+    }).then((response) => response.json());
 
-    res.redirect(`/${req.params.uuid}/settings`);
+    PLATFORMSMODEL.updatePlatform(req.params.plaformId, await RESPONSE.access_token, '', await RESPONSE2.login);
+
+    res.redirect(`/reposelections?uuid=${req.params.uuid}&platformId=${req.params.plaformId}&platform=github`);
 });
 
 APP.get("/gitlab/oauth", async (req, res) => {
@@ -147,13 +160,17 @@ APP.get("/gitlab/oauth", async (req, res) => {
         return response.json();
     });
 
-    Promise.resolve(RESPONSE)
-    .then(async (response) => {
-        PLATFORMSMODEL.updatePlatform(platformId, response.access_token, '');
-        res.redirect(`/${uuid}/settings`);
-    })
-    .catch((error) => {
-        console.error(error);
+    Promise.resolve(RESPONSE).then(async (authJson) => {
+        fetch(`https://gitlab.com/api/v4/user`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': `Bearer ${authJson.access_token}`
+            }
+        }).then((response) => response.json()).then((data) => {
+            PLATFORMSMODEL.updatePlatform(platformId, authJson.access_token, '', data.username);
+            res.redirect(`/reposelections?uuid=${uuid}&platformId=${platformId}&platform=gitlab`);
+        });
     });
 });
 
@@ -175,7 +192,7 @@ APP.get('/notion/oauth', async (req, res) => {
     const PLATFORMID = req.query.state.split('_')[1];
 
     Promise.resolve(RESPONSE).then(async (response) => {
-        PLATFORMSMODEL.updatePlatform(PLATFORMID, response.access_token, response.workspace_id);
+        PLATFORMSMODEL.updatePlatform(PLATFORMID, response.access_token, response.workspace_id, '');
         res.redirect(`/${UUID}/settings`);
     });
 });
@@ -212,7 +229,7 @@ APP.get("/dribbble/oauth", async (req, res) => {
         return response.json();
     })
     .then(data => {
-        PLATFORMSMODEL.updatePlatform(PLATFORMID, data.access_token, '');
+        PLATFORMSMODEL.updatePlatform(PLATFORMID, data.access_token, '', '');
         res.status(200).redirect(`/${UUID}/settings`);
     })
     .catch(error =>{
@@ -240,7 +257,7 @@ APP.get("/figma/oauth", async (req, res) => {
         return response.json();
     })
     Promise.resolve(test).then((data) => {
-        PLATFORMSMODEL.updatePlatform(PLATFORMID, data.access_token, '');
+        PLATFORMSMODEL.updatePlatform(PLATFORMID, data.access_token, '', '');
         res.status(200).redirect(`/${UUID}/settings`);
     });
 });
@@ -601,6 +618,37 @@ IO.on('connection', async (socket) => {
         }
     });
 
+    //Get Repos of Connection
+    socket.on('get-repos', async (data) => {
+        const PLATFORM = await (await PLATFORMSMODEL.getPlatformById(data.platformId)).rows[0];
+        switch(data.platform) {
+            case 'github': 
+                var repos = fetch(`https://api.github.com/users/${PLATFORM.username}/repos`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': `token ${PLATFORM.platform_key}`
+                    }
+                }).then((response) => response.json());
+                socket.emit('got-repos', await repos);
+                break;
+            case 'gitlab':
+                var repos = fetch(`https://gitlab.com/api/v4/projects?membership=true`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': `Bearer ${PLATFORM.platform_key}`
+                    }
+                }).then((response) => response.json());
+                socket.emit('got-repos', await repos);
+                break;
+        }
+    });
+
+    socket.on('update-target-document', async (data) => {
+        PLATFORMSMODEL.updateTargetDocument(data.platformId, data.targetDocument);
+    });
+
     //Settings
 
     //Invite Collaborators
@@ -627,7 +675,7 @@ async function connectGithub(data, platformId) {
 
 async function connectGitlab(data, platformId) {
     var CONN = {
-        oauth: `https://gitlab.com/oauth/authorize?client_id=ee480e58dacb20b4af3ea2eada267495191ea86740dde4360149d42a9b2706ac&redirect_uri=http://localhost:80/gitlab/oauth?ids=${data.uuid+'_'+platformId}&response_type=code&state=STATE&scope=api read_api`
+        oauth: `https://gitlab.com/oauth/authorize?client_id=ee480e58dacb20b4af3ea2eada267495191ea86740dde4360149d42a9b2706ac&redirect_uri=http://localhost:80/gitlab/oauth?ids=${data.uuid+'_'+platformId}&response_type=code&state=STATE&scopes=write_repository,read_user`
     }
     return CONN;
 }

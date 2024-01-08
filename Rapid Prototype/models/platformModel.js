@@ -37,7 +37,7 @@ exports.createPlatform = async function (userId, collectionId, platform, platfor
     }
 }
 
-exports.updatePlatform = async function (platformId, platformKey, targetDocument) {
+exports.updatePlatform = async function (platformId, platformKey, targetDocument, username) {
     try {
         const query = 'UPDATE platforms SET platform_key = $2 WHERE platform_id = $1';
         const values = [platformId, platformKey];
@@ -46,6 +46,10 @@ exports.updatePlatform = async function (platformId, platformKey, targetDocument
         const query2 = 'UPDATE platforms SET target_document = $2 WHERE platform_id = $1';
         const values2 = [platformId, targetDocument];
         await pool.query(query2, values2);
+
+        const query3 = 'UPDATE platforms SET username = $2 WHERE platform_id = $1';
+        const values3 = [platformId, username];
+        await pool.query(query3, values3);
     } catch (err) {
         console.log(err);
         return false;
@@ -71,5 +75,16 @@ exports.getConnectionsFromCollectionId = async function (collectionId) {
 	} catch (err) {
         console.log(err);
 		return false;
+    }
+}
+
+exports.updateTargetDocument = async function (platformId, documentName) {
+    try {
+        const query = 'UPDATE platforms SET target_document = $2 WHERE platform_id = $1';
+        const values = [platformId, documentName];
+        await pool.query(query, values);
+    } catch (err) {
+        console.log(err);
+        return false;
     }
 }

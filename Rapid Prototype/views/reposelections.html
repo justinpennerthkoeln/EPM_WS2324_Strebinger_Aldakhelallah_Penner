@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <main>
+        <h1>Select a Repo: </h1>
+        <section id="repos">
+
+        </section>
+    </main>
+    <script type="importmap">
+        {
+            "imports": {
+                "socket.io-client": "https://cdn.socket.io/4.4.1/socket.io.esm.min.js"
+            }
+        }
+    </script>
+    <script type="module">
+        import { io } from "socket.io-client";
+        const SOCKET = io("ws://localhost:80");
+        
+        SOCKET.on("connect", () => {
+            console.log("Connected to server");
+
+            const PARAMS = new URLSearchParams(window.location.search);
+            SOCKET.emit("get-repos", {
+                uuid: PARAMS.get("uuid"),
+                platformId: PARAMS.get("platformId"),
+                platform: PARAMS.get("platform")
+            });
+
+            SOCKET.on('got-repos', (repos) => {
+                if(PARAMS.get("platform") == "github") {
+                    const REPOS = document.getElementById("repos");
+                    repos.forEach(repo => {
+                        const REPO = document.createElement("div");
+                        REPO.classList.add("repo");
+                        REPO.innerHTML = `
+                            <h2>${repo.name}</h2>
+                            <p>${repo.description}</p>
+                            <button class="select-repo-btn" data-repo-name="${repo.name}">Select Repo</button>
+                        `;
+
+                        REPO.querySelector(".select-repo-btn").addEventListener("click", ($event) => {
+                            $event.preventDefault();
+                            SOCKET.emit("update-target-document", {
+                                platformId: PARAMS.get("platformId"),
+                                targetDocument: $event.target.dataset.repoName
+                            });
+                            window.location = `${window.location.origin}/${PARAMS.get("uuid")}/settings/add-projects?success=Added Repository`;
+                        });
+                        REPOS.appendChild(REPO);
+                    });
+                } else {
+                    const REPOS = document.getElementById("repos");
+                    repos.forEach(repo => {
+                        const REPO = document.createElement("div");
+                        REPO.classList.add("repo");
+                        REPO.innerHTML = `
+                            <h2>${repo.name}</h2>
+                            <p>${repo.description}</p>
+                            <button class="select-repo-btn" data-repo-name="${repo.id}">Select Repo</button>
+                        `;
+
+                        REPO.querySelector(".select-repo-btn").addEventListener("click", ($event) => {
+                            $event.preventDefault();
+                            SOCKET.emit("update-target-document", {
+                                platformId: PARAMS.get("platformId"),
+                                targetDocument: $event.target.dataset.repoName
+                            });
+                            window.location = `${window.location.origin}/${PARAMS.get("uuid")}/settings/add-projects?success=Added Repository`;
+                        });
+                        REPOS.appendChild(REPO);
+                    });
+                }
+            })
+        });
+
+        
+    </script>
+</body>
+</html>
