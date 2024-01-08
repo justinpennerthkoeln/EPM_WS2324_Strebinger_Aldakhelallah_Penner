@@ -15,7 +15,7 @@ DROP TABLE IF EXISTS replies;
 
 CREATE TYPE platform AS ENUM ('github', 'gitlab', 'markdown', 'notion', 'figma', 'dribbble', '-');
 CREATE TYPE role AS ENUM ('designer', 'programmer', 'product owner', 'project manager');
-CREATE TYPE status AS ENUM ('todo', 'in progress', 'review', 'done');
+CREATE TYPE status AS ENUM ('todo', 'running', 'review', 'done');
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
