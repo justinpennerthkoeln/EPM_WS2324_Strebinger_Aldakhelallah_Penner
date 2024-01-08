@@ -149,3 +149,90 @@ main .content aside:first-child {
 #delete-collection div button {
     background-color: red;
 }
+
+/* Add a platform
+******************************************************************************************************************************/
+
+.connections {
+    display: grid;
+    grid-template-columns: repeat(2, 3fr);
+    gap: var(--space-xl);
+}
+
+.connections button {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-s);
+    padding: var(--space-m) var(--space-2xl);
+}
+
+.connections button p {
+    color: var(--color-code-primary);
+}
+
+.connections button[value="gitlab"] {
+    background-color: var(--color-gitlab-primary);
+}
+
+.connections button[value="gitlab"]:hover {
+    background-color: var(--color-gitlab-secondary);
+}
+
+.connections button[value="gitlab"]:focus {
+    background-color: var(--color-gitlab-secondary);
+    outline: var(--color-gitlab-tertiary) solid var(--xs);
+}
+
+.connections button[value="github"] {
+    background-color: var(--color-github-primary);
+}
+
+.connections button[value="github"]:hover {
+    background-color: var(--color-github-secondary);
+}
+
+.connections button[value="github"]:focus {
+    background-color: var(--color-github-secondary);
+    outline: var(--color-github-tertiary) solid var(--xs);
+}
+
+.connections button[value="figma"] {
+    background-color: var(--color-figma-primary);
+}
+
+.connections button[value="figma"]:hover {
+    background-color: var(--color-figma-secondary);
+}
+
+.connections button[value="figma"]:focus {
+    background-color: var(--color-figma-secondary);
+    outline: var(--color-figma-tertiary) solid var(--xs);
+}
+
+.connections button[value="dribbble"] {
+    background-color: var(--color-dribbble-primary);
+}
+
+.connections button[value="dribbble"]:hover {
+    background-color: var(--color-dribbble-secondary);
+}
+
+.connections button[value="dribbble"]:focus {
+    background-color: var(--color-dribbble-secondary);
+    outline: var(--color-dribbble-tertiary) solid var(--xs);
+}
+
+.connections button[value="notion"] {
+    background-color: var(--color-notion-primary);
+}
+
+.connections button[value="notion"]:hover {
+    background-color: var(--color-notion-secondary);
+}
+
+.connections button[value="notion"]:focus {
+    background-color: var(--color-notion-secondary);
+    outline: var(--color-notion-tertiary) solid var(--xs);
+}

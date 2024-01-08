@@ -6,10 +6,9 @@ const SOCKET = io('ws://localhost:80');
 SOCKET.on('connect', () => {
     console.log(`Connected with ${SOCKET.id}.`);
 
-    const forms = document.querySelectorAll('form');
-    const platformForm = document.querySelectorAll('#add-platform-form')[0];
     const sideNav = document.querySelectorAll('#aside-nav ul a');
 
+    // Update Page on Connection and Join Room
     SOCKET.emit('get-details', (window.location.pathname.split('/')[1]));
     SOCKET.on('got-details', (details) => {
         const HEADER = document.querySelector('main > header');
@@ -36,20 +35,6 @@ SOCKET.on('connect', () => {
         localStorage.setItem('username', member.username)
         localStorage.setItem('membershipId', member.membership_id);
     });
-
-    if(platformForm) {
-        platformForm.addEventListener('submit', ($event) => {
-            $event.preventDefault();
-    
-            const COLLECTIONSDATA = new FormData(platformForm);
-            const COLLECTIONSECTION = document.getElementById('platform-select');
-            SOCKET.emit('create-platform', {
-                id: Number(localStorage.getItem('userId')),
-                platform: COLLECTIONSECTION.value,
-                uuid: window.location.pathname.split('/')[1]
-            });
-        });
-    }
 
     SOCKET.on('conn', (CONN) => {
         window.location.href = CONN.oauth;
@@ -142,8 +127,28 @@ SOCKET.on('connect', () => {
             window.location = `${window.location.origin}${window.location.pathname}?error=The Collection's name doesnt match.`;
         }
     });
-    
 
+    // Connect to Platform
+    const BUTTONS = document.querySelectorAll('.connections button');
+    BUTTONS.forEach((button) => {
+        button.addEventListener('click', ($event) => {
+            $event.preventDefault();
+            if($event.target.value != undefined) {
+                SOCKET.emit('create-platform', {
+                    id: localStorage.getItem('userId'),
+                    uuid: window.location.pathname.split('/')[1],
+                    platform: $event.target.value
+                });
+            } else {
+                SOCKET.emit('create-platform', {
+                    id: localStorage.getItem('userId'),
+                    uuid: window.location.pathname.split('/')[1],
+                    platform: $event.target.parentElement.value
+                });
+            }
+        })
+    });
+    
     // ERROR OR SUCCESS HANDLING
     SOCKET.on('error', (data) => {
         window.location = `${window.location.origin}${window.location.pathname}?error=${data}`;
@@ -158,6 +163,7 @@ SOCKET.on('connect', () => {
     });
 
     SOCKET.on('disconnect', () => {
+        SOCKET.emit('leave', window.location.pathname.split('/')[1]);
         console.log(`Disconnected from ${SOCKET.id}.`);
     });
 });

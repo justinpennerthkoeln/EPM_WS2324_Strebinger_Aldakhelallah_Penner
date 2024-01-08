@@ -342,6 +342,10 @@ IO.on('connection', async (socket) => {
         socket.handshake.session.save();
     });
 
+    socket.on('leave', async (data) => {
+        socket.leave("room-" + data);
+    });
+
     //Collection
     socket.on('create-collection', async (data) => {
         const COLLECTION = await COLLECTIONSMODEL.createCollection(await data.name, await data.description);

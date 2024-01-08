@@ -244,7 +244,7 @@ SOCKET.on('connect', () => {
                     <p>${DATEOPTIONS.day + '.' + DATEOPTIONS.month + '.' + DATEOPTIONS.year}</p>
                 </div>
                 <div class="feedback-thumbs">
-                    <button id="reply-btn" value="${feedback.feedback_id}">reply</button>
+                    <button class="reply-btn" value="${feedback.feedback_id}">reply</button>
                     <svg width="18" height="17" viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M11.1105 6.28424H16.1399C17.008 6.28424 17.7116 6.9879 17.7116 7.85588V9.50958C17.7116 9.71483 17.6714 9.91813 17.5932 10.108L15.1616 16.0134C15.0403 16.3079 14.7533 16.5 14.4349 16.5H1.20917C0.775171 16.5 0.42334 16.1482 0.42334 15.7142V7.85588C0.42334 7.42189 0.775171 7.07007 1.20917 7.07007H3.9453C4.20064 7.07007 4.44005 6.94601 4.5873 6.73741L8.87274 0.666365C8.98472 0.507731 9.19579 0.454681 9.36946 0.541519L10.795 1.25429C11.6214 1.6675 12.0482 2.60074 11.8203 3.49613L11.1105 6.28424ZM5.13832 8.31755V14.9283H13.9086L16.1399 9.50958V7.85588H11.1105C10.0852 7.85588 9.33449 6.89008 9.58737 5.8965L10.2972 3.1084C10.3428 2.92931 10.2574 2.74266 10.0921 2.66003L9.5726 2.40025L5.8713 7.64376C5.67492 7.92196 5.42389 8.15001 5.13832 8.31755ZM3.56666 8.64171H1.995V14.9283H3.56666V8.64171Z" fill="#F5F5F5"/>
                     </svg>
@@ -263,11 +263,6 @@ SOCKET.on('connect', () => {
     const TASKVIEW = document.querySelector('.view-task-container');
     function genTaskView(task, todos, feedbacks) {
 
-
-        //WRITE API CALL FOR FEEDBACKS
-        //ALSO GET USER THAT WROTE THE FEEDBACK
-        //ITERATE OVER TASKS PUSH EACH FEEDBACK
-        
         const ADDTODOBTN = document.querySelector('.add-todo-btn');
         const ERRORPARAGRAPH = document.querySelector('.task-subtasks p');
         const ADDTODOINPUT = document.querySelector('.add-todo input');
@@ -425,7 +420,7 @@ SOCKET.on('connect', () => {
                                 <p>${DATEOPTIONS.day + '.' + DATEOPTIONS.month + '.' + DATEOPTIONS.year}</p>
                             </div>
                             <div class="feedback-thumbs">
-                                <button id="reply-btn" value="${feedback.feedback_id}">reply</button>
+                                <button class="reply-btn" value="${feedback.feedback_id}">reply</button>
                                 <svg width="18" height="17" viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M11.1105 6.28424H16.1399C17.008 6.28424 17.7116 6.9879 17.7116 7.85588V9.50958C17.7116 9.71483 17.6714 9.91813 17.5932 10.108L15.1616 16.0134C15.0403 16.3079 14.7533 16.5 14.4349 16.5H1.20917C0.775171 16.5 0.42334 16.1482 0.42334 15.7142V7.85588C0.42334 7.42189 0.775171 7.07007 1.20917 7.07007H3.9453C4.20064 7.07007 4.44005 6.94601 4.5873 6.73741L8.87274 0.666365C8.98472 0.507731 9.19579 0.454681 9.36946 0.541519L10.795 1.25429C11.6214 1.6675 12.0482 2.60074 11.8203 3.49613L11.1105 6.28424ZM5.13832 8.31755V14.9283H13.9086L16.1399 9.50958V7.85588H11.1105C10.0852 7.85588 9.33449 6.89008 9.58737 5.8965L10.2972 3.1084C10.3428 2.92931 10.2574 2.74266 10.0921 2.66003L9.5726 2.40025L5.8713 7.64376C5.67492 7.92196 5.42389 8.15001 5.13832 8.31755ZM3.56666 8.64171H1.995V14.9283H3.56666V8.64171Z" fill="#F5F5F5"/>
                                 </svg>
@@ -446,7 +441,7 @@ SOCKET.on('connect', () => {
             const FEEDBACKS = document.querySelectorAll('.feedback');
             
             FEEDBACKS.forEach((feedback) => {
-                const REPLYBTN = feedback.querySelector('#reply-btn');
+                const REPLYBTN = feedback.querySelector('.reply-btn');
                 const TASKCONTAINER = document.querySelector('.view-task-container');
                 REPLYBTN.addEventListener('click', ($event) => {
                     $event.preventDefault();
@@ -585,6 +580,7 @@ SOCKET.on('connect', () => {
 
     // Disconnect from server
     SOCKET.on('disconnect', () => {
+        SOCKET.emit('leave', window.location.pathname.split('/')[1]);
         console.log('Disconnected from server');
     });
-});
+})
