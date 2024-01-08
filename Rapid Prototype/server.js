@@ -553,7 +553,13 @@ IO.on('connection', async (socket) => {
         const COLLECTION = await (await COLLECTIONSMODEL.getCollection(uuid)).rows[0];
         const PLATFORMS = await (await PLATFORMSMODEL.getPlatformsByCollectionId(await COLLECTION.collection_id)).rows;
         socket.emit('got-platforms', await PLATFORMS);
-    })
+    });
+
+    socket.on('update-task-status', async (data) => {
+        TASKSMODEL.updateTaskStatus(await data);
+
+        IO.in(socket.handshake.session.uuid).emit('updated-task-status', await data);
+    });
 
     //Platforms
     socket.on('create-platform', async (data) => {

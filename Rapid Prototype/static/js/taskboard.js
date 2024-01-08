@@ -3,7 +3,7 @@ const TASKBOARD = Vue.createApp({
     data() {
         return {
             tasks: [],
-            states: ['todo', 'in-progress', 'review', 'done'],
+            states: ['todo', 'running', 'review', 'done'],
         }
     },
     template: `

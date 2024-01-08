@@ -137,3 +137,14 @@ exports.getTaskForViewById = async function (task_id) {
 		return false;
 	}
 }
+
+exports.updateTaskStatus = async function (data) {
+	try {
+		const query = `UPDATE tasks SET status = $1 WHERE task_id = $2 RETURNING *`;
+		const values = [data.status.replaceAll("-", " "), data.task_id];
+		return await pool.query(query, values);
+	} catch (err) {
+		console.log(err);
+		return false;
+	}
+}

@@ -41,15 +41,29 @@ SOCKET.on('connect', () => {
         data() {
             return {
                 tasks: [],
-                states: ['todo', 'in-progress', 'review', 'done'],
+                states: ['todo', 'running', 'review', 'done'],
             }
         },
         template: `
-            <section v-for="state in states" :class="'state-' + state">
+            <section 
+                v-for="state in states" 
+                :class="'state-' + state"
+                @drop="handleDrop($event, state)" 
+                @dragover.prevent="allowDrop"
+            >
                 <h2>{{ state.charAt(0).toUpperCase() + state.slice(1).replace('-', ' ')}}</h2>
-                    <div :id="state + '-cards'" class="cards" v-if="hasTasks(state)">
+                <div :id="state + '-cards'" class="cards">
+                    <template v-if="hasTasks(state)">
                         <template v-for="(task, index) in tasks">
-                            <div :value="state" class="card" id="card" v-if="task.status == state.replaceAll('-', ' ')" @click="openTask(index)">
+                            <div 
+                                :value="state"
+                                :draggable="true" 
+                                class="card" 
+                                id="card" 
+                                v-if="task.status == state.replaceAll('-', ' ')" 
+                                @click="openTask(index)" 
+                                @dragstart="handleDragStart($event, task.task_id)"
+                            >
                                 <label class="checkbox-container">
                                     <input type="checkbox" :id="task.task_id" :name="task.task_id"/>
                                     <span class="checkmark"></span>
@@ -82,13 +96,14 @@ SOCKET.on('connect', () => {
                                 </div>
                             </div>
                         </template>
-                    </div>
+                    </template>
+                </div>
                 <button :value="state" id="create-task-button">Add Task</button>
             </section>
         `,
         methods: {
-            loadTasks(tasks) {
-                this.tasks = tasks;
+            async loadTasks(tasks) {
+                this.tasks = await tasks;
             },
             hasTasks(state) {
                 return this.tasks.some((task) => {
@@ -150,6 +165,30 @@ SOCKET.on('connect', () => {
 
                 genTaskView(this.tasks[index], await TODOS, await FEEDBACKS);
             },
+
+            handleDragStart($event, id) {
+                $event.dataTransfer.setData('text/plain', id.toString());
+            },
+
+            handleDrop($event, targetState) {
+                $event.preventDefault();
+            
+                const taskID = parseInt($event.dataTransfer.getData('text/plain'), 10);
+                const draggedTask = this.tasks.find((task) => {
+                    return task.task_id == taskID;
+                });
+            
+                draggedTask.status = targetState;
+
+                SOCKET.emit('update-task-status', {
+                    task_id: taskID,
+                    status: draggedTask.status
+                });
+            },
+
+            allowDrop(event) {
+                event.preventDefault();
+            },
         }
     }).mount('#taskboard');
 
@@ -157,6 +196,15 @@ SOCKET.on('connect', () => {
     SOCKET.emit('get-tasks', (window.location.pathname.split('/')[1]));
     SOCKET.on('got-tasks', (tasks) => {
         TASKBOARD.loadTasks(tasks);
+    });
+
+    // Update task status
+    SOCKET.on('updated-task-status', (data) => {
+        TASKBOARD.tasks.forEach((task) => {
+            if(task.task_id == data.task_id) {
+                task.status = data.status;
+            }
+        });
     });
 
     // Get platforms

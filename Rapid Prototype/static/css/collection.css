@@ -73,7 +73,7 @@ main>header>p:nth-child(3) {
     background-color: var(--color-state-todo);
 }
 
-.state-in-progress {
+.state-running {
     background-color: var(--color-state-inprogress);
 }
 
