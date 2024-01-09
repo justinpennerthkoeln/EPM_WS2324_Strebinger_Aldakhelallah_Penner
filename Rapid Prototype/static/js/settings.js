@@ -195,6 +195,34 @@ SOCKET.on('connect', () => {
     function capitalizeFirstLetter(word) {
         return word.slice(0, 1).toUpperCase() + word.slice(1);
     }
+
+    // Manage Collaborators
+    const COLLABORATORSDIV = document.querySelector('#manage-collaborators .collaborators');
+    SOCKET.emit('get-members', window.location.pathname.split('/')[1]);
+    SOCKET.on('got-members', (collaborators) => {
+        COLLABORATORSDIV.innerHTML = '';
+        collaborators.forEach((collaborator) => {
+            const DIV = document.createElement('div');
+            DIV.classList.add('collaborator');
+            DIV.innerHTML = `
+                    <h3>@${collaborator.username}</h3>
+                    <form>
+                        <div class="collaborator-setting-buttons">
+                            <button class="delete-collaborator" value="${collaborator.membership_id}">Delete</button>
+                        </div>
+                    </form>
+            `;
+            COLLABORATORSDIV.appendChild(DIV);
+
+            const DELETEBUTTON = DIV.querySelector('.delete-collaborator');
+            DELETEBUTTON.addEventListener('click', ($event) => {
+                $event.preventDefault();
+                SOCKET.emit('delete-collaborator', {
+                    membershipId: DELETEBUTTON.value
+                });
+            });
+        });
+    });
     
     // ERROR OR SUCCESS HANDLING
     SOCKET.on('error', (data) => {
@@ -214,6 +242,10 @@ SOCKET.on('connect', () => {
     });
 
     SOCKET.on('deleted-platform', (data) => {
+        window.location = `${window.location.origin}${window.location.pathname}?success=${data}`;
+    });
+
+    SOCKET.on('deleted-collaborator', (data) => {
         window.location = `${window.location.origin}${window.location.pathname}?success=${data}`;
     });
 

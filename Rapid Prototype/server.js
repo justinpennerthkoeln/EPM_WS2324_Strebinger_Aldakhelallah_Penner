@@ -352,6 +352,12 @@ IO.on('connection', async (socket) => {
         socket.emit('got-member', {membershipId: await member.membership_id, username: await USER.username});
     });
 
+    socket.on('get-members', async (uuid) => {
+        const COLLECTION = await (await COLLECTIONSMODEL.getCollection(uuid)).rows[0];
+        const MEMBERS = await (await MEMBERMODEL.getMembershipsWithUserData(await COLLECTION.collection_id)).rows;
+        socket.emit('got-members', await MEMBERS);
+    });
+
     // User Socket Conn
     socket.on('join' , async (data) => {
         socket.join("room-" + data.uuid);
@@ -685,6 +691,17 @@ IO.on('connection', async (socket) => {
             const MEMBER = await (await MEMBERMODEL.createMember(data.userId, await COLLECTION.collection_id)).rows[0];
             MEMBER.success = 'User invited.';
             socket.emit('invited-collaborator', await MEMBER);
+        }
+    });
+
+    //Manage Collaborators
+    socket.on('delete-collaborator', async (data) => {
+        try {
+            await MEMBERMODEL.deleteMembershipById(data.membershipId);
+            socket.emit('deleted-collaborator', 'Collaborator deleted.');
+        } catch (error) {
+            socket.emit('error', 'Could not be deleted. Please try again later.');
+            console.log(error);
         }
     });
 });
