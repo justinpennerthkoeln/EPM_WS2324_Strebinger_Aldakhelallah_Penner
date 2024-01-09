@@ -46,7 +46,7 @@ const REPLIESMODEL = require('./models/repliesModel.js');
 
 //Routing
 APP.get("/", (req, res) => {
-    if(req.query.userId) {
+    if(req.session.user != undefined) {
         res.sendFile(__dirname + "/views/overview.html");
     }
     else {
@@ -56,7 +56,7 @@ APP.get("/", (req, res) => {
 
 APP.get("/logout", (req, res) => {
     req.session.destroy();
-    res.redirect('/signin');
+    res.redirect('/signin?success=Signed out.');
 });
 
 APP.get("/login", (req, res) => {
@@ -68,7 +68,11 @@ APP.get("/register", (req, res) => {
 });
 
 APP.get("/signin", (req, res) => {
-    res.sendFile(__dirname + "/views/signin.html");
+    if(req.session.user == undefined) {
+        res.sendFile(__dirname + "/views/signin.html");
+    } else {
+        res.redirect('/');
+    }
 });
 
 APP.post("/signin", urlencodedParser, async (req, res) => {
@@ -76,7 +80,8 @@ APP.post("/signin", urlencodedParser, async (req, res) => {
     if (USER.rows.length == 0) {
         res.redirect('/signin?error=Invalid_username_or_password');
     } else {
-        res.redirect(`/?userId=${USER.rows[0].id}&success=Signed_in`);
+        req.session.user = await USER.rows[0];
+        res.redirect(`/?success=Signed_in`);
     }
 });
 
@@ -343,6 +348,10 @@ IO.on('connection', async (socket) => {
     socket.on('get-user', async (userId) => {
         const INFORMATION = await (await USERMODEL.getInformation(userId)).rows[0];
         socket.emit('got-user', await INFORMATION);
+    });
+
+    socket.on('get-user-id', async () => {
+        socket.emit('got-user-id', await socket.handshake.session.user.id);
     });
 
     socket.on('get-member', async (data) => {

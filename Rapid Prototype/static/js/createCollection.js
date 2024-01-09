@@ -7,11 +7,13 @@ const SOCKET = io('ws://localhost:80');
 SOCKET.on('connect', () => {
     console.log(`Connected with ${SOCKET.id}.`);
 
-    localStorage.setItem('userId', new URLSearchParams(window.location.search).get('userId'));
+    SOCKET.emit('get-user-id');
 
-    SOCKET.emit('get-user-collections', new URLSearchParams(window.location.search).get('userId'));
-
-    SOCKET.emit('get-user', new URLSearchParams(window.location.search).get('userId'));
+    SOCKET.on('got-user-id', (data) => {
+        localStorage.setItem('userId', data);
+        SOCKET.emit('get-user-collections', data);
+        SOCKET.emit('get-user', data);
+    });
 
     const USERNAME = document.getElementById('username');
 
@@ -98,5 +100,11 @@ SOCKET.on('connect', () => {
         collections.addCollection(data.rows[0]);
 
         CREATECOLLECTIONCONTAINER.classList.toggle('hidden');
+    });
+
+    const LOGOUTBUTTON = document.getElementById('logout-button');
+    LOGOUTBUTTON.addEventListener('click', () => {
+        localStorage.clear();
+        window.location.href = '/logout?success=Signed out successfully.';
     });
 });
