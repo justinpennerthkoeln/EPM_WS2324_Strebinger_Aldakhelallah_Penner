@@ -94,7 +94,8 @@ CREATE TABLE todos (
     todo_id SERIAL PRIMARY KEY NOT NULL,
     task_id INTEGER NOT NULL,
     done BOOLEAN NOT NULL,
-    description VARCHAR(200) NOT NULL
+    description VARCHAR(200) NOT NULL,
+    timestamp TIMESTAMP NOT NULL
 );
 
 ALTER TABLE todos ADD CONSTRAINT fk_todos_task_84376588dsuifhi734 FOREIGN KEY (task_id) REFERENCES tasks (task_id);

@@ -17,8 +17,8 @@ const pool = new Pool(credentials);
 
 exports.createTodo = async function (todo) {
     try {
-        const query = 'INSERT INTO todos VALUES (DEFAULT, $1, false, $2)';
-        const values = [Number(todo.task_id), todo.description];
+        const query = 'INSERT INTO todos VALUES (DEFAULT, $1, false, $2, $3)';
+        const values = [Number(todo.task_id), todo.description, new Date().toISOString()];
         return await pool.query(query, values);
     } catch (err) {
         console.log(err);
@@ -39,7 +39,7 @@ exports.updateTodoStatus = async function (todoId, status) {
 
 exports.getTodosByTaskId = async function (taskId) {
     try {
-        const query = 'SELECT * FROM todos WHERE task_id = $1';
+        const query = 'SELECT * FROM todos WHERE task_id = $1 ORDER BY timestamp ASC';
         const values = [taskId];
         return await pool.query(query, values);
     } catch (err) {

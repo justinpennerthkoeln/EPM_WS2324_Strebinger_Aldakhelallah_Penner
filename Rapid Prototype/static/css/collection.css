@@ -273,20 +273,21 @@ main>header>p:nth-child(3) {
     align-items: center;
 }
 
-.view-task-container.hidden {
-    display: none;
-}
+/* View Task
+***************************************/
 
+/* Background */
 .view-task-container {
     position: fixed;
     top: 0;
     left: 0;
     z-index: 10;
+    width: 100vw;
+    height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
-    width: 100vw;
     background-color: var(--color-background-dark-transparent);
     backdrop-filter: blur(var(--xxs));
     transition: var(--tr-fast) ease-in-out;
@@ -297,186 +298,212 @@ main>header>p:nth-child(3) {
     pointer-events: none;
 }
 
-.view-task-container > div {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-l);
-    background-color: var(--color-on-background-dark);
-    border-radius: var(--br-xs);
-    padding: var(--space-xl);
-}
-
-.view-task-container > div > header {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-s);
-}
-
-.view-task-container > div > form {
-    display: flex;
-    flex-direction: column;
-}
-
-.view-task-container > div > form > div:not([class="send-notification-container"]) {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-xxs);
-}
-
-.view-task-container > div > form > div:not(:first-child) {
-    margin-top: var(--space-l);
-}
-
-.view-task-container > div > form > button {
-    margin-top: var(--space-xl);
-}
-
-.error {
-    color: var(--color-error);
-}
-
-p.hidden {
-    display: none;
-}
-
-.task-header-info {
-    background-color: red;
-}
-
-/* View Task
-***************************************/
-.view-task-container {
-    width: 100vw;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
+/* Dialogue */
 .view-task-container > div {
     width: 40vw;
+    max-height: 80vh;
     display: flex;
     flex-direction: column;
-    gap: var(--space-l);
+    gap: var(--space-xl);
     background-color: var(--color-on-background-dark);
     border-radius: var(--br-xs);
     padding: var(--space-xl);
+    overflow-y: auto;
 }
 
-.view-task-container .task-intro {
+/* Scrollbar */
+.view-task-container > div::-webkit-scrollbar {
+    width: var(--xs);
+}
+
+.view-task-container > div::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.view-task-container > div::-webkit-scrollbar-thumb {
+    border-radius: var(--br-full);
+    background: var(--color-text-light);
+}
+
+/* Header */
+.view-task-container > div > header,
+.view-task-container > div > section {
     display: flex;
     flex-direction: column;
     gap: var(--space-m);
 }
 
-.view-task-container .task-intro p {
+.view-task-container > div > header > h2 {
     color: var(--color-text-light);
+    font-size: var(--heading-font-size);
+}
+
+.view-task-container > div > header > h3,
+.view-task-container > div > header > p {
+    color: var(--color-text-light-detail);
     font-size: var(--detail-font-size);
+    font-weight: var(--fw-normal);
+    line-height: var(--lh-tight);
 }
 
-.view-task-container .task-info {
-    margin-top: var(--space-l);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-m);
+.view-task-container > div > header > p > span {
+    color: var(--color-accent-primary);
+    font-weight: var(--fw-bold);
 }
 
-.task-subtasks {
-    margin-top: var(--space-l);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-l);
-}
-
+/* Subtasks */
 .task-subtasks h2 {
     color: var(--color-text-light);
-    font-weight: var(--base-font-size);
+    font-weight: var(--fw-bold);
 }
 
 .todos {
     display: flex;
     flex-direction: column;
-    gap: var(--space-m);
-    max-height: 7vh;
-    overflow: auto;
+    gap: var(--space-l);
+    padding: 0;
+    margin: 0;
+    list-style: none;
 }
 
-.todos .todo {
+.todos > li {
     display: flex;
     flex-direction: row;
     gap: var(--space-m);
-    align-items: flex-start;
+    align-items: center;
 }
 
-.add-todo {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-s);
+.todos > li > label {
+    transform: translateY(calc(-1 * var(--l) / 2 + var(--xxs)));
 }
 
-.add-todo input {
-    background-color: var(--color-background-dark-transparent);
-    border: none;
-    font-size: var(--detail-font-size);
+.todos > li > p {
+    color: var(--color-text-light);
+    font-size: var(--base-font-size);
     font-weight: var(--fw-normal);
+    line-height: 100%;
 }
 
-.add-todo button {
-    max-width: 15rem;
-    height: 3rem;
+.add-todo > label {
+    cursor: auto;
 }
 
-.task-feedback {
-    margin-top: var(--space-l);
+.add-todo > label > span {
+    border-color: var(--color-text-light-detail);
+}
+
+.add-todo > input {
+    height: var(--base-font-size);
+    padding: 0;
+    border: none;
+}
+
+.add-todo > input::placeholder {
+    color: var(--color-text-light-detail);
+}
+
+.add-todo > input:focus {
+    outline: none;
+}
+
+/* Feedback */
+.task-feedback > form {
     display: flex;
     flex-direction: column;
     gap: var(--space-l);
 }
 
-.task-feedback textarea {
+.task-feedback > form > textarea {
     resize: none;
-    height: 7vh;
-    background-color: var(--color-background-dark-transparent);
-    border: none;
-    font-size: var(--detail-font-size);
-    font-weight: var(--fw-normal);
+    width: 100%;
+    height: 5em;
 }
 
-.task-feedback button {
-    max-width: 15rem;
-    height: 3rem;
+.task-feedback > form > button {
+    width: fit-content;
 }
 
 .feedbacks {
-    max-height: 20vh;
-    overflow: auto;
     margin-top: var(--space-s);
     display: flex;
     flex-direction: column;
-    gap: var(--space-xl);
+    gap: var(--space-l);
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-.feedbacks > * {
+.feedbacks li {
     display: flex;
     flex-direction: column;
     gap: var(--space-m);
 }
 
-.feedback {
+.feedbacks li header {
     display: flex;
-    flex-direction: column;
-}
-
-.feedback div  {
-    display: flex;
-    align-items: center;
+    flex-direction: row;
     justify-content: space-between;
-    gap: var(--space-m);
+    color: var(--color-text-light-detail);
+    font-size: var(--detail-font-size);
 }
 
-.feedback .feedback-info {
+.feedbacks li > p {
+    color: var(--color-text-light);
+    font-weight: var(--fw-normal);
+}
+
+.feedbacks .interaction {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-m);
+    padding: 0;
+    margin: 0;
     font-size: var(--detail-font-size);
+    align-items: center;
+}
+
+.feedbacks .interaction li {
+    cursor: pointer;
+}
+
+.feedbacks .interaction li > p {
+    color: var(--color-text-light-detail);
+    transition: var(--tr-fast) ease-in-out;
+}
+
+.feedbacks .interaction li:nth-child(3):hover p {
+    color: var(--color-accent-primary);
+}
+
+.feedbacks .interaction li:nth-child(1),
+.feedbacks .interaction li:nth-child(2) {
+    background-color: var(--color-background-dark);
+    padding: var(--space-xs) var(--space-s);
+    border-radius: var(--br-full);
+    height: var(--xxl);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+}
+
+.feedbacks .interaction li > svg {
+    height: var(--m);
+}
+
+.feedbacks .interaction li:nth-child(1) svg path,
+.feedbacks .interaction li:nth-child(2) svg path {
+    fill: var(--color-text-light-detail);
+    transition: var(--tr-fast) ease-in-out;
+}
+
+.feedbacks .interaction li:nth-child(1):hover svg path,
+.feedbacks .interaction li:nth-child(2):hover svg path,
+.feedbacks .interaction li:nth-child(1):hover p,
+.feedbacks .interaction li:nth-child(2):hover p {
+    fill: var(--color-accent-primary);
+    color: var(--color-accent-primary);
 }
 
 

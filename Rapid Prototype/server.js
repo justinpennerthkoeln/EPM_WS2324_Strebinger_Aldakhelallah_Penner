@@ -547,13 +547,16 @@ IO.on('connection', async (socket) => {
 
     socket.on('save-todo', async (data) => {
         TODOMODEL.createTodo(await data);
+        IO.in(socket.handshake.session.uuid).emit('saved-todo', await data);
     });
 
     socket.on('update-todo', async (data) => {
-        TODOMODEL.updateTodoStatus(data.todo_id, data.status);
-        data.todo_count = await (await TODOMODEL.getTodosByTaskId(data.task_id)).rowCount;
-        IO.to(socket.handshake.session.uuid).emit('updated-todo', await data);
+        await TODOMODEL.updateTodoStatus(data.todo_id, data.status);
+        const allTodos = await TODOMODEL.getTodosByTaskId(data.task_id);
+        allTodos.todo_count = allTodos.rowCount;
+        IO.in(socket.handshake.session.uuid).emit('updated-todo', allTodos);
     });
+    
 
     socket.on('save-feedback', async (data) => {
         const FEEDBACK = await (await FEEDBACKMODEL.saveFeedback(await data)).rows[0];
@@ -628,7 +631,7 @@ IO.on('connection', async (socket) => {
         const PLATFORM = await (await PLATFORMSMODEL.getPlatformById(data.platformId)).rows[0];
         switch(data.platform) {
             case 'github': 
-                var repos = fetch(`https://api.github.com/users/${PLATFORM.username}/repos`, {
+                var repos = fetch(`https://api.github.com/user/repos`, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',
@@ -689,7 +692,7 @@ IO.on('connection', async (socket) => {
 //Connections
 async function connectGithub(data, platformId) {
     var CONN = {
-        oauth: `https://github.com/login/oauth/authorize?client_id=e82e9be1c2c8d95f719a&redirect_uri=http://localhost:80/github/oauth/${data.uuid}/${platformId}&allow_signup=true`
+        oauth: `https://github.com/login/oauth/authorize?client_id=e82e9be1c2c8d95f719a&redirect_uri=http://localhost:80/github/oauth/${data.uuid}/${platformId}&allow_signup=true&scope=repo%20user`
     }
     return CONN;
 }
