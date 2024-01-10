@@ -191,9 +191,18 @@ APP.get('/notion/oauth', async (req, res) => {
     const UUID = req.query.state.split('_')[0];
     const PLATFORMID = req.query.state.split('_')[1];
 
+    const USER = await fetch(`https://api.notion.com/v1/users`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + RESPONSE.access_token,
+            'Notion-Version': '2022-02-22'
+        }
+    }).then((response) => response.json());
+
     Promise.resolve(RESPONSE).then(async (response) => {
-        PLATFORMSMODEL.updatePlatform(PLATFORMID, response.access_token, response.workspace_id, '');
-        res.redirect(`/${UUID}/settings`);
+        PLATFORMSMODEL.updatePlatform(PLATFORMID, response.access_token, response.workspace_id, USER.results[0].name);
+        res.redirect(`/reposelections?uuid=${UUID}&platformId=${PLATFORMID}&platform=notion`);
     });
 });
 
@@ -230,7 +239,7 @@ APP.get("/dribbble/oauth", async (req, res) => {
     })
     .then(data => {
         PLATFORMSMODEL.updatePlatform(PLATFORMID, data.access_token, '', '');
-        res.status(200).redirect(`/${UUID}/settings`);
+        res.redirect(`/reposelections?uuid=${UUID}&platformId=${PLATFORMID}&platform=dribbble`);
     })
     .catch(error =>{
         console.error('Error during token exchange:', error);
@@ -258,7 +267,7 @@ APP.get("/figma/oauth", async (req, res) => {
     })
     Promise.resolve(test).then((data) => {
         PLATFORMSMODEL.updatePlatform(PLATFORMID, data.access_token, '', '');
-        res.status(200).redirect(`/${UUID}/settings`);
+        res.redirect(`/reposelections?uuid=${UUID}&platformId=${PLATFORMID}&platform=figma`);
     });
 });
 
@@ -657,6 +666,17 @@ IO.on('connection', async (socket) => {
                 socket.emit('got-repos', await repos);
                 break;
         }
+    });
+
+    socket.on('get-dribbble-shots', async (data) => {
+        const PLATFORM = await (await PLATFORMSMODEL.getPlatformById(data.platformId)).rows[0];
+        var shots = fetch(`https://api.dribbble.com/v2/user/shots?access_token=${PLATFORM.platform_key}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+            }
+        }).then((response) => response.json());
+        socket.emit('got-dribbble-shots', await shots);
     });
 
     socket.on('update-target-document', async (data) => {
