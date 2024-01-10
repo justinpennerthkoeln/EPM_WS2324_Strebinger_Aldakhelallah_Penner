@@ -1,0 +1,30 @@
+{
+    "theme_color": "#6A40BF",
+    "background_color": "#141B1F",
+    "display": "standalone",
+    "start_url": "/",
+    "name": "Synhub-rapid",
+    "short_name": "rapid",
+    "description": "Rapid Prototype for Synergyhub",
+    "icons": [
+        {
+            "src": "https://placehold.co/512x512/png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "any"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "https://placehold.co/720x540/png",
+            "type": "image/jpg",
+            "sizes": "720x540",
+            "form_factor": "wide"
+        },
+        {
+            "src": "https://placehold.co/540x720/png",
+            "type": "image/jpg",
+            "sizes": "540x720"
+        }
+    ]
+}
