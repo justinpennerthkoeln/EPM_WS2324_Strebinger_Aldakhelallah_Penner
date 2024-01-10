@@ -123,11 +123,15 @@ SOCKET.on('connect', () => {
                                         <p>0</p>
                                     </li>
                                     <li>
-                                        <p>Reply</p>
+                                        <p @click="toggleReplyOverlay(index)">Reply</p>
                                     </li>
                                 </ul>
+                                <div class="reply-overlay hidden" :id="'reply-overlay-' + index">
+                                    <textarea name="reply" placeholder="Add a reply..."></textarea>
+                                    <button @click="saveReplyFeedback(index)">Add reply</button>
+                                </div>
                                 <ul>
-                                    <li v-for="(reply, index) in feedback.replies">
+                                    <li v-for="(reply, index) in feedback.replies" class="reply">
                                         <header>
                                             <p>Commented by @{{ reply.username }}</p>
                                             <p>{{ new Date(reply.timestamp).toLocaleString('de-DE', this.dateOptions) }}</p>
@@ -215,6 +219,42 @@ SOCKET.on('connect', () => {
 
             async newFeedback(feedback) {
                 this.feedbacks.push(feedback);
+            },
+
+            toggleReplyOverlay(index) {
+                const OVERLAY = document.querySelector('#reply-overlay-' + index);
+                OVERLAY.classList.toggle('hidden');
+            },
+
+            async saveReplyFeedback(index) {
+                const FEEDBACKID = this.feedbacks[index].feedback_id;
+                const TASKID = this.task.task_id;
+                const COMMENT = document.querySelector('#reply-overlay-' + index + ' textarea[name="reply"]').value;
+
+                SOCKET.emit('save-reply-feedback', {
+                    username: localStorage.getItem('username'),
+                    feedback_id: FEEDBACKID,
+                    task_id: TASKID,
+                    comment: COMMENT
+                });
+
+                document.querySelector('#reply-overlay-' + index + ' textarea[name="reply"]').value = "";
+                this.toggleReplyOverlay(index);
+            },
+
+            async newReply(reply) {
+                this.feedbacks.forEach((feedback) => {
+                    if (feedback.feedback_id == reply.feedback_id) {
+                        console.log(feedback);
+
+                        feedback.replies.push({
+                            comment: reply.comment,
+                            reply_id: reply.reply_id,
+                            timestamp: reply.timestamp,
+                            username: reply.username                                                   
+                        });
+                    }
+                });
             }
         }
     }).mount('#task-view');
@@ -477,6 +517,12 @@ SOCKET.on('connect', () => {
 
         TASKVIEW.updatedTodos(data.rows);
         TASKBOARD.updateTodosProgress(TASKID, TODOSDONE);
+    });
+
+
+    // Replies
+    SOCKET.on('saved-reply-feedback', (reply) => {
+        TASKVIEW.newReply(reply);
     });
 
 

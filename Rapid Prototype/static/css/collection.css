@@ -506,6 +506,38 @@ main>header>p:nth-child(3) {
     color: var(--color-accent-primary);
 }
 
+.feedbacks > li > ul {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+}
+
+.feedbacks .reply {
+    background-color: var(--color-background-dark);
+    padding: var(--space-l);
+    border-radius: var(--br-xs);
+}
+
+
+/* Reply overlay */
+.feedbacks .reply-overlay {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+}
+
+.feedbacks .reply-overlay > textarea {
+    height: 5em;
+}
+
+.feedbacks .reply-overlay > button {
+    width: fit-content;
+}
+
+.feedbacks .reply-overlay.hidden {
+    display: none;
+}
+
 
 /* Reply Feedback
 ***************************************/
