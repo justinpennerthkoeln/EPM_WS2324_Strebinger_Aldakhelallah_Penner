@@ -388,7 +388,7 @@ SOCKET.on('connect', () => {
             
                 const TASKID = parseInt($event.dataTransfer.getData('text/plain'), 10);
                 const DRAGGEDTASK = this.tasks.find((task) => {
-                    return task.task_id == taskID;
+                    return task.task_id == TASKID;
                 });
             
                 DRAGGEDTASK.status = targetState;
