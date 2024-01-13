@@ -308,3 +308,17 @@ main .content aside:first-child {
     padding: var(--space-s) var(--space-xl);
     margin-left: var(--space-xs);
 }
+
+/* Rename collection
+*****************************************************************************************/
+.rename-collection-container {
+    margin-top: var(--space-s);
+}
+
+.rename-collection-container p.error {
+    color: var(--color-error);
+}
+
+.rename-collection-container p.hidden {
+    display: none;
+}

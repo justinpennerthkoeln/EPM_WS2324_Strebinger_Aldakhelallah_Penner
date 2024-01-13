@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/global/reset.css">
+    <link rel="stylesheet" href="/css/global/variables.css">
+    <link rel="stylesheet" href="/css/global/base.css">
+    <link rel="stylesheet" href="/css/reposelection.css">
+    <link rel="stylesheet" href="/css/global/alert.css">
     <title>Document</title>
 </head>
 <body>
@@ -91,7 +96,6 @@
                         REPO.classList.add("repo");
                         REPO.innerHTML = `
                             <h2>${repo.name}</h2>
-                            <p>${repo.description}</p>
                             <button class="select-repo-btn" data-repo-name="${repo.name}">Select Repo</button>
                         `;
 
@@ -112,7 +116,6 @@
                         REPO.classList.add("repo");
                         REPO.innerHTML = `
                             <h2>${repo.name}</h2>
-                            <p>${repo.description}</p>
                             <button class="select-repo-btn" data-repo-name="${repo.id}">Select Repo</button>
                         `;
 
@@ -131,13 +134,14 @@
 
             SOCKET.on('got-dribbble-shots', (shots) => {
                 const REPOS = document.getElementById("repos");
+                const H1 = document.querySelector("h1");
+                H1.innerText = `Select a Shot: `;
                 shots.forEach(shot => {
                     const REPO = document.createElement("div");
                     REPO.classList.add("repo");
                     REPO.innerHTML = `
                         <h2>${shot.title}</h2>
-                        <p>${shot.description}</p>
-                        <button class="select-repo-btn" data-repo-name="${shot.id}">Select Repo</button>
+                        <button class="select-repo-btn" data-repo-name="${shot.id}">Select Shot</button>
                     `;
 
                     REPO.querySelector(".select-repo-btn").addEventListener("click", ($event) => {
@@ -146,7 +150,7 @@
                             platformId: PARAMS.get("platformId"),
                             targetDocument: $event.target.dataset.repoName
                         });
-                        window.location = `${window.location.origin}/${PARAMS.get("uuid")}/settings/add-projects?success=Added Repository`;
+                        window.location = `${window.location.origin}/${PARAMS.get("uuid")}/settings/add-projects?success=Added Shot`;
                     });
                     REPOS.appendChild(REPO);
                 });

@@ -223,6 +223,22 @@ SOCKET.on('connect', () => {
             });
         });
     });
+
+    // Rename Collection
+    const RENAMEBUTTON = document.querySelector('.rename-collection-button');
+    RENAMEBUTTON.addEventListener('click', ($event) => {
+        const RENAMEINPUT = document.querySelector('.rename-collection-input').value;
+        const ERRORMSG = document.querySelector('p.error');
+        $event.preventDefault();
+        if(RENAMEINPUT.length > 0) {
+            SOCKET.emit('rename-collection', {
+                uuid: window.location.pathname.split('/')[1],
+                name: RENAMEINPUT
+            });
+        } else {
+            ERRORMSG.classList.remove('hidden');
+        }
+    });
     
     // ERROR OR SUCCESS HANDLING
     SOCKET.on('error', (data) => {
@@ -246,6 +262,10 @@ SOCKET.on('connect', () => {
     });
 
     SOCKET.on('deleted-collaborator', (data) => {
+        window.location = `${window.location.origin}${window.location.pathname}?success=${data}`;
+    });
+
+    SOCKET.on('renamed-collection', (data) => {
         window.location = `${window.location.origin}${window.location.pathname}?success=${data}`;
     });
 

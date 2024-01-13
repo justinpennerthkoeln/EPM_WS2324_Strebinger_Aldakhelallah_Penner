@@ -80,6 +80,18 @@ exports.deleteCollectionById = async function (collectionId) {
 		console.log(err);
 		throw new Error(err);
 	}
+};
+
+exports.updateCollectionName = async function (collectionId, name) {
+	try {
+		const query = 'UPDATE collections SET name = $1 WHERE collection_id = $2 RETURNING *';
+		const values = [name, collectionId];
+		return await pool.query(query, values);
+	} catch (err) {
+		console.log(err);
+		throw new Error(err);
+	}
+
 }
 
 // exports.deleteCollectionById = async function (collectionId) {

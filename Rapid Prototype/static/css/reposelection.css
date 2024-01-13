@@ -1,0 +1,29 @@
+#repos {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#repos .repo {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+#repos .shot {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+#repos form {
+    margin-top: var(--space-l);
+    display: flex;
+    flex-direction: row;
+}

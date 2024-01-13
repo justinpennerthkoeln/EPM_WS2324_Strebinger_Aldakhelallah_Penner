@@ -724,6 +724,17 @@ IO.on('connection', async (socket) => {
             console.log(error);
         }
     });
+
+    //Rename Collection
+    socket.on('rename-collection', async (data) => {
+        try {
+            const COLLECTION = await (await COLLECTIONSMODEL.getCollection(data.uuid)).rows[0];
+            await COLLECTIONSMODEL.updateCollectionName(await COLLECTION.collection_id, data.name);
+            socket.emit('renamed-collection', 'Collection renamed.');
+        } catch (error) {
+            socket.emit('error', 'Could not be renamed. Please try again later.');
+        }
+    });
 });
 
 //Connections
