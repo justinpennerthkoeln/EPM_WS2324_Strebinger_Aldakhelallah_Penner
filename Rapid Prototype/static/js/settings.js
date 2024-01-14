@@ -1,7 +1,8 @@
 import { io } from 'socket.io-client';
+import { getHost } from './wsHost.js';
 
-// Establish a SOCKET connection to the server
-const SOCKET = io('ws://localhost:80');
+// Establish a socket connection to the server
+const SOCKET = io(getHost(window.location.href));
 
 SOCKET.on('connect', () => {
     console.log(`Connected with ${SOCKET.id}.`);

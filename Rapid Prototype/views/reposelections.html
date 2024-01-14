@@ -26,7 +26,10 @@
     </script>
     <script type="module">
         import { io } from "socket.io-client";
-        const SOCKET = io("ws://localhost:80");
+        import { getHost } from './wsHost.js';
+
+        // Establish a socket connection to the server
+        const SOCKET = io(getHost(window.location.href));
         
         SOCKET.on("connect", () => {
             console.log("Connected to server");
