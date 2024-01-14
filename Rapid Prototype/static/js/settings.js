@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import { getHost } from './wsHost.js';
+import { getHost, getHostHttp } from './wsHost.js';
 
 // Establish a socket connection to the server
 const SOCKET = io(getHost(window.location.href));
@@ -38,6 +38,9 @@ SOCKET.on('connect', () => {
     });
 
     SOCKET.on('conn', (CONN) => {
+        console.log(CONN.oauth);
+        CONN.oauth = CONN.oauth.replace('http://localhost:80/', getHostHttp(window.location.href));
+        console.log(CONN.oauth);
         window.location.href = CONN.oauth;
     });
 
