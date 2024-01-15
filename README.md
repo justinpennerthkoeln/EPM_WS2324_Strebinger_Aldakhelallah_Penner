@@ -84,3 +84,14 @@ Die vorgeschlagene Lösung zur integrierten Projektarbeit und Bewertung bietet e
 - Relationenmodell
 - Projektrisiken
 - Artefakte Audit 3
+
+# Artefakte zu Audit 4
+- Domänenmodelle
+- Szenarien
+- Use-Cases / Use-Case-Diagramme
+- POCs
+- DB-Modelle
+- Kommunikations-Diagramme
+- Design
+- Rapid Prototypes
+- Artefakte für Audit 4
