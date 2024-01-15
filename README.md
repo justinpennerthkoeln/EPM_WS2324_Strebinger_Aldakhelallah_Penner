@@ -85,7 +85,7 @@ Die vorgeschlagene Lösung zur integrierten Projektarbeit und Bewertung bietet e
 - Projektrisiken
 - Artefakte Audit 3
 
-# Artefakte zu Audit 4
+# Artefakte zu Audit 3
 - Domänenmodelle
 - Szenarien
 - Use-Cases / Use-Case-Diagramme
