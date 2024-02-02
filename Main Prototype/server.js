@@ -14,11 +14,13 @@ app.use(express.static(__dirname + "/public"));
 const userRouter = require("./routes/userRouter.js");
 const collectionRouter = require("./routes/collectionRouter.js");
 const apiRouter = require("./routes/apiRouter.js");
+const oauthRouter = require("./routes/oauthRouter.js");
 
 // ROUTING
 app.use("/", userRouter);
 app.use("/collection", collectionRouter);
 app.use("/api", apiRouter);
+app.use("/oauth", oauthRouter);
 
 // HOST SERVER
 server.listen(80, () => {
