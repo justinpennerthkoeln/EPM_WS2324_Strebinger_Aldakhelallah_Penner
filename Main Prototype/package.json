@@ -4,8 +4,8 @@
   "description": "Main prototype for SynergyHub",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon server.js --env-file .env",
-    "start": "node server.js --env-file .env"
+    "dev": "nodemon --env-file=.env server.js",
+    "start": "node --env-file=.env server.js"
   },
   "author": "Justin Penner, Paul Strebinger",
   "license": "Apache-2.0",
@@ -13,6 +13,7 @@
     "body-parser": "^1.20.2",
     "cookie-parser": "^1.4.6",
     "express": "^4.18.2",
+    "express-session": "^1.18.0",
     "http": "^0.0.1-security",
     "nodemon": "^3.0.3",
     "pg": "^8.11.3",

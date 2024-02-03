@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const gitlabController = require("../controllers/gitlabController");
-const githubController = require("../controllers/githubController");
-const notionController = require("../controllers/notionController");
-const figmaController = require("../controllers/figmaController");
-const dribbbleController = require("../controllers/dribbbleController");
+const gitlabController = require("../controllers/oauth/gitlabController");
+const githubController = require("../controllers/oauth/githubController");
+const notionController = require("../controllers/oauth/notionController");
+const figmaController = require("../controllers/oauth/figmaController");
+const dribbbleController = require("../controllers/oauth/dribbbleController");
 
 router.get("/gitlab", async (req, res) => {
     const uuid = req.query.ids.split('_')[0];
@@ -59,5 +59,10 @@ router.get("/dribbble", async (req, res) => {
     dribbbleController.generateToken(tokenurl, requestBody, uuid, platformId);
     res.send({ message: "dribbble Oauth" });
 });
+
+
+// APP.get("/reposelections", (req, res) => {
+//     res.sendFile(__dirname + "/views/reposelections.html");
+// });
 
 module.exports = router;

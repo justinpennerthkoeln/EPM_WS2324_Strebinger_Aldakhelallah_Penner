@@ -10,6 +10,15 @@ const server = http.createServer(app);
 // MIDDLEWARE
 app.use(express.static(__dirname + "/public"));
 
+const session = require('express-session');
+const savedSession = session({
+	secret: 'keyboard cat',
+	cookie: { maxAge: 60000 },
+	resave: false,
+	saveUninitialized: true,
+});
+app.use(savedSession);
+
 // ROUTER
 const userRouter = require("./routes/userRouter.js");
 const collectionRouter = require("./routes/collectionRouter.js");
