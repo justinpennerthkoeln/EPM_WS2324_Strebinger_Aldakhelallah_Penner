@@ -2,6 +2,7 @@
 const http = require("http");
 const express = require("express");
 const socketIo = require("socket.io");
+const session = require('express-session');
 
 // APP SETUP
 const app = express();
@@ -9,8 +10,6 @@ const server = http.createServer(app);
 
 // MIDDLEWARE
 app.use(express.static(__dirname + "/public"));
-
-const session = require('express-session');
 const savedSession = session({
 	secret: 'keyboard cat',
 	cookie: { maxAge: 60000 },
@@ -19,17 +18,17 @@ const savedSession = session({
 });
 app.use(savedSession);
 
-// ROUTER
-const userRouter = require("./routes/userRouter.js");
-const collectionRouter = require("./routes/collectionRouter.js");
-const apiRouter = require("./routes/apiRouter.js");
-const oauthRouter = require("./routes/oauthRouter.js");
+// CONTROLLER
+const userController = require("./controllers/userController.js");
+const collectionController = require("./controllers/collectionController.js");
+const apiController = require("./controllers/apiController.js");
+const oauthController = require("./controllers/oauthController.js");
 
 // ROUTING
-app.use("/", userRouter);
-app.use("/collection", collectionRouter);
-app.use("/api", apiRouter);
-app.use("/oauth", oauthRouter);
+app.use("/", userController);
+app.use("/collection", collectionController);
+app.use("/api", apiController);
+app.use("/oauth", oauthController);
 
 // HOST SERVER
 server.listen(80, () => {
