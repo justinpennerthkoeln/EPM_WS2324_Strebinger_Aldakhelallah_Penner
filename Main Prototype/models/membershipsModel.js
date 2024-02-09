@@ -23,3 +23,13 @@ exports.getCollectionsByUserId = async (userId) => {
         throw new Error("Error getting collections by user id.");
     }
 };
+
+exports.setMembership = async (userId, collectionId) => {
+    try {
+        const newMembership = await pool.query("INSERT INTO memberships (user_id, collection_id, role) VALUES ($1, $2, $3) RETURNING *", [userId, collectionId, "project manager"]);
+        return newMembership.rows[0];
+    } catch (error) {
+        console.log(error);
+        throw new Error("Error setting membership.");
+    }
+}

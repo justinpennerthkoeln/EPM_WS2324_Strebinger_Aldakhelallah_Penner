@@ -1,7 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const membershipsModel = require("../models/membershipsModel");
+const collectionsModel = require("../models/collectionsModel");
 const userModel = require("../models/userModel");
+const bodyParser = require('body-parser');
+
+var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 router.get("/users", async (req, res) => {
 	res.send({ msg: "Get all users by api" });
@@ -38,5 +42,14 @@ router.get("/collections/:userId", async (req, res) => {
 		res.send(collections);
 	});
 });
+
+router.post("/collections/create", urlencodedParser, async (req, res) => {
+	const reqCollection = req.body;
+	const currentDate = new Date();
+	collectionsModel.createCollection(reqCollection.name, reqCollection.description, currentDate.toISOString()).then((collection) => {
+		res.send(collection);
+		membershipsModel.setMembership(reqCollection.userId, collection.collection_id);
+	})
+})
 
 module.exports = router;
