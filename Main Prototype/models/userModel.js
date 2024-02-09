@@ -11,7 +11,7 @@ const pool = new Pool(JSON.parse(credentials));
 
 exports.checkCredentials = async (username, password) => {
     try {
-        const countUser = await pool.query("SELECT count(*), username, email, id FROM users WHERE username = $1 AND password = $2 GROUP BY users.username, users.email, users.id", [username, password]);
+        const countUser = await pool.query("SELECT count(*), username, email, id, user_uuid FROM users WHERE username = $1 AND password = $2 GROUP BY users.username, users.email, users.id", [username, password]);
         return countUser.rows[0];
     } catch (error) {
         console.log(error);
@@ -35,5 +35,15 @@ exports.createUser = async (username, email, password) => {
     } catch (error) {
         console.log(error);
         throw new Error("Error creating user.");
+    }
+};
+
+exports.getUserByUuid = async (uuid) => {
+    try {
+        const user = await pool.query("SELECT * FROM users WHERE user_uuid = $1", [uuid]);
+        return user.rows[0];
+    } catch (error) {
+        console.log(error);
+        throw new Error("Error getting User");
     }
 };

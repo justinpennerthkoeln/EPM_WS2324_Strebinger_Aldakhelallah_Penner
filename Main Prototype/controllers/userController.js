@@ -23,8 +23,8 @@ router.post("/signin", urlencodedParser, async (req, res) => {
 	try {
 		const user = await userModel.checkCredentials(await req.body.username, await req.body.password);
 		const isCorrect = user.count > 0 ? true : false;
-		req.session.user = {username: user.username, email: user.email, id: user.id};
-		isCorrect ? res.redirect(`/`) : res.redirect('/signin?error=Invalid_username_or_password');
+		req.session.user = {username: user.username, email: user.email, id: user.id, uuid: user.user_uuid};
+		isCorrect ? res.redirect(`/?uuid=${req.session.user.uuid}`) : res.redirect('/signin?error=Invalid_username_or_password');
 	} catch (error) {
 		res.redirect('/signin?error=Something_went_wrong_please_try_again');
 	}
