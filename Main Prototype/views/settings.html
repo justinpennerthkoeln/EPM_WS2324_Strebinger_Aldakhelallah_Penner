@@ -183,10 +183,10 @@
                 
                 const { target } = $event;
 
-                window.location.href = `/${window.location.pathname.split('/')[1]}/${target.href.split('/')[3]}`;
+                window.location.href = `/collection/${window.location.pathname.split('/')[2]}/${target.href.split('/')[3]}`;
             });
 
-            if(window.location.pathname.split('/')[2] == element.href.split('/')[3]) {
+            if(window.location.pathname.split('/')[3] == element.href.split('/')[3]) {
                 element.classList.add('selected');
             }
         });
