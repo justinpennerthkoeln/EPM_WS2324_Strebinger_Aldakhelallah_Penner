@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const path = require("path");
 
 // ROUTES
 router.get("/:uuid", (req, res) => {
@@ -33,11 +34,11 @@ router.get("/:uuid/inspection", (req, res) => {
 });
 
 router.get("/:uuid/settings", (req, res) => {
-	res.send({ msg: "Settings" });
+	res.sendFile(path.join(__dirname, "../views/settings.html"));
 });
 
 router.get("/:uuid/settings/:setting", (req, res) => {
-	res.send({ msg: "Settings" });
+	res.sendFile(path.join(__dirname, "../views/settings.html"));
 });
 
 router.get("/:uuid/alerts", (req, res) => {

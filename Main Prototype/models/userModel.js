@@ -47,3 +47,14 @@ exports.getUserByUuid = async (uuid) => {
         throw new Error("Error getting User");
     }
 };
+
+exports.getAllUsersWithSearchTerm = async (searchTerm) => {
+    try {
+        const query = 'SELECT username, id FROM users WHERE username ILIKE $1';
+        const values = [searchTerm + '%'];
+        return await pool.query(query, values);
+    } catch (err) {
+        console.log(err);
+        return false;
+    }
+};
