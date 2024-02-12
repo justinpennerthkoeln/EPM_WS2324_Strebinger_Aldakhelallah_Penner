@@ -47,10 +47,18 @@ router.get("/tasks/:taskId/feedbacks", async (req, res) => {
 
 // Update task status
 router.put("/tasks/:taskId/status", async (req, res) => {
-	const status = tasksModel.updateTaskStatus({
-		taskID: req.params.taskId,
-		status: req.body.status,
-	});
+	const status = await tasksModel
+		.updateTaskStatus({
+			taskID: req.params.taskId,
+			status: req.body.status,
+		})
+		.then((status) => {
+			notifyClients({
+				targets: ["task-board"],
+				initiator: req.headers["x-socket-id"],
+			});
+			return status;
+		});
 
 	res.send(status);
 });
@@ -66,7 +74,13 @@ router.post("/tasks", async (req, res) => {
 		createIssue: req.body.createIssue,
 	};
 
-	const task = await tasksModel.createTask(data);
+	const task = await tasksModel.createTask(data).then((task) => {
+		notifyClients({
+			targets: ["task-board"],
+			initiator: req.headers["x-socket-id"],
+		});
+		return task;
+	});
 
 	res.send(task);
 
@@ -75,41 +89,73 @@ router.post("/tasks", async (req, res) => {
 
 // TODO
 router.post("/tasks/:taskId/todo", async (req, res) => {
-	const todo = await todoModel.createTodo({
-		task_id: req.params.taskId,
-		description: req.body.description,
-	});
+	const todo = await todoModel
+		.createTodo({
+			task_id: req.params.taskId,
+			description: req.body.description,
+		})
+		.then((todo) => {
+			notifyClients({
+				targets: ["task-view"],
+				initiator: req.headers["x-socket-id"],
+			});
+			return todo;
+		});
 
 	res.send(todo);
 });
 
 router.put("/tasks/:taskId/todo/:todoId", async (req, res) => {
-	const todo = await todoModel.updateTodo({
-		todo_id: req.params.todoId,
-		status: req.body.status,
-	});
+	const todo = await todoModel
+		.updateTodo({
+			todo_id: req.params.todoId,
+			status: req.body.status,
+		})
+		.then((todo) => {
+			notifyClients({
+				targets: ["task-board", "task-view"],
+				initiator: req.headers["x-socket-id"],
+			});
+			return todo;
+		});
 
 	res.send(todo);
 });
 
 // FEEDBACK
 router.post("/tasks/:taskId/feedback", async (req, res) => {
-	const feedback = await feedbackModel.createFeedback({
-		membership_id: req.body.membership_id,
-		task_id: req.params.taskId,
-		comment: req.body.comment,
-	});
+	const feedback = await feedbackModel
+		.createFeedback({
+			membership_id: req.body.membership_id,
+			task_id: req.params.taskId,
+			comment: req.body.comment,
+		})
+		.then((feedback) => {
+			notifyClients({
+				targets: ["task-board", "task-view"],
+				initiator: req.headers["x-socket-id"],
+			});
+			return feedback;
+		});
 
 	res.send(feedback);
 });
 
 // Save reply
 router.post("/feedback/:feedbackId/reply", async (req, res) => {
-	const reply = await repliesModel.createReply({
-		feedbackID: req.params.feedbackId,
-		username: req.body.username,
-		comment: req.body.comment,
-	});
+	const reply = await repliesModel
+		.createReply({
+			feedbackID: req.params.feedbackId,
+			username: req.body.username,
+			comment: req.body.comment,
+		})
+		.then((reply) => {
+			notifyClients({
+				targets: ["task-view"],
+				initiator: req.headers["x-socket-id"],
+			});
+			return reply;
+		});
 
 	res.send(reply);
 });

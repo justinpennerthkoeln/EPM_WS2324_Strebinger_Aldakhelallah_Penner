@@ -1,4 +1,45 @@
-document.addEventListener("DOMContentLoaded", function () {
+import { io } from "socket.io-client";
+
+document.addEventListener("DOMContentLoaded", async function () {
+	async function getCollectionUUID() {
+		for (const path of window.location.pathname.split("/")) {
+			if (path.length > 10) {
+				return path;
+			}
+		}
+	}
+
+	// SOCKET.IO CONNECTION
+	const socket = io("http://localhost:80", {
+		query: {
+			collectionUUID: await getCollectionUUID(),
+		},
+	});
+
+	// SOCKET.IO NOTIFICATIONS
+	let socketID;
+
+	socket.on("connect", () => {
+		socketID = socket.id;
+
+		socket.on("refresh", (data) => {
+			if (data.targets) {
+				data.targets.forEach((target) => {
+					switch (target) {
+						case "task-board":
+							taskBoard.loadTasks();
+							break;
+						case "task-view":
+							taskView.loadTask(taskView.task);
+							break;
+						default:
+							break;
+					}
+				});
+			}
+		});
+	});
+
 	// Get and save membershipID
 	async function getMembershipID() {
 		const user = JSON.parse(localStorage.getItem("user"));
@@ -181,6 +222,7 @@ document.addEventListener("DOMContentLoaded", function () {
 					headers: {
 						"Content-Type": "application/json",
 						Accept: "application/json",
+						"X-Socket-ID": socketID,
 					},
 					body: JSON.stringify({
 						status: draggedTask.status,
@@ -386,6 +428,7 @@ document.addEventListener("DOMContentLoaded", function () {
 						headers: {
 							"Content-Type": "application/json",
 							Accept: "application/json",
+							"X-Socket-ID": socketID,
 						},
 						body: JSON.stringify({
 							description: todo,
@@ -411,6 +454,7 @@ document.addEventListener("DOMContentLoaded", function () {
 						headers: {
 							"Content-Type": "application/json",
 							Accept: "application/json",
+							"X-Socket-ID": socketID,
 						},
 						body: JSON.stringify({
 							status: $event.target.checked,
@@ -439,6 +483,7 @@ document.addEventListener("DOMContentLoaded", function () {
 						headers: {
 							"Content-Type": "application/json",
 							Accept: "application/json",
+							"X-Socket-ID": socketID,
 						},
 						body: JSON.stringify({
 							username: JSON.parse(localStorage.getItem("user")).username,
@@ -475,6 +520,7 @@ document.addEventListener("DOMContentLoaded", function () {
 					headers: {
 						"Content-Type": "application/json",
 						Accept: "application/json",
+						"X-Socket-ID": socketID,
 					},
 					body: JSON.stringify({
 						username: JSON.parse(localStorage.getItem("user")).username,
@@ -594,6 +640,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			headers: {
 				"Content-Type": "application/json",
 				Accept: "application/json",
+				"X-Socket-ID": socketID,
 			},
 			body: JSON.stringify({
 				status: createTaskForm
