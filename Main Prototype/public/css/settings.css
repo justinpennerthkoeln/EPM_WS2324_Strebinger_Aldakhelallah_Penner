@@ -1,8 +1,8 @@
 main {
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    width: 100vw;
+    /* height: 100vh;
+    width: 100vw; */
 }
 
 main>header {
@@ -49,8 +49,9 @@ main .content aside {
 }
 
 main .content aside:first-child {
-    width: 15vw;
-    height: 60vh;
+    /* width: 25vw; */
+    /* height: 60vh; */
+    height: fit-content;
     background-color: var(--color-on-background-dark);
     border-radius: var(--br-xs);
 }
@@ -83,6 +84,7 @@ main .content aside:first-child {
 }
 
 #aside-nav ul li a:hover {
+    transition: ease-in-out 0.3s;
     color: var(--color-accent-primary);
 }
 

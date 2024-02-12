@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const router = express.Router();
+const path = require("path");
 const collectionsModel = require("../models/collectionsModel.js");
 const tasksModel = require("../models/tasksModel.js");
 
@@ -39,11 +40,11 @@ router.get("/:uuid/inspection", (req, res) => {
 });
 
 router.get("/:uuid/settings", (req, res) => {
-	res.send({ msg: "Settings" });
+	res.sendFile(path.join(__dirname, "../views/settings.html"));
 });
 
 router.get("/:uuid/settings/:setting", (req, res) => {
-	res.send({ msg: "Settings" });
+	res.sendFile(path.join(__dirname, "../views/settings.html"));
 });
 
 router.get("/:uuid/alerts", (req, res) => {

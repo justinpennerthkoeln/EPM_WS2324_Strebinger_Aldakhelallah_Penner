@@ -28,27 +28,30 @@ exports.getCollectionsByUserId = async (userId) => {
 };
 
 exports.setMembership = async (userId, collectionId) => {
-	try {
-		const newMembership = await pool.query(
-			"INSERT INTO memberships (user_id, collection_id, role) VALUES ($1, $2, $3) RETURNING *",
-			[userId, collectionId, "project manager"]
-		);
-		return newMembership.rows[0];
-	} catch (error) {
-		console.log(error);
-		throw new Error("Error setting membership.");
-	}
+    try {
+        const newMembership = await pool.query("INSERT INTO memberships (user_id, collection_id, role) VALUES ($1, $2, $3) RETURNING *", [userId, collectionId, "project manager"]);
+        return newMembership.rows[0];
+    } catch (error) {
+        console.log(error);
+        throw new Error("Error setting membership.");
+    }
+}
+
+exports.getMembersByCollectionId = async (collectionId) => {
+    try {
+        const members = await pool.query(`SELECT m.*, u.* FROM memberships m INNER JOIN users u ON m.user_id = u.id WHERE m.collection_id = $1`, [collectionId]);
+        return members.rows;
+    } catch(error) {
+        console.log(error);
+        throw new Error("Error getting members by collection id.");
+    }
 };
 
-exports.getMembershipByCollectionId = async (collection) => {
-	try {
-		const memberships = await pool.query(
-			"SELECT * FROM memberships WHERE collection_id = $1 AND user_id = $2",
-			[collection.collection_id, collection.user_id]
-		);
-		return memberships.rows;
-	} catch (error) {
-		console.log(error);
-		throw new Error("Error getting memberships by collection id.");
-	}
+exports.deleteMembership = async (memberId) => {
+    try {
+        await pool.query("DELETE FROM memberships WHERE membership_id = $1", [memberId]);
+    } catch (error) {
+        console.log(error);
+        throw new Error("Error deleting membership.");
+    }
 };

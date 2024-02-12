@@ -31,12 +31,16 @@
                         <li>Collection</li>
                         <li><a href="/settings/rename-collection">Rename collection</a></li>
                         <li><a href="/settings/delete-collection">Delete collection</a></li>
+                        <li><a href="/settings/update-description">Update description</a></li>
                         <li>Collaborators</li>
                         <li><a href="/settings/invite-collaborators">Invite collaborators</a></li>
                         <li><a href="/settings/manage-collaborators">Manage collaborators</a></li>
                         <li>Platforms</li>
                         <li><a href="/settings/add-projects">Add projects</a></li>
                         <li><a href="/settings/manage-projects">Manage projects</a></li>
+                        <li>Alerts</li>
+                        <li><a href="/settings/collection-alert-settings">Collection alert settings</a></li>
+                        <li><a href="/settings/personal-alert-settings">Personal alert settings</a></li>
                     </ul>
                 </nav>
             </aside>
@@ -106,6 +110,17 @@
                     </form>
                 </div>
             </aside>
+            <aside id="update-description" class="hidden">
+                <h2>Collection</h2>
+                <h3>Update your Collection Description</h3>
+                <p>Please enter a new description for your collection. You can update your collection description at any time</p>
+                <div class="update-description-container">
+                    <form>
+                        <input type="text" class="update-description-input">
+                        <button class="update-description-button">Update description</button>
+                    </form>
+                </div>
+            </aside>
             <aside id="invite-collaborators" class="invite-collaborators hidden">
                 <h2>Collaborators</h2>
                 <h3>Invite a Collaborator</h3>
@@ -122,6 +137,28 @@
                 <p>Here you can manage your collaborators.</p>
                 <div class="collaborators">
 
+                </div>
+            </aside>
+            <aside id="collection-alert-settings" class="hidden">
+                <h2>Alerts</h2>
+                <h3>Update the Collection Alert Settings</h3>
+                <p>Here you can update your Collections alert settings.</p>
+                <div class="alert-settings">
+                    <form>
+                        
+                        <button>Update alert settings</button>
+                    </form>
+                </div>
+            </aside>
+            <aside id="personal-alert-settings" class="hidden">
+                <h2>Alerts</h2>
+                <h3>Update your Personal Alert Settings</h3>
+                <p>Here you can update your personal alert settings.</p>
+                <div class="alert-settings">
+                    <form>
+                        
+                        <button>Update alert settings</button>
+                    </form>
                 </div>
             </aside>
         </div>
@@ -146,10 +183,10 @@
                 
                 const { target } = $event;
 
-                window.location.href = `/${window.location.pathname.split('/')[1]}/${target.href.split('/')[3]}`;
+                window.location.href = `/collection/${window.location.pathname.split('/')[2]}/${target.href.split('/')[3]}`;
             });
 
-            if(window.location.pathname.split('/')[2] == element.href.split('/')[3]) {
+            if(window.location.pathname.split('/')[3] == element.href.split('/')[3]) {
                 element.classList.add('selected');
             }
         });
