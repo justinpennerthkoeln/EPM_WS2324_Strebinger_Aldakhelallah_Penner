@@ -109,3 +109,32 @@ exports.getTaskByTaskId = async function (task_id) {
 		return false;
 	}
 };
+
+exports.updateTaskStatus = async function (data) {
+	try {
+		const query = `UPDATE tasks SET status = $1 WHERE task_id = $2 RETURNING *`;
+		const values = [data.status.replaceAll("-", " "), data.taskID];
+		return await pool.query(query, values);
+	} catch (err) {
+		console.log(err);
+		return false;
+	}
+};
+
+exports.createTask = async function (data) {
+	try {
+		const query =
+			"INSERT INTO tasks (task_id, collection_id, platform_id, status, name, description) VALUES (DEFAULT, $1, $2, $3, $4, $5) RETURNING *";
+		const values = [
+			Number(data.collectionID),
+			Number(data.platform),
+			data.status,
+			data.name,
+			data.description,
+		];
+		return await pool.query(query, values);
+	} catch (err) {
+		console.log(err);
+		return false;
+	}
+};

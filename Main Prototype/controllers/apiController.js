@@ -6,6 +6,8 @@ const tasksModel = require("../models/tasksModel");
 const todoModel = require("../models/todoModel");
 const feedbackModel = require("../models/feedbackModel");
 const userModel = require("../models/userModel");
+const repliesModel = require("../models/repliesModel");
+const platformsModel = require("../models/platformsModel");
 const bodyParser = require("body-parser");
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
@@ -42,6 +44,36 @@ router.get("/tasks/:taskId/feedbacks", async (req, res) => {
 	res.send(feedbacks);
 });
 
+// Update task status
+router.put("/tasks/:taskId/status", async (req, res) => {
+	const status = tasksModel.updateTaskStatus({
+		taskID: req.params.taskId,
+		status: req.body.status,
+	});
+
+	res.send(status);
+});
+
+// Create task
+router.post("/tasks", async (req, res) => {
+	const data = {
+		status: req.body.status,
+		name: req.body.name,
+		description: req.body.description,
+		collectionID: req.body.collectionID,
+		platform: req.body.platform,
+		createIssue: req.body.createIssue,
+	};
+
+	console.log(data);
+
+	const task = await tasksModel.createTask(data);
+
+	res.send(task);
+
+	// TODO: Create issue noch umsetzen
+});
+
 // TODO
 router.post("/tasks/:taskId/todo", async (req, res) => {
 	const todo = await todoModel.createTodo({
@@ -70,6 +102,17 @@ router.post("/tasks/:taskId/feedback", async (req, res) => {
 	});
 
 	res.send(feedback);
+});
+
+// Save reply
+router.post("/feedback/:feedbackId/reply", async (req, res) => {
+	const reply = await repliesModel.createReply({
+		feedbackID: req.params.feedbackId,
+		username: req.body.username,
+		comment: req.body.comment,
+	});
+
+	res.send(reply);
 });
 
 // Get a user by uuid
@@ -124,6 +167,17 @@ router.post("/collections/create", urlencodedParser, async (req, res) => {
 				collection.collection_id
 			);
 		});
+});
+
+// PLATFORMS
+
+// Get platforms by collectionID
+router.get("/platforms/:collectionID", async (req, res) => {
+	const platforms = await (
+		await platformsModel.getPlatformsByCollectionId(req.params.collectionID)
+	).rows;
+
+	res.send(platforms);
 });
 
 module.exports = router;

@@ -169,17 +169,32 @@ document.addEventListener("DOMContentLoaded", function () {
 			handleDrop($event, targetState) {
 				$event.preventDefault();
 
-				const TASKID = parseInt($event.dataTransfer.getData("text/plain"), 10);
-				const DRAGGEDTASK = this.tasks.find((task) => {
-					return task.task_id == TASKID;
+				const taskID = parseInt($event.dataTransfer.getData("text/plain"), 10);
+				const draggedTask = this.tasks.find((task) => {
+					return task.task_id == taskID;
 				});
 
-				DRAGGEDTASK.status = targetState;
+				draggedTask.status = targetState;
 
-				SOCKET.emit("update-task-status", {
-					task_id: TASKID,
-					status: DRAGGEDTASK.status,
-				});
+				fetch(`/api/tasks/${taskID}/status`, {
+					method: "PUT",
+					headers: {
+						"Content-Type": "application/json",
+						Accept: "application/json",
+					},
+					body: JSON.stringify({
+						status: draggedTask.status,
+					}),
+				})
+					.then((response) => {
+						return response.json();
+					})
+					.then((status) => {
+						console.log(status);
+					})
+					.catch((error) => {
+						console.error(error);
+					});
 			},
 
 			allowDrop(event) {
@@ -187,19 +202,19 @@ document.addEventListener("DOMContentLoaded", function () {
 			},
 
 			async newFeedback(feedback) {
-				const AFFECTEDTASK = this.tasks.find((task) => {
+				const affectedTask = this.tasks.find((task) => {
 					return task.task_id == feedback.task_id;
 				});
 
-				AFFECTEDTASK.feedbacks_count = Number(AFFECTEDTASK.feedbacks_count) + 1;
+				affectedTask.feedbacks_count = Number(affectedTask.feedbacks_count) + 1;
 			},
 
 			updateTodosProgress(taskID, percentage) {
-				const AFFECTEDTASK = this.tasks.find((task) => {
+				const affectedTask = this.tasks.find((task) => {
 					return task.task_id == taskID;
 				});
 
-				AFFECTEDTASK.todos_progress = percentage;
+				affectedTask.todos_progress = percentage;
 			},
 		},
 		mounted() {
@@ -449,40 +464,161 @@ document.addEventListener("DOMContentLoaded", function () {
 				OVERLAY.classList.toggle("hidden");
 			},
 
-			// async saveReplyFeedback(index) {
-			// 	const FEEDBACKID = this.feedbacks[index].feedback_id;
-			// 	const TASKID = this.task.task_id;
-			// 	const COMMENT = document.querySelector(
-			// 		"#reply-overlay-" + index + ' textarea[name="reply"]'
-			// 	).value;
+			async saveReplyFeedback(index) {
+				const feedbackID = this.feedbacks[index].feedback_id;
+				const comment = document.querySelector(
+					"#reply-overlay-" + index + ' textarea[name="reply"]'
+				).value;
 
-			// 	SOCKET.emit("save-reply-feedback", {
-			// 		username: localStorage.getItem("username"),
-			// 		feedback_id: FEEDBACKID,
-			// 		task_id: TASKID,
-			// 		comment: COMMENT,
-			// 	});
-
-			// 	document.querySelector(
-			// 		"#reply-overlay-" + index + ' textarea[name="reply"]'
-			// 	).value = "";
-			// 	this.toggleReplyOverlay(index);
-			// },
-
-			// async newReply(reply) {
-			// 	this.feedbacks.forEach((feedback) => {
-			// 		if (feedback.feedback_id == reply.feedback_id) {
-			// 			console.log(feedback);
-
-			// 			feedback.replies.push({
-			// 				comment: reply.comment,
-			// 				reply_id: reply.reply_id,
-			// 				timestamp: reply.timestamp,
-			// 				username: reply.username,
-			// 			});
-			// 		}
-			// 	});
-			// },
+				fetch(`/api/feedback/${feedbackID}/reply`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Accept: "application/json",
+					},
+					body: JSON.stringify({
+						username: JSON.parse(localStorage.getItem("user")).username,
+						comment: comment,
+					}),
+				})
+					.then((response) => {
+						return response.json();
+					})
+					.then(() => {
+						document.querySelector(
+							"#reply-overlay-" + index + ' textarea[name="reply"]'
+						).value = "";
+						this.toggleReplyOverlay(index);
+					})
+					.catch((error) => {
+						console.error(error);
+					});
+			},
 		},
 	}).mount("#task-view");
+
+	// CREATE TASK
+	async function getCollectionID() {
+		let collectionUUID;
+
+		for (const path of window.location.pathname.split("/")) {
+			if (path.length > 10) {
+				collectionUUID = path;
+			}
+		}
+
+		const collectionID = await fetch(`/api/collections/id/${collectionUUID}`, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+			},
+		})
+			.then((response) => {
+				return response.json();
+			})
+			.then((collection) => {
+				return collection.rows[0].collection_id;
+			});
+
+		return collectionID;
+	}
+
+	const createTaskContainer = document.querySelector("#create-task-container");
+	const createTaskForm = document.querySelector("#create-task-form");
+	const createTaskButton = document.querySelectorAll("#create-task-button");
+
+	async function getPlatforms() {
+		const select = document.querySelector("#platform-select");
+
+		let collectionUUID;
+
+		for (const path of window.location.pathname.split("/")) {
+			if (path.length > 10) {
+				collectionUUID = path;
+			}
+		}
+
+		const platforms = await fetch(`/api/platforms/${await getCollectionID()}`, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+			},
+		})
+			.then((response) => {
+				return response.json();
+			})
+			.then((platforms) => {
+				return platforms;
+			});
+
+		platforms.forEach((platform) => {
+			select.innerHTML += `<option value="${platform.platform_id}">${
+				platform.platform.charAt(0).toUpperCase() + platform.platform.slice(1)
+			}</option>`;
+		});
+	}
+
+	getPlatforms();
+
+	function clearForm() {
+		createTaskForm.querySelector('input[name="status"]').value = "";
+		createTaskForm.querySelector('input[name="name"]').value = "";
+		createTaskForm.querySelector('textarea[name="description"]').value = "";
+		createTaskForm.querySelector("#platform-select").selectedIndex = 0;
+	}
+
+	createTaskButton.forEach((button) => {
+		button.addEventListener("click", ($event) => {
+			createTaskContainer.classList.remove("hidden");
+			createTaskForm.querySelector('input[name="status"]').value =
+				$event.target.value;
+		});
+	});
+
+	createTaskContainer.addEventListener("click", ($event) => {
+		if ($event.target == createTaskContainer) {
+			createTaskContainer.classList.add("hidden");
+
+			clearForm();
+		}
+	});
+
+	createTaskForm.addEventListener("submit", async ($event) => {
+		$event.preventDefault();
+
+		fetch("/api/tasks", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Accept: "application/json",
+			},
+			body: JSON.stringify({
+				status: createTaskForm
+					.querySelector('input[name="status"]')
+					.value.replace("-", " "),
+				name: createTaskForm.querySelector('input[name="name"]').value,
+				description: createTaskForm.querySelector(
+					'textarea[name="description"]'
+				).value,
+				collectionID: await getCollectionID(),
+				platform: Number(
+					createTaskForm.querySelector("#platform-select").value
+				),
+				createIssue: createTaskForm.querySelector("#send-notification").checked,
+			}),
+		})
+			.then((response) => {
+				return response.json();
+			})
+			.then((task) => {
+				console.log(task);
+			})
+			.catch((error) => {
+				console.error(error);
+			});
+
+		createTaskContainer.classList.add("hidden");
+
+		clearForm();
+	});
 });
