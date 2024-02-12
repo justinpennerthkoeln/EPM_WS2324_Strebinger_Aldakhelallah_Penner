@@ -1,7 +1,6 @@
 const express = require("express");
 const path = require("path");
 const router = express.Router();
-const path = require("path");
 const collectionsModel = require("../models/collectionsModel.js");
 const tasksModel = require("../models/tasksModel.js");
 
