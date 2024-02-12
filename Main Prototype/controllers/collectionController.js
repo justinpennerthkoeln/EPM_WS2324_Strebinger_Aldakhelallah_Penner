@@ -47,14 +47,7 @@ router.get("/:uuid/settings/:setting", (req, res) => {
 });
 
 router.get("/:uuid/alerts", (req, res) => {
-	res.send({ msg: "Alerts" });
-
-	// 	const COLLECTION = await (
-	// 		await COLLECTIONSMODEL.getCollection(req.params.uuid)
-	// 	).rows[0];
-	// 	const ALERTS = await (await ALERTSMODEL.getAlerts(await COLLECTION.id)).rows;
-
-	// 	res.send(ALERTS);
+	res.sendFile(path.join(__dirname, "../views/alerts.html"));
 });
 
 module.exports = router;

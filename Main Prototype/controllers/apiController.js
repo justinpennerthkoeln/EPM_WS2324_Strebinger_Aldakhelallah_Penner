@@ -8,6 +8,7 @@ const feedbackModel = require("../models/feedbackModel");
 const userModel = require("../models/userModel");
 const repliesModel = require("../models/repliesModel");
 const platformsModel = require("../models/platformsModel");
+const alertsModel = require("../models/alertsModel");
 const bodyParser = require("body-parser");
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
@@ -281,6 +282,13 @@ router.post("/collections/:uuid/delete/:memberShipId", async (req, res) => {
 	membershipsModel.deleteMembership(req.params.memberShipId).then(() => {
 		res.send({ msg: "User removed." });
 	});
+});
+
+// Alerts
+router.get("/alerts/:uuid", async (req, res) => {
+	const collectionId = await (await collectionsModel.getByUuid(req.params.uuid)).rows[0].collection_id;
+	const alerts = await alertsModel.getAlertsByCollectionId(await collectionId);
+	res.send(alerts);
 });
 
 module.exports = router;

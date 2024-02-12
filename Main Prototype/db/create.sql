@@ -63,6 +63,7 @@ CREATE TABLE alerts (
     membership_id INTEGER NOT NULL,
     platform_id INTEGER NOT NULL,
     collection_id INTEGER NOT NULL,
+    comment VARCHAR(200) NOT NULL,
     timestamp TIMESTAMP NOT NULL
 );
 
