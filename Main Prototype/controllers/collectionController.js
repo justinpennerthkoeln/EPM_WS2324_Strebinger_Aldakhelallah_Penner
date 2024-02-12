@@ -1,19 +1,25 @@
 const express = require("express");
+const path = require("path");
 const router = express.Router();
 const path = require("path");
+const collectionsModel = require("../models/collectionsModel.js");
+const tasksModel = require("../models/tasksModel.js");
 
 // ROUTES
 router.get("/:uuid", (req, res) => {
-	res.send({ msg: "Collection" });
+	res.sendFile(path.join(__dirname, "../views/collection.html"));
 });
 
-router.get("/:uuid/tasks", (req, res) => {
-	res.send({ msg: "Tasks" });
+router.get("/:uuid/tasks", async (req, res) => {
+	const collection = await (
+		await collectionsModel.getCollection(req.params.uuid)
+	).rows[0];
 
-	// const COLLECTION = await (await COLLECTIONSMODEL.getCollection(req.params.uuid)).rows[0];
-	// const TASKS = await (await TASKSMODEL.getTasksByCollectionId(await COLLECTION.id)).rows;
+	const tasks = await (
+		await tasksModel.getTasksByCollectionId(await collection.collection_id)
+	).rows;
 
-	// res.send(TASKS);
+	res.send(tasks);
 });
 
 router.get("/:uuid/feedback/:feedbackId", (req, res) => {
