@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="/css/global/reset.css" />
+		<link rel="stylesheet" href="/css/global/variables.css" />
+		<link rel="stylesheet" href="/css/global/base.css" />
+		<link rel="stylesheet" href="/css/collection.css" />
+		<link rel="stylesheet" href="/css/global/alert.css" />
+		<title>SynergyHub</title>
+	</head>
+	<body>
+		<main>
+			<header>
+				<h1 id="collection-name"></h1>
+				<p id="collection-details"></p>
+				<p id="collection-description"></p>
+				<nav id="navigation" class="navigation">
+					<a href="/tasks">Tasks</a>
+					<a href="/inspection">Inspection</a>
+					<a href="/settings">Settings</a>
+					<a href="/alerts">Alerts</a>
+				</nav>
+			</header>
+
+			<!-- Taskboard -->
+			<section id="taskboard" class="taskboard"> </section>
+
+			<!-- Create task -->
+			<section id="create-task-container" class="create-task-container hidden">
+				<div>
+					<header>
+						<h2>Create task</h2>
+						<p
+							>Please enter a name for your task. You can also add a description
+							if you like.</p
+						>
+					</header>
+					<form id="create-task-form">
+						<input type="hidden" id="status" name="status" />
+						<div>
+							<label for="name">Name</label>
+							<input type="text" id="name" name="name" placeholder="Name" />
+						</div>
+						<div>
+							<label for="description">Description</label>
+							<textarea
+								id="description"
+								name="description"
+								placeholder="Description"></textarea>
+						</div>
+						<div>
+							<label for="platform-select">Platform</label>
+							<select name="platform" id="platform-select"> </select>
+						</div>
+						<div
+							id="send-notification-container"
+							class="send-notification-container">
+							<div class="switch">
+								<input
+									type="checkbox"
+									name="send-notification"
+									id="send-notification" />
+								<label for="send-notification"></label>
+							</div>
+							<p>Send notification?</p>
+						</div>
+						<!-- <div class="assignee-container">
+                        <label for="assignees">Asignees</label>
+                        <input type="text" name="assignees" id="assignees">
+                        <div class="show-users">
+
+                        </div>
+                        <button class="add-assignee-btn">Add User</button>
+                        <div class="assignees">
+                            
+                        </div>
+                    </div> -->
+						<button type="submit" id="create-task-btn">Create Task</button>
+					</form>
+				</div>
+			</section>
+
+			<!-- View task -->
+			<section id="view-task-container" class="view-task-container hidden">
+				<div id="task-view"></div>
+			</section>
+
+			<!-- Reply to Feedback -->
+			<section
+				id="feedback-reply-container"
+				class="feedback-reply-container hidden">
+				<div>
+					<header>
+						<h2>Reply to feedback</h2>
+					</header>
+					<form id="feedback-reply-form">
+						<div>
+							<label for="feedback-reply">Reply</label>
+							<textarea
+								id="feedback-reply"
+								name="feedback-reply"
+								placeholder="Reply"></textarea>
+						</div>
+						<button type="submit" id="feedback-reply-btn">Reply</button>
+						<p id="error-reply" class="error hidden">Add Feedback first</p>
+					</form>
+				</div>
+			</section>
+		</main>
+
+		<script type="importmap">
+			{
+				"imports": {
+					"socket.io-client": "https://cdn.socket.io/4.4.1/socket.io.esm.min.js"
+				}
+			}
+		</script>
+		<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+		<script>
+			// Navigation
+			const NAVIGATIONLINKS = document.querySelectorAll("#navigation a");
+
+			NAVIGATIONLINKS.forEach((element) => {
+				element.addEventListener("click", ($event) => {
+					$event.preventDefault();
+
+					const { target } = $event;
+
+					window.location.href = `/${window.location.pathname.split("/")[1]}/${
+						target.href.split("/")[3]
+					}`;
+				});
+
+				if (
+					window.location.pathname.split("/")[2] == element.href.split("/")[3]
+				) {
+					element.classList.add("selected");
+				}
+			});
+		</script>
+
+		<script src="/js/collection.js" type="module"></script>
+	</body>
+</html>
