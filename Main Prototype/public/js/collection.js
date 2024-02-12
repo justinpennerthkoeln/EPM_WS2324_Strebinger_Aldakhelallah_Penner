@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
 						return response.json();
 					})
 					.then((status) => {
-						console.log(status);
+						// console.log(status);
 					})
 					.catch((error) => {
 						console.error(error);
@@ -538,12 +538,15 @@ document.addEventListener("DOMContentLoaded", function () {
 			}
 		}
 
-		const platforms = await fetch(`/api/platforms/${await getCollectionID()}`, {
-			method: "GET",
-			headers: {
-				"Content-Type": "application/json",
-			},
-		})
+		const platforms = await fetch(
+			`/api/collections/${await collectionUUID}/platforms`,
+			{
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			}
+		)
 			.then((response) => {
 				return response.json();
 			})
@@ -611,7 +614,7 @@ document.addEventListener("DOMContentLoaded", function () {
 				return response.json();
 			})
 			.then((task) => {
-				console.log(task);
+				// console.log(task);
 			})
 			.catch((error) => {
 				console.error(error);

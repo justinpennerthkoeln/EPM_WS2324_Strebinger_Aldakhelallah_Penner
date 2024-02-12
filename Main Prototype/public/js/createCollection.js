@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", async function () {
 	// Check if user is logged in
-	if (!window.localStorage.getItem("user")) {
+	if (!window.localStorage.getItem("uuid")) {
 		const params = new URLSearchParams(window.location.search);
 		window.localStorage.setItem("uuid", params.get("uuid"));
 		fetch(`/api/users/${params.get("uuid")}`)
@@ -53,39 +53,50 @@ document.addEventListener("DOMContentLoaded", async function () {
 	CREATECOLLECTIONFORM.addEventListener("submit", async ($event) => {
 		$event.preventDefault();
 
-    // Create collection
-    const CREATECOLLECTIONFORM = document.querySelector('#collection-create-form');
-    CREATECOLLECTIONFORM.addEventListener('submit', async ($event) => {
-        $event.preventDefault();
-        fetch(`/api/collections/create`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Accept': 'application/json'
-            },
-            body: "name=" + CREATECOLLECTIONFORM.querySelector('#name').value + "&userId=" + JSON.parse(window.localStorage.getItem('user')).id + "&description=" + CREATECOLLECTIONFORM.querySelector('#description').value
-        }).then(response => response.json()).then(data => {
-            window.location.href = `/collection/${data.uuid}/`;
-        }).catch(error => {
-            console.error('Error creating collection:', error);
-        });
-    });
-});
-
-// Generate collection list
-function generateCollections() {
-	Vue.createApp({
-		data() {
-			return {
-				collections: [],
-				dateOptions: {
-					year: "numeric",
-					month: "numeric",
-					day: "numeric",
+		// Create collection
+		const CREATECOLLECTIONFORM = document.querySelector(
+			"#collection-create-form"
+		);
+		CREATECOLLECTIONFORM.addEventListener("submit", async ($event) => {
+			$event.preventDefault();
+			fetch(`/api/collections/create`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/x-www-form-urlencoded",
+					Accept: "application/json",
 				},
-			};
-		},
-		template: `
+				body:
+					"name=" +
+					CREATECOLLECTIONFORM.querySelector("#name").value +
+					"&userId=" +
+					JSON.parse(window.localStorage.getItem("user")).id +
+					"&description=" +
+					CREATECOLLECTIONFORM.querySelector("#description").value,
+			})
+				.then((response) => response.json())
+				.then((data) => {
+					window.location.href = `/collection/${data.uuid}/`;
+				})
+				.catch((error) => {
+					console.error("Error creating collection:", error);
+				});
+		});
+	});
+
+	// Generate collection list
+	function generateCollections() {
+		Vue.createApp({
+			data() {
+				return {
+					collections: [],
+					dateOptions: {
+						year: "numeric",
+						month: "numeric",
+						day: "numeric",
+					},
+				};
+			},
+			template: `
             <thead>
                 <tr>
                     <th>Name</th>
@@ -99,30 +110,31 @@ function generateCollections() {
                 </tr>
             </tbody>
         `,
-		methods: {
-			navigateToCollection(uuid) {
-				window.location.href = `/collection/${uuid}/`;
+			methods: {
+				navigateToCollection(uuid) {
+					window.location.href = `/collection/${uuid}/`;
+				},
+				addCollection(data) {
+					this.collections.push(data);
+				},
+				fetchCollections() {
+					if (!window.localStorage.getItem("user")) {
+						return;
+					}
+					const user = JSON.parse(window.localStorage.getItem("user")); // user abrufen
+					fetch(`/api/collections/${user.id}`)
+						.then((response) => response.json())
+						.then((collections) => {
+							this.collections = collections;
+						})
+						.catch((error) => {
+							console.error("Error fetching collections:", error);
+						});
+				},
 			},
-			addCollection(data) {
-				this.collections.push(data);
+			mounted() {
+				this.fetchCollections();
 			},
-			fetchCollections() {
-				if (!window.localStorage.getItem("user")) {
-					return;
-				}
-				const user = JSON.parse(window.localStorage.getItem("user")); // user abrufen
-				fetch(`/api/collections/${user.id}`)
-					.then((response) => response.json())
-					.then((collections) => {
-						this.collections = collections;
-					})
-					.catch((error) => {
-						console.error("Error fetching collections:", error);
-					});
-			},
-		},
-		mounted() {
-			this.fetchCollections();
-		},
-	}).mount("#collections");
-}
+		}).mount("#collections");
+	}
+});

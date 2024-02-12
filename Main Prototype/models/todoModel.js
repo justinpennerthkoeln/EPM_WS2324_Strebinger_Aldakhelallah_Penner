@@ -22,8 +22,6 @@ exports.getTodosByTaskId = async function (taskId) {
 };
 
 exports.createTodo = async function (todo) {
-	console.log(todo);
-
 	try {
 		const query = "INSERT INTO todos VALUES (DEFAULT, $1, false, $2, $3)";
 		const values = [
