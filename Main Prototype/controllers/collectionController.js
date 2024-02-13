@@ -26,7 +26,7 @@ router.get("/:uuid/feedback/:feedbackId", (req, res) => {
 });
 
 router.get("/:uuid/inspection", (req, res) => {
-	res.send({ msg: "Inspection" });
+	res.sendFile(path.join(__dirname, "../views/inspection.html"));
 
 	// 	const COLLECTION = await (
 	// 		await COLLECTIONSMODEL.getCollection(req.params.uuid)
