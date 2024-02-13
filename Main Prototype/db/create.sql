@@ -12,10 +12,13 @@ DROP TABLE IF EXISTS todos;
 DROP TABLE IF EXISTS feedbacks;
 DROP TABLE IF EXISTS votes;
 DROP TABLE IF EXISTS replies;
+DROP TYPE IF EXISTS alertType;
+DROP TABLE IF EXISTS alertSettings;
 
 CREATE TYPE platform AS ENUM ('github', 'gitlab', 'markdown', 'notion', 'figma', 'dribbble', '-');
 CREATE TYPE role AS ENUM ('designer', 'programmer', 'product owner', 'project manager');
 CREATE TYPE status AS ENUM ('todo', 'running', 'review', 'done');
+CREATE TYPE alertType AS ENUM ('task created', 'task update', 'task completion', 'task feedback', 'task reply', 'design changes', 'design comment', 'code changes', 'code comment');
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -64,12 +67,23 @@ CREATE TABLE alerts (
     platform_id INTEGER NOT NULL,
     collection_id INTEGER NOT NULL,
     comment VARCHAR(200) NOT NULL,
+    alert_type alertType NOT NULL,
     timestamp TIMESTAMP NOT NULL
 );
 
 ALTER TABLE alerts ADD CONSTRAINT fk_alerts_membership_3948fbhrgz45i4ts FOREIGN KEY (membership_id) REFERENCES memberships (membership_id);
 ALTER TABLE alerts ADD CONSTRAINT fk_alerts_collection_84376588dsuifhi734 FOREIGN KEY (collection_id) REFERENCES collections (collection_id);
 ALTER TABLE alerts ADD CONSTRAINT fk_alerts_platform_84376588dsuifhi734 FOREIGN KEY (platform_id) REFERENCES platforms (platform_id);
+
+CREATE TABLE alertSettings (
+    alert_settings_id SERIAL PRIMARY KEY NOT NULL,
+    collection_id INTEGER NOT NULL,
+    setting VARCHAR(200) NOT NULL,
+    value BOOLEAN NOT NULL
+);
+
+
+ALTER TABLE alertSettings ADD CONSTRAINT fk_alertSettings_collection_84376588dsuifhi734 FOREIGN KEY (collection_id) REFERENCES collections (collection_id);
 
 CREATE TABLE tasks (
     task_id SERIAL PRIMARY KEY NOT NULL,

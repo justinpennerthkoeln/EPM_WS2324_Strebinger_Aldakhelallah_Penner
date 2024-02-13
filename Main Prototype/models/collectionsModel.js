@@ -102,6 +102,9 @@ exports.deleteCollection = async (collectionId) => {
 		await pool.query("DELETE FROM memberships WHERE collection_id = $1;", [
 			collectionId,
 		]);
+		await pool.query("DELETE FROM alertSettings WHERE collection_id = $1;", [
+			collectionId,
+		]);
 		await pool.query("DELETE FROM collections WHERE collection_id = $1;", [
 			collectionId,
 		]);

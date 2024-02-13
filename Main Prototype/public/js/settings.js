@@ -281,6 +281,67 @@ document.addEventListener('DOMContentLoaded', () => {
     function capitalizeFirstLetter(word) {
         return word.slice(0, 1).toUpperCase() + word.slice(1);
     }
+
+    const alerts = Vue.createApp({
+        data() {
+            return {
+                settings: null,
+                setting_options: {},
+                dateOptions: {
+                    year: "numeric",
+                    month: "numeric",
+                    day: "numeric",
+                },
+            };
+        },
+        template: `
+        <template v-for="setting in setting_options">
+            <div id="alert-setting">
+                <p>{{setting.setting}}</p>
+                <label class="switch">
+                    <input type="checkbox" v-model="setting.value">
+                    <span class="slider round" :class="{true: 'checked'}[setting.value]"  @click="updateSetting(setting.alert_settings_id, setting.value, setting.setting)"></span>
+                </label>
+            </div>
+        </template>
+        `,
+        methods: {
+            getAlerts() {
+                fetch(`/api/alerts/${window.location.pathname.split("/")[2]}/settings`, {
+                    'method': 'GET',
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                }).then((response) => response.json()).then((settings) => {
+                    this.settings = settings.rows;
+                    this.setting_options = settings.rows
+                });
+            },
+            updateSetting(id, value, name) {
+                this.setting_options.forEach((setting) => {
+                    if(setting.setting == name) {
+                        setting.value = value;
+                    }
+                });
+                fetch(`/api/alerts/${window.location.pathname.split("/")[2]}/settings`, {
+                    'method': 'POST',
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    'body': JSON.stringify({
+                        id: id,
+                        value: !value,
+                        setting: name
+                    })
+                })
+            }
+        },
+        mounted() {
+            this.getAlerts();
+        },
+    }).mount("#collection-alert-settings .alert-settings");
 });
 
 async function getPlatform (userId, collectionUuid, platform) {

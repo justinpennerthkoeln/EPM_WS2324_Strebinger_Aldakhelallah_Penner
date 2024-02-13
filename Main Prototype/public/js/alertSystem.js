@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         },
         template: `
-            <template v-for="alert in alerts" @click="send(alerts)">
+            <template v-for="alert in alerts">
                 <div class="alert-container">
                     <p>{{ alert.comment }}</p>
                     <p>{{ new Date(alert.timestamp).toLocaleString('de-DE', this.dateOptions) }}</p>
@@ -47,12 +47,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         'Accept': 'application/json'
                     }
                 }).then((response) => response.json()).then((alerts) => {
-                    console.log(alerts.rows);
                     this.alerts = alerts.rows;
                 });
-            },
-            send(alerts) {
-                console.log(alerts);
             }
         },
         mounted() {
