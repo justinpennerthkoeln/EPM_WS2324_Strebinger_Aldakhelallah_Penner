@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
         template: `
             <div>
                 <h3>Github</h3>
+                <p @click="goBack(link)">back</p>
                 <template v-for="file in files">
                     <p v-if="file.type === 'dir'" @click="updateFiles(file.name)">{{ file.name }}</p>
                     <p v-else @click="getContent(file.sha)">{{ file.name }}</p>
@@ -54,7 +55,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         "Authorization": `Bearer ${github.platform_key}`
                     }
                 }).then((response) => response.json()).then((files) => {this.files = files});
-                console.log(this.files)
             },
             async updateFiles(newUrl) {
                 this.link = this.link + "/" + newUrl;
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         "Authorization": `Bearer ${this.platform_key}`
                     }
                 }).then((response) => response.json()).then((files) => {this.files = files});
-                console.log(this.files)
+                document.querySelector("#content").innerHTML = "";
             },
             async getContent(sha) {
                 await fetch(`https://api.github.com/repos/${this.username}/${this.target_document}/git/blobs` + "/" + sha, {
@@ -72,13 +72,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }).then((response) => response.json()).then((data) => {
                     const base64 = atob(data.content);
-                    document.querySelector("#content").innerHTML = base64;
+                    document.querySelector("#content").innerHTML = `<pre><code>${base64}</code></pre>`;
                 });
+            },
+            async goBack(link) {
+                if(link.split("/").length > 7) {
+                    const url = new URL(link);
+                    url.pathname = url.pathname.split("/").slice(0, -1).join("/");
+                    this.link = url.href;
+                    await fetch(this.link, {
+                        headers: {
+                            "Authorization": `Bearer ${this.platform_key}`
+                        }
+                    }).then((response) => response.json()).then((files) => {this.files = files});
+                    return;
+                }
             }
         },
         mounted() {
             this.getRepo();
         },
     }).mount("#files");
-    
 });
