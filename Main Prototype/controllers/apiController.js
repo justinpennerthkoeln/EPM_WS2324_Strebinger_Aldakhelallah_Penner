@@ -8,6 +8,8 @@ const feedbackModel = require("../models/feedbackModel");
 const userModel = require("../models/userModel");
 const repliesModel = require("../models/repliesModel");
 const platformsModel = require("../models/platformsModel");
+const alertsModel = require("../models/alertsModel");
+const alertSettingsModel = require("../models/alertSettingsModel");
 const bodyParser = require("body-parser");
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
@@ -166,7 +168,8 @@ router.post("/collections/create", urlencodedParser, async (req, res) => {
 				reqCollection.userId,
 				collection.collection_id
 			);
-		});
+			alertSettingsModel.createSetting(collection.collection_id);
+		})
 });
 
 router.get(`/collections/:uuid/infos`, async (req, res) => {
@@ -281,6 +284,23 @@ router.post("/collections/:uuid/delete/:memberShipId", async (req, res) => {
 	membershipsModel.deleteMembership(req.params.memberShipId).then(() => {
 		res.send({ msg: "User removed." });
 	});
+});
+
+// Alerts
+router.get("/alerts/:uuid", async (req, res) => {
+	const collectionId = await (await collectionsModel.getByUuid(req.params.uuid)).rows[0].collection_id;
+	const alerts = await alertsModel.getAlertsByCollectionId(await collectionId);
+	res.send(alerts);
+});
+
+router.get("/alerts/:uuid/settings", async (req, res) => {
+	const collectionId = await (await collectionsModel.getByUuid(req.params.uuid)).rows[0].collection_id;
+	const settings = await alertSettingsModel.getSettingsByCollectionId(await collectionId);
+	res.send(settings);
+});
+
+router.post("/alerts/:uuid/settings", urlencodedParser, async (req, res) => {
+	alertSettingsModel.updateSettingsByCollectionId(req.body.id, req.body.value)
 });
 
 module.exports = router;
