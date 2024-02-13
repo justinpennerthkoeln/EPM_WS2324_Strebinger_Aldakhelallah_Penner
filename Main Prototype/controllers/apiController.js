@@ -24,6 +24,18 @@ router.get("/users", async (req, res) => {
 });
 
 // TASK
+router.get("/collection/:uuid/tasks", async (req, res) => {
+	const collection = await (
+		await collectionsModel.getCollection(req.params.uuid)
+	).rows[0];
+
+	const tasks = await (
+		await tasksModel.getTasksByCollectionId(await collection.collection_id)
+	).rows;
+
+	res.send(tasks);
+});
+
 router.get("/tasks/:taskId", async (req, res) => {
 	const task = await tasksModel.getTaskByTaskId(req.params.taskId);
 	res.send(task);
@@ -46,27 +58,32 @@ router.get("/tasks/:taskId/feedbacks", async (req, res) => {
 });
 
 // Update task status
-router.put("/tasks/:taskId/status", async (req, res) => {
-	const status = await tasksModel
-		.updateTaskStatus({
-			taskID: req.params.taskId,
-			status: req.body.status,
-		})
-		.then((status) => {
-			notifyClients({
-				targets: ["task-board"],
-				initiator: req.headers["x-socket-id"],
+router.put("/tasks/states", async (req, res) => {
+	Promise.resolve(
+		req.body.forEach(async (task) => {
+			await tasksModel.updateTaskStatus({
+				taskID: task.task_id,
+				status: task.status,
+				statusIndex: task.status_index,
 			});
-			return status;
+		})
+	).then(() => {
+		notifyClients({
+			targets: ["task-board"],
+			initiator: req.headers["x-socket-id"],
 		});
+	});
 
-	res.send(status);
+	res.send({
+		msg: "Status updated.",
+	});
 });
 
 // Create task
 router.post("/tasks", async (req, res) => {
 	const data = {
 		status: req.body.status,
+		statusIndex: req.body.statusIndex,
 		name: req.body.name,
 		description: req.body.description,
 		collectionID: req.body.collectionID,

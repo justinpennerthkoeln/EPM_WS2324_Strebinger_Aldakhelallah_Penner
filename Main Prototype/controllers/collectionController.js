@@ -9,18 +9,6 @@ router.get("/:uuid", (req, res) => {
 	res.sendFile(path.join(__dirname, "../views/collection.html"));
 });
 
-router.get("/:uuid/tasks", async (req, res) => {
-	const collection = await (
-		await collectionsModel.getCollection(req.params.uuid)
-	).rows[0];
-
-	const tasks = await (
-		await tasksModel.getTasksByCollectionId(await collection.collection_id)
-	).rows;
-
-	res.send(tasks);
-});
-
 router.get("/:uuid/feedback/:feedbackId", (req, res) => {
 	res.send({ msg: "Feedback" });
 });
