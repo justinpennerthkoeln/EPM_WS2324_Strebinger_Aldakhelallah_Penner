@@ -1,6 +1,27 @@
 import { io } from "socket.io-client";
 
 document.addEventListener("DOMContentLoaded", async function () {
+
+	fetch(`/api/collections/${window.location.pathname.split("/")[2]}/infos`).then((response) => response.json()).then((collection) => {
+        const header = document.querySelector('main > header');
+        const dateOptions = {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric'
+        };
+        const date = new Date(collection.timestamp).toLocaleString('de-DE', dateOptions);
+        const members = collection.members.map((member) => {
+            return `@${member.username}`;
+        }).join(', ');
+
+        document.title = `SynergyHub | ${collection.name}`;
+
+        header.children[0].textContent = collection.name;
+        header.children[1].textContent = `${date} — ${members}`;
+        header.children[2].textContent = collection.description;
+    });
+
+
 	async function getCollectionUUID() {
 		for (const path of window.location.pathname.split("/")) {
 			if (path.length > 10) {
@@ -321,6 +342,39 @@ document.addEventListener("DOMContentLoaded", async function () {
 					.catch((error) => {
 						console.error(error);
 					});
+
+				if(draggedTask.status != 'done') {
+					fetch(`/api/alerts/${window.location.pathname.split('/')[2]}`, {
+						'method': 'POST',
+						'headers': {
+							'Content-Type': 'application/json',
+							'Accept': 'application/json'
+						},
+						'body': JSON.stringify({
+							userId: JSON.parse(localStorage.getItem('user')).id,
+							collectionUuid: window.location.pathname.split('/')[2],
+							comment: `@${JSON.parse(localStorage.getItem('user')).username}. has updated status of task "${draggedTask.name}" to "${draggedTask.status}".`,
+							alertType: 'task updated',
+							timestamp: new Date().toISOString()
+						})
+					})
+				} else {
+					fetch(`/api/alerts/${window.location.pathname.split('/')[2]}`, {
+						'method': 'POST',
+						'headers': {
+							'Content-Type': 'application/json',
+							'Accept': 'application/json'
+						},
+						'body': JSON.stringify({
+							userId: JSON.parse(localStorage.getItem('user')).id,
+							collectionUuid: window.location.pathname.split('/')[2],
+							comment: `@${JSON.parse(localStorage.getItem('user')).username}. has marked "${draggedTask.name}" as done.`,
+							alertType: 'task completed',
+							timestamp: new Date().toISOString()
+						})
+					})
+				}
+					
 			},
 
 			allowDrop(event) {
@@ -585,6 +639,21 @@ document.addEventListener("DOMContentLoaded", async function () {
 						.catch((error) => {
 							console.error("Error:", error);
 						});
+
+					fetch(`/api/alerts/${window.location.pathname.split('/')[2]}`, {
+						'method': 'POST',
+						'headers': {
+							'Content-Type': 'application/json',
+							'Accept': 'application/json'
+						},
+						'body': JSON.stringify({
+							userId: JSON.parse(localStorage.getItem('user')).id,
+							collectionUuid: window.location.pathname.split('/')[2],
+							comment: `@${JSON.parse(localStorage.getItem('user')).username}. has added feedback to task "${this.task.name}": "${comment}".`,
+							alertType: 'task feedbacks',
+							timestamp: new Date().toISOString()
+						})
+					})
 				}
 			},
 
@@ -623,6 +692,21 @@ document.addEventListener("DOMContentLoaded", async function () {
 					.catch((error) => {
 						console.error(error);
 					});
+
+				fetch(`/api/alerts/${window.location.pathname.split('/')[2]}`, {
+					'method': 'POST',
+					'headers': {
+						'Content-Type': 'application/json',
+						'Accept': 'application/json'
+					},
+					'body': JSON.stringify({
+						userId: JSON.parse(localStorage.getItem('user')).id,
+						collectionUuid: window.location.pathname.split('/')[2],
+						comment: `@${JSON.parse(localStorage.getItem('user')).username}. has replied to feedback "${this.feedbacks[index].comment}":  "${comment}".`,
+						alertType: 'task feedback replies',
+						timestamp: new Date().toISOString()
+					})
+				})
 			},
 		},
 	}).mount("#task-view");
@@ -758,6 +842,21 @@ document.addEventListener("DOMContentLoaded", async function () {
 			});
 
 		createTaskContainer.classList.add("hidden");
+
+		fetch(`/api/alerts/${window.location.pathname.split('/')[2]}`, {
+			'method': 'POST',
+			'headers': {
+				'Content-Type': 'application/json',
+				'Accept': 'application/json'
+			},
+			'body': JSON.stringify({
+				userId: JSON.parse(localStorage.getItem('user')).id,
+				collectionUuid: window.location.pathname.split('/')[2],
+				comment: `A new task in ${document.querySelector('main > header').children[0].textContent} by @${JSON.parse(localStorage.getItem('user')).username}. "${data.name}"`,
+				alertType: 'task created',
+				timestamp: new Date().toISOString()
+			})
+		})
 
 		clearForm();
 	});
