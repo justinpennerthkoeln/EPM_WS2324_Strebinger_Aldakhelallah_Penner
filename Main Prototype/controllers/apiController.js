@@ -10,6 +10,7 @@ const repliesModel = require("../models/repliesModel");
 const platformsModel = require("../models/platformsModel");
 const alertsModel = require("../models/alertsModel");
 const alertSettingsModel = require("../models/alertSettingsModel");
+const emailService = require("../services/emailService");
 const bodyParser = require("body-parser");
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
@@ -297,7 +298,10 @@ router.post('/alerts/:uuid', urlencodedParser, async (req, res) => {
 	const collectionId = await (await collectionsModel.getByUuid(req.params.uuid)).rows[0].collection_id;
 	membershipsModel.getMembershipByCollectionIdAndUserId(collectionId, await req.body.userId).then((member) => {
 		alertsModel.createAlert(member[0].membership_id, collectionId, req.body.comment, req.body.alertType, req.body.timestamp);
-	})
+	});
+
+	const members = await membershipsModel.getMembersByCollectionId(collectionId);
+	emailService.sendMailToMembers(await members, req.body.comment, req.body.alertType, collectionId);
 });
 
 router.get("/alerts/:uuid/settings", async (req, res) => {
