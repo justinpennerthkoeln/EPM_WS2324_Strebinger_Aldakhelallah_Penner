@@ -19,7 +19,6 @@ exports.getAlertsByCollectionId = async (collectionId) => {
                 'username', users.username,
                 'email', users.email
             ) AS member,
-            platforms.platform,
             collections.name AS collection_name,
             alerts.comment,
             alerts.timestamp
@@ -27,7 +26,6 @@ exports.getAlertsByCollectionId = async (collectionId) => {
             alerts
         INNER JOIN memberships ON alerts.membership_id = memberships.membership_id
         INNER JOIN users ON memberships.user_id = users.id
-        INNER JOIN platforms ON alerts.platform_id = platforms.platform_id
         INNER JOIN collections ON alerts.collection_id = collections.collection_id
         WHERE
             collections.collection_id = $1;
@@ -36,5 +34,18 @@ exports.getAlertsByCollectionId = async (collectionId) => {
     } catch (error) {
         console.log(error);
 		throw new Error("Error getting alerts.");
+    }
+};
+
+exports.createAlert = async (membershipId, collectionId, comment, alertType, timestamp) => {
+    try {
+        timestamp = new Date(timestamp);
+        await pool.query(`
+        INSERT INTO alerts (membership_id, collection_id, comment, alert_type, timestamp)
+        VALUES ($1, $2, $3, $4, $5);
+        `, [membershipId, collectionId, comment, alertType, timestamp]);
+    } catch (error) {
+        console.log(error);
+        throw new Error("Error creating alert.");
     }
 };

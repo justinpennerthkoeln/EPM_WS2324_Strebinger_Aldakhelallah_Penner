@@ -60,6 +60,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: "name=" + renameInput
             }).then((response) => response.json()).then((data) => {
+                fetch(`/api/alerts/${window.location.pathname.split('/')[2]}`, {
+                    'method': 'POST',
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    'body': JSON.stringify({
+                        userId: JSON.parse(localStorage.getItem('user')).id,
+                        collectionUuid: window.location.pathname.split('/')[2],
+                        comment: `Collection renamed to ${renameInput}.`,
+                        alertType: 'collection renaming',
+                        timestamp: new Date().toISOString()
+                    })
+                })
                 window.location = `${window.location.origin}${window.location.pathname}?success=${data.msg}`;
             });
         } else {
@@ -98,6 +112,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: "description=" + descriptionInput.value
             }).then((response) => response.json()).then((data) => {
+                fetch(`/api/alerts/${window.location.pathname.split('/')[2]}`, {
+                    'method': 'POST',
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    'body': JSON.stringify({
+                        userId: JSON.parse(localStorage.getItem('user')).id,
+                        collectionUuid: window.location.pathname.split('/')[2],
+                        comment: `Description renamed to ${descriptionInput.value}.`,
+                        alertType: 'collection description changes',
+                        timestamp: new Date().toISOString()
+                    })
+                })
                 window.location = `${window.location.origin}${window.location.pathname}?success=Updated description.`;
             });
         } else {
@@ -172,6 +200,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 }).then((response) => response.json()).then((data) => {
                     window.location = `${window.location.origin}${window.location.pathname}?success=${data.msg}`;
                 });
+                fetch(`/api/alerts/${window.location.pathname.split('/')[2]}`, {
+                    'method': 'POST',
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    'body': JSON.stringify({
+                        userId: JSON.parse(localStorage.getItem('user')).id,
+                        collectionUuid: window.location.pathname.split('/')[2],
+                        comment: `New User invited`,
+                        alertType: 'collection member changes',
+                        timestamp: new Date().toISOString()
+                    })
+                })
             } else {
                 window.location = `${window.location.origin}${window.location.pathname}?error=This user is already a member.`;
             }
@@ -204,6 +246,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         method: 'POST'
                     }).then((response) => response.json()).then((data) => {
                         window.location = `${window.location.origin}${window.location.pathname}?success=Successfully deleted collaborator.`;
+                        fetch(`/api/alerts/${window.location.pathname.split('/')[2]}`, {
+                            'method': 'POST',
+                            'headers': {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            'body': JSON.stringify({
+                                userId: JSON.parse(localStorage.getItem('user')).id,
+                                collectionUuid: window.location.pathname.split('/')[2],
+                                comment: `User ${username} deleted.`,
+                                alertType: 'collection member changes',
+                                timestamp: new Date().toISOString()
+                            })
+                        })
                     });
                 } else {
                     window.location = `${window.location.origin}${window.location.pathname}?error=You can't delete yourself.`;
@@ -258,6 +314,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 fetch(`/api/collections/platform/delete/${deleteButton.value}`, {
                     method: 'POST'
                 }).then((response) => response.json()).then((data) => {
+                    fetch(`/api/alerts/${window.location.pathname.split('/')[2]}`, {
+                        'method': 'POST',
+                        'headers': {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        'body': JSON.stringify({
+                            userId: JSON.parse(localStorage.getItem('user')).id,
+                            collectionUuid: window.location.pathname.split('/')[2],
+                            comment: `platform ${platform.platform} deleted.`,
+                            alertType: 'collection member changes',
+                            timestamp: new Date().toISOString()
+                        })
+                    })
                     window.location = `${window.location.origin}${window.location.pathname}?success=Successfully deleted project.`;
                 });
             });
@@ -295,15 +365,15 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         },
         template: `
-        <template v-for="setting in setting_options">
-            <div id="alert-setting">
-                <p>{{setting.setting}}</p>
-                <label class="switch">
-                    <input type="checkbox" v-model="setting.value">
-                    <span class="slider round" :class="{true: 'checked'}[setting.value]"  @click="updateSetting(setting.alert_settings_id, setting.value, setting.setting)"></span>
-                </label>
-            </div>
-        </template>
+            <template v-for="setting in setting_options" class="alert-template">
+                <div id="alert-setting">
+                    <p>{{setting.setting}}</p>
+                    <label class="switch">
+                        <input type="checkbox" v-model="setting.value">
+                        <span class="slider round" :class="{true: 'checked'}[setting.value]"  @click="updateSetting(setting.alert_settings_id, setting.value, setting.setting)"></span>
+                    </label>
+                </div>
+            </template>
         `,
         methods: {
             getAlerts() {
@@ -379,6 +449,21 @@ async function getPlatform (userId, collectionUuid, platform) {
                 }
             });
         });
+
+        fetch(`/api/alerts/${window.location.pathname.split('/')[2]}`, {
+            'method': 'POST',
+            'headers': {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            'body': JSON.stringify({
+                userId: JSON.parse(localStorage.getItem('user')).id,
+                collectionUuid: window.location.pathname.split('/')[2],
+                comment: `Connected to ${platform}`,
+                alertType: 'platform changes',
+                timestamp: new Date().toISOString()
+            })
+        })
     });
 }
 
