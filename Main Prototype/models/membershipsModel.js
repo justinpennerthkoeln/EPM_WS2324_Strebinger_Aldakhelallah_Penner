@@ -77,3 +77,16 @@ exports.getMembershipByCollectionId = async (collection) => {
 		throw new Error("Error getting memberships by collection id.");
 	}
 };
+
+exports.getMembershipByCollectionIdAndUserId = async (collectionId, userId) => {
+	try {
+		const memberships = await pool.query(
+			"SELECT * FROM memberships WHERE collection_id = $1 AND user_id = $2",
+			[collectionId, userId]
+		);
+		return memberships.rows;
+	} catch (error) {
+		console.log(error);
+		throw new Error("Error getting memberships by collection id and user id.");
+	}
+};

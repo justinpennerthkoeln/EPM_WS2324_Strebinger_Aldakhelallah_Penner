@@ -47,7 +47,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         'Accept': 'application/json'
                     }
                 }).then((response) => response.json()).then((alerts) => {
-                    this.alerts = alerts.rows;
+                    this.alerts = alerts.rows.sort((a, b) => {
+                        const timestampA = new Date(a.timestamp);
+                        const timestampB = new Date(b.timestamp);
+                
+                        return timestampB - timestampA;
+                    });
                 });
             }
         },

@@ -293,6 +293,13 @@ router.get("/alerts/:uuid", async (req, res) => {
 	res.send(alerts);
 });
 
+router.post('/alerts/:uuid', urlencodedParser, async (req, res) => {
+	const collectionId = await (await collectionsModel.getByUuid(req.params.uuid)).rows[0].collection_id;
+	membershipsModel.getMembershipByCollectionIdAndUserId(collectionId, await req.body.userId).then((member) => {
+		alertsModel.createAlert(member[0].membership_id, collectionId, req.body.comment, req.body.alertType, req.body.timestamp);
+	})
+});
+
 router.get("/alerts/:uuid/settings", async (req, res) => {
 	const collectionId = await (await collectionsModel.getByUuid(req.params.uuid)).rows[0].collection_id;
 	const settings = await alertSettingsModel.getSettingsByCollectionId(await collectionId);
@@ -302,5 +309,6 @@ router.get("/alerts/:uuid/settings", async (req, res) => {
 router.post("/alerts/:uuid/settings", urlencodedParser, async (req, res) => {
 	alertSettingsModel.updateSettingsByCollectionId(req.body.id, req.body.value)
 });
+
 
 module.exports = router;
