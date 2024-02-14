@@ -1,4 +1,45 @@
-document.addEventListener("DOMContentLoaded", function () {
+import { io } from "socket.io-client";
+
+document.addEventListener("DOMContentLoaded", async function () {
+	async function getCollectionUUID() {
+		for (const path of window.location.pathname.split("/")) {
+			if (path.length > 10) {
+				return path;
+			}
+		}
+	}
+
+	// SOCKET.IO CONNECTION
+	const socket = io("http://localhost:80", {
+		query: {
+			collectionUUID: await getCollectionUUID(),
+		},
+	});
+
+	// SOCKET.IO NOTIFICATIONS
+	let socketID;
+
+	socket.on("connect", () => {
+		socketID = socket.id;
+
+		socket.on("refresh", (data) => {
+			if (data.targets) {
+				data.targets.forEach((target) => {
+					switch (target) {
+						case "task-board":
+							taskBoard.loadTasks();
+							break;
+						case "task-view":
+							taskView.loadTask(taskView.task);
+							break;
+						default:
+							break;
+					}
+				});
+			}
+		});
+	});
+
 	// Get and save membershipID
 	async function getMembershipID() {
 		const user = JSON.parse(localStorage.getItem("user"));
@@ -68,10 +109,10 @@ document.addEventListener("DOMContentLoaded", function () {
                                 @click="openTask(index)" 
                                 @dragstart="handleDragStart($event, task.task_id)"
                             >
-                                <label class="checkbox-container">
+                                <!-- <label class="checkbox-container">
                                     <input type="checkbox" :id="task.task_id" :name="task.task_id"/>
                                     <span class="checkmark"></span>
-                                </label>
+                                </label> -->
                                 <div>
                                     <p>{{ task.name }}</p>
                                     <p>{{ task.description }}</p>
@@ -115,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
 					}
 				}
 
-				fetch(`/collection/${collectionID}/tasks`, {
+				fetch(`/api/collection/${collectionID}/tasks`, {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",
@@ -124,9 +165,25 @@ document.addEventListener("DOMContentLoaded", function () {
 					.then((response) => {
 						return response.json();
 					})
-					.then((tasks) => {
-						this.tasks = tasks;
+					.then(async (tasks) => {
+						this.tasks = await this.sortTasks(tasks);
 					});
+			},
+
+			async sortTasks(tasks) {
+				// Sort tasks by status and status_index
+				const sortedTasks = await tasks.sort((a, b) => {
+					const statusComparison =
+						this.states.indexOf(a.status) - this.states.indexOf(b.status);
+
+					if (statusComparison === 0) {
+						return a.status_index - b.status_index;
+					}
+
+					return statusComparison;
+				});
+
+				return sortedTasks;
 			},
 
 			hasTasks(state) {
@@ -166,25 +223,94 @@ document.addEventListener("DOMContentLoaded", function () {
 				$event.dataTransfer.setData("text/plain", id.toString());
 			},
 
-			handleDrop($event, targetState) {
+			async handleDrop($event, targetState) {
 				$event.preventDefault();
 
 				const taskID = parseInt($event.dataTransfer.getData("text/plain"), 10);
-				const draggedTask = this.tasks.find((task) => {
-					return task.task_id == taskID;
-				});
+				const draggedTask = this.tasks.find((task) => task.task_id === taskID);
 
+				// Update status of the dragged task
 				draggedTask.status = targetState;
 
-				fetch(`/api/tasks/${taskID}/status`, {
+				// Find the new index of the dragged task
+				const cardsContainer = $event.target.closest(".cards");
+				const cards =
+					cardsContainer && cardsContainer.children
+						? Array.from(cardsContainer.children)
+						: [];
+				const newIndex = Math.max(
+					cards.findIndex((card) => card === $event.target.closest(".card")),
+					0
+				);
+
+				// All tasks sorted by status and status_index
+				const allTasksSortedByStatus = await this.tasks.reduce((acc, task) => {
+					if (!acc[task.status]) {
+						acc[task.status] = [];
+					}
+
+					acc[task.status].push(task);
+
+					return acc;
+				}, {});
+
+				Object.keys(allTasksSortedByStatus).forEach((status) => {
+					// Get all tasks without the dragged task
+					const allTasksWithoutDraggedTask = allTasksSortedByStatus[
+						status
+					].filter((task) => task.task_id !== taskID);
+
+					// Sort tasks by status_index
+					allTasksWithoutDraggedTask.sort(
+						(a, b) => a.status_index - b.status_index
+					);
+
+					// Get number of tasks in status
+					const tasksCount = allTasksSortedByStatus[status].length;
+
+					// New array for the ordered tasks
+					const orderedTasks = [];
+
+					// Update status_index of the tasks
+					for (let index = 0; index < tasksCount; index++) {
+						if (targetState == status && index == newIndex) {
+							orderedTasks[index] = draggedTask;
+						} else {
+							orderedTasks[index] = allTasksWithoutDraggedTask.shift();
+						}
+
+						orderedTasks[index].status_index = index;
+					}
+
+					// Update tasks in allTasksSortedByStatus
+					allTasksSortedByStatus[status] = orderedTasks;
+				});
+
+				const allTasks = Object.values(allTasksSortedByStatus).reduce(
+					(acc, tasks) => {
+						return acc.concat(tasks);
+					},
+					[]
+				);
+
+				this.tasks = await this.sortTasks(await allTasks);
+
+				fetch(`/api/tasks/states`, {
 					method: "PUT",
 					headers: {
 						"Content-Type": "application/json",
 						Accept: "application/json",
+						"X-Socket-ID": socketID,
 					},
-					body: JSON.stringify({
-						status: draggedTask.status,
-					}),
+					body: JSON.stringify(
+						allTasks.map((task) => {
+							return {
+								task_id: task.task_id,
+								status: task.status,
+								status_index: task.status_index,
+							};
+						})
+					),
 				})
 					.then((response) => {
 						return response.json();
@@ -386,6 +512,7 @@ document.addEventListener("DOMContentLoaded", function () {
 						headers: {
 							"Content-Type": "application/json",
 							Accept: "application/json",
+							"X-Socket-ID": socketID,
 						},
 						body: JSON.stringify({
 							description: todo,
@@ -411,6 +538,7 @@ document.addEventListener("DOMContentLoaded", function () {
 						headers: {
 							"Content-Type": "application/json",
 							Accept: "application/json",
+							"X-Socket-ID": socketID,
 						},
 						body: JSON.stringify({
 							status: $event.target.checked,
@@ -439,6 +567,7 @@ document.addEventListener("DOMContentLoaded", function () {
 						headers: {
 							"Content-Type": "application/json",
 							Accept: "application/json",
+							"X-Socket-ID": socketID,
 						},
 						body: JSON.stringify({
 							username: JSON.parse(localStorage.getItem("user")).username,
@@ -475,6 +604,7 @@ document.addEventListener("DOMContentLoaded", function () {
 					headers: {
 						"Content-Type": "application/json",
 						Accept: "application/json",
+						"X-Socket-ID": socketID,
 					},
 					body: JSON.stringify({
 						username: JSON.parse(localStorage.getItem("user")).username,
@@ -589,26 +719,33 @@ document.addEventListener("DOMContentLoaded", function () {
 	createTaskForm.addEventListener("submit", async ($event) => {
 		$event.preventDefault();
 
+		const data = {};
+
+		data.status = createTaskForm
+			.querySelector('input[name="status"]')
+			.value.replace("-", " ");
+		data.statusIndex = taskBoard.tasks.filter(
+			(task) => task.status == data.status
+		).length;
+		data.name = createTaskForm.querySelector('input[name="name"]').value;
+		data.description = createTaskForm.querySelector(
+			'textarea[name="description"]'
+		).value;
+		data.collectionID = await getCollectionID();
+		data.platform = Number(
+			createTaskForm.querySelector("#platform-select").value
+		);
+		data.createIssue =
+			createTaskForm.querySelector("#send-notification").checked;
+
 		fetch("/api/tasks", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 				Accept: "application/json",
+				"X-Socket-ID": socketID,
 			},
-			body: JSON.stringify({
-				status: createTaskForm
-					.querySelector('input[name="status"]')
-					.value.replace("-", " "),
-				name: createTaskForm.querySelector('input[name="name"]').value,
-				description: createTaskForm.querySelector(
-					'textarea[name="description"]'
-				).value,
-				collectionID: await getCollectionID(),
-				platform: Number(
-					createTaskForm.querySelector("#platform-select").value
-				),
-				createIssue: createTaskForm.querySelector("#send-notification").checked,
-			}),
+			body: JSON.stringify(data),
 		})
 			.then((response) => {
 				return response.json();

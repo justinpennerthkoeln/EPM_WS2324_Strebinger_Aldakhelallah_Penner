@@ -17,6 +17,7 @@ exports.getTasksByCollectionId = async (collectionId) => {
             tasks.collection_id,
             tasks.platform_id,
             tasks.status,
+            tasks.status_index,
             tasks.name,
             tasks.description,
             COUNT(DISTINCT memberships.membership_id) AS assigned_users_count,
@@ -78,7 +79,8 @@ exports.getTasksByCollectionId = async (collectionId) => {
             tasks.task_id, 
             tasks.collection_id, 
             tasks.platform_id, 
-            tasks.status, 
+            tasks.status,
+            tasks.status_index, 
             tasks.name, 
             tasks.description
         ORDER BY tasks.task_id;`,
@@ -112,8 +114,12 @@ exports.getTaskByTaskId = async function (task_id) {
 
 exports.updateTaskStatus = async function (data) {
 	try {
-		const query = `UPDATE tasks SET status = $1 WHERE task_id = $2 RETURNING *`;
-		const values = [data.status.replaceAll("-", " "), data.taskID];
+		const query = `UPDATE tasks SET status = $1, status_index = $2 WHERE task_id = $3 RETURNING *`;
+		const values = [
+			data.status.replaceAll("-", " "),
+			data.statusIndex,
+			data.taskID,
+		];
 		return await pool.query(query, values);
 	} catch (err) {
 		console.log(err);
@@ -124,11 +130,12 @@ exports.updateTaskStatus = async function (data) {
 exports.createTask = async function (data) {
 	try {
 		const query =
-			"INSERT INTO tasks (task_id, collection_id, platform_id, status, name, description) VALUES (DEFAULT, $1, $2, $3, $4, $5) RETURNING *";
+			"INSERT INTO tasks (task_id, collection_id, platform_id, status, status_index, name, description) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6) RETURNING *";
 		const values = [
 			Number(data.collectionID),
 			Number(data.platform),
 			data.status,
+			data.statusIndex,
 			data.name,
 			data.description,
 		];

@@ -90,6 +90,7 @@ CREATE TABLE tasks (
     collection_id INTEGER NOT NULL,
     platform_id INTEGER NOT NULL,
     status status NOT NULL,
+    status_index INTEGER NOT NULL, -- Index, um eine Task auch innerhalb des Status verschieben zu können
     name VARCHAR(200) NOT NULL,
     description VARCHAR(200) NULL
 );

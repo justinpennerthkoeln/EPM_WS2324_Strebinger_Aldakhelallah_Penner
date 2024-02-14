@@ -1,7 +1,7 @@
 // IMPORTS
 const http = require("http");
 const express = require("express");
-const socketIo = require("socket.io");
+const socketIO = require("socket.io");
 const session = require("express-session");
 const bodyParser = require("body-parser");
 
@@ -25,6 +25,32 @@ const userController = require("./controllers/userController.js");
 const collectionController = require("./controllers/collectionController.js");
 const apiController = require("./controllers/apiController.js");
 const oauthController = require("./controllers/oauthController.js");
+
+// SOCKET.IO SETUP
+const IO = new socketIO.Server(server);
+
+// SOCKET.IO CONNECTION
+const rooms = {};
+
+IO.on("connection", (socket) => {
+	console.log(`Client connected.`);
+
+	// Join collection room
+	rooms[socket.id] = socket.handshake.query.collectionUUID;
+	socket.join(socket.handshake.query.collectionUUID);
+
+	socket.on("disconnect", () => {
+		socket.leave(rooms[socket.id]);
+		delete rooms[socket.id];
+
+		console.log("Client disconnected.");
+	});
+});
+
+// NOTIFY CLIENTS
+notifyClients = async (data) => {
+	IO.to(rooms[data.initiator]).emit("refresh", data);
+};
 
 // ROUTING
 app.use("/", userController);

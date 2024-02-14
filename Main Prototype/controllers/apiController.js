@@ -26,6 +26,18 @@ router.get("/users", async (req, res) => {
 });
 
 // TASK
+router.get("/collection/:uuid/tasks", async (req, res) => {
+	const collection = await (
+		await collectionsModel.getCollection(req.params.uuid)
+	).rows[0];
+
+	const tasks = await (
+		await tasksModel.getTasksByCollectionId(await collection.collection_id)
+	).rows;
+
+	res.send(tasks);
+});
+
 router.get("/tasks/:taskId", async (req, res) => {
 	const task = await tasksModel.getTaskByTaskId(req.params.taskId);
 	res.send(task);
@@ -48,19 +60,32 @@ router.get("/tasks/:taskId/feedbacks", async (req, res) => {
 });
 
 // Update task status
-router.put("/tasks/:taskId/status", async (req, res) => {
-	const status = tasksModel.updateTaskStatus({
-		taskID: req.params.taskId,
-		status: req.body.status,
+router.put("/tasks/states", async (req, res) => {
+	Promise.resolve(
+		req.body.forEach(async (task) => {
+			await tasksModel.updateTaskStatus({
+				taskID: task.task_id,
+				status: task.status,
+				statusIndex: task.status_index,
+			});
+		})
+	).then(() => {
+		notifyClients({
+			targets: ["task-board"],
+			initiator: req.headers["x-socket-id"],
+		});
 	});
 
-	res.send(status);
+	res.send({
+		msg: "Status updated.",
+	});
 });
 
 // Create task
 router.post("/tasks", async (req, res) => {
 	const data = {
 		status: req.body.status,
+		statusIndex: req.body.statusIndex,
 		name: req.body.name,
 		description: req.body.description,
 		collectionID: req.body.collectionID,
@@ -68,7 +93,13 @@ router.post("/tasks", async (req, res) => {
 		createIssue: req.body.createIssue,
 	};
 
-	const task = await tasksModel.createTask(data);
+	const task = await tasksModel.createTask(data).then((task) => {
+		notifyClients({
+			targets: ["task-board"],
+			initiator: req.headers["x-socket-id"],
+		});
+		return task;
+	});
 
 	res.send(task);
 
@@ -77,41 +108,73 @@ router.post("/tasks", async (req, res) => {
 
 // TODO
 router.post("/tasks/:taskId/todo", async (req, res) => {
-	const todo = await todoModel.createTodo({
-		task_id: req.params.taskId,
-		description: req.body.description,
-	});
+	const todo = await todoModel
+		.createTodo({
+			task_id: req.params.taskId,
+			description: req.body.description,
+		})
+		.then((todo) => {
+			notifyClients({
+				targets: ["task-view"],
+				initiator: req.headers["x-socket-id"],
+			});
+			return todo;
+		});
 
 	res.send(todo);
 });
 
 router.put("/tasks/:taskId/todo/:todoId", async (req, res) => {
-	const todo = await todoModel.updateTodo({
-		todo_id: req.params.todoId,
-		status: req.body.status,
-	});
+	const todo = await todoModel
+		.updateTodo({
+			todo_id: req.params.todoId,
+			status: req.body.status,
+		})
+		.then((todo) => {
+			notifyClients({
+				targets: ["task-board", "task-view"],
+				initiator: req.headers["x-socket-id"],
+			});
+			return todo;
+		});
 
 	res.send(todo);
 });
 
 // FEEDBACK
 router.post("/tasks/:taskId/feedback", async (req, res) => {
-	const feedback = await feedbackModel.createFeedback({
-		membership_id: req.body.membership_id,
-		task_id: req.params.taskId,
-		comment: req.body.comment,
-	});
+	const feedback = await feedbackModel
+		.createFeedback({
+			membership_id: req.body.membership_id,
+			task_id: req.params.taskId,
+			comment: req.body.comment,
+		})
+		.then((feedback) => {
+			notifyClients({
+				targets: ["task-board", "task-view"],
+				initiator: req.headers["x-socket-id"],
+			});
+			return feedback;
+		});
 
 	res.send(feedback);
 });
 
 // Save reply
 router.post("/feedback/:feedbackId/reply", async (req, res) => {
-	const reply = await repliesModel.createReply({
-		feedbackID: req.params.feedbackId,
-		username: req.body.username,
-		comment: req.body.comment,
-	});
+	const reply = await repliesModel
+		.createReply({
+			feedbackID: req.params.feedbackId,
+			username: req.body.username,
+			comment: req.body.comment,
+		})
+		.then((reply) => {
+			notifyClients({
+				targets: ["task-view"],
+				initiator: req.headers["x-socket-id"],
+			});
+			return reply;
+		});
 
 	res.send(reply);
 });
