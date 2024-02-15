@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+:root {
+
+    /* Border radius */
+    --br-none: 0;
+    --br-xs: 0.25rem;
+    --br-full: 100rem;
+
+    /* Sizes */
+    --xxs: 0.125rem;
+    --xs: 0.25rem;
+    --s: 0.5rem;
+    --m: 0.75rem;
+    --l: 1rem;
+    --xl: 2rem;
+    --2xl: 4rem;
+    --3xl: 8rem;
+
+    /* Font */
+    --font-family: "Inter", sans-serif;
+    --base-font-size: var(--l);
+    --detail-font-size: calc(var(--base-font-size) * 0.875);
+    --subheading-font-size: calc(var(--base-font-size) * 1.25);
+    --heading-font-size: var(--xl);
+
+    /* Font weights */
+    --fw-normal: 400;
+    --fw-bold: 600;
+
+    /* Line heights */
+    --lh-tight: 110%;
+    --lh-default: 130%;
+    --lh-loose: 150%;
+
+    /* Colors */
+    --color-background-dark: #141B1F;
+    --color-background-dark-transparent: #141B1FAA;
+    --color-on-background-dark: #1E282D;
+
+    --color-text-light: #F5F5F5;
+    --color-text-light-detail: #D9D9D9;
+    --color-text-light-detail-darker: #9DB3BE;
+
+    --color-accent-primary: #6A40BF;
+    --color-accent-secondary: #553399;
+    --color-accent-tertiary: #55339980;
+
+    --color-input-background: var(--color-on-background-dark);
+    --color-input-primary: var(--color-accent-primary);
+    --color-input-secondary: var(--color-accent-secondary);
+    --color-input-tertiary: var(--color-accent-tertiary);
+
+    --color-code-primary: #1E282D;
+    --color-code-secondary: #33444D;
+    --color-code-tertiary: #33444D80;
+
+    --color-notion-primary: #F0B4A9;
+    --color-notion-secondary: #E88D7D;
+    --color-notion-tertiary: #E88D7D80;
+
+    --color-dribbble-primary: #EA4C89;
+    --color-dribbble-secondary: #EF7BA8;
+    --color-dribbble-tertiary: #EF7BA880;
+
+    --color-github-primary: #FAFBFC;
+    --color-github-secondary: #D9E0E8;
+    --color-github-tertiary: #D9E0E880;
+
+    --color-gitlab-primary: #FC6D26;
+    --color-gitlab-secondary: #FD8F59;
+    --color-gitlab-tertiary: #FD8F5980;
+
+    --color-figma-primary: #1ABCFE;
+    --color-figma-secondary: #4DCBFE;
+    --color-figma-tertiary: #4DCBFE80;
+
+    --color-state-todo: #E6394670;
+    --color-state-inprogress: #FFD16670;
+    --color-state-review: #00B4D870;
+    --color-state-done: #6A994E70;
+
+    --color-error: #E63946;
+    --color-success: #6A994E;
+
+    /* Spaces */
+    --space-xs: 0.25rem;
+    --space-s: 0.5rem;
+    --space-m: 0.75rem;
+    --space-l: 1rem;
+    --space-xl: 2rem;
+    --space-2xl: 4rem;
+    --space-3xl: 8rem;
+
+    /* Transitions */
+    --tr-fast: 100ms;
+    --tr-medium: 400ms;
+    --tr-slow: 600ms;
+}
