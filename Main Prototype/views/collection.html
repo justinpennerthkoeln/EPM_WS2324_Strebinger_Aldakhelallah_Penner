@@ -121,19 +121,23 @@
 
 		<script>
 			// Navigation
-			const NAVIGATIONLINKS = document.querySelectorAll('#navigation a');
+			const NAVIGATIONLINKS = document.querySelectorAll("#navigation a");
 
 			NAVIGATIONLINKS.forEach((element) => {
-				element.addEventListener('click', ($event) => {
+				element.addEventListener("click", ($event) => {
 					$event.preventDefault();
-					
+
 					const { target } = $event;
 
-					window.location.href = `/collection/${window.location.pathname.split('/')[2]}/${target.href.split('/')[3]}`;
+					window.location.href = `/collection/${
+						window.location.pathname.split("/")[2]
+					}/${target.href.split("/")[3]}`;
 				});
 
-				if(window.location.pathname.split('/')[3] == element.href.split('/')[3]) {
-					element.classList.add('selected');
+				if (
+					window.location.pathname.split("/")[3] == element.href.split("/")[3]
+				) {
+					element.classList.add("selected");
 				}
 			});
 		</script>

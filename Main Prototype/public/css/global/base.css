@@ -1,123 +1,126 @@
 ::selection {
-    background-color: var(--color-accent-primary);
-    color: var(--color-text-light);
+	background-color: var(--color-accent-primary);
+	color: var(--color-text-light);
 }
 
 * {
-    box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 html,
 body {
-    color: var(--color-text-light);
-    font-family: var(--font-family);
-    font-size: var(--base-font-size);
-    font-weight: var(--fw-normal);
-    hyphens: auto;
-    line-height: var(--lh-default);
-    scroll-behavior: smooth;
+	color: var(--color-text-light);
+	font-family: var(--font-family);
+	font-size: var(--base-font-size);
+	font-weight: var(--fw-normal);
+	hyphens: auto;
+	line-height: var(--lh-default);
+	scroll-behavior: smooth;
 }
 
 body {
-    background-color: var(--color-background-dark);
-    background-position: top right;
-    background-repeat: no-repeat;
-    background-size: 100vw;
+	background-color: var(--color-background-dark);
+	background-position: top right;
+	background-repeat: no-repeat;
+	background-size: 100vw;
 }
 
 main {
-    padding: var(--space-2xl);
+	padding: var(--space-2xl);
 }
 
 p,
 li {
-    color: var(--color-text-light-detail);
+	color: var(--color-text-light-detail);
 }
 
 h1,
 h2,
 h3,
 h4 {
-    color: var(--color-text-light);
-    font-weight: var(--fw-bold);
-    hyphens: none;
-    line-height: var(--lh-tight);
+	color: var(--color-text-light);
+	font-weight: var(--fw-bold);
+	hyphens: none;
+	line-height: var(--lh-tight);
 }
 
 /* Input */
 label {
-    display: block;
-    font-size: var(--detail-font-size);
-    font-weight: var(--fw-normal);
-    margin-bottom: var(--xs);
-    color: var(--color-text-light-detail);
+	display: block;
+	font-size: var(--detail-font-size);
+	font-weight: var(--fw-normal);
+	margin-bottom: var(--xs);
+	color: var(--color-text-light-detail);
 }
 
 input {
-    background-color: var(--color-input-background);
-    border: var(--xxs) solid var(--color-input-primary);
-    border-radius: var(--br-xs);
-    color: var(--color-text-light);
-    font-size: var(--base-font-size);
-    font-weight: var(--fw-normal);
-    padding: var(--space-m) var(--space-l);
-    transition: border-color var(--tr-fast) ease-in-out, outline-width var(--tr-fast) ease-in-out;
+	background-color: var(--color-input-background);
+	border: var(--xxs) solid var(--color-input-primary);
+	border-radius: var(--br-xs);
+	color: var(--color-text-light);
+	font-size: var(--base-font-size);
+	font-weight: var(--fw-normal);
+	padding: var(--space-m) var(--space-l);
+	transition: border-color var(--tr-fast) ease-in-out,
+		outline-width var(--tr-fast) ease-in-out;
 }
 
 input::placeholder {
-    color: var(--color-text-light);
+	color: var(--color-text-light);
 }
 
 input:focus {
-    border-color: var(--color-input-secondary);
-    outline: none;
+	border-color: var(--color-input-secondary);
+	outline: none;
 }
 
 input:focus-visible {
-    border-color: var(--color-input-secondary);
-    outline: var(--xs) solid var(--color-input-tertiary);
+	border-color: var(--color-input-secondary);
+	outline: var(--xs) solid var(--color-input-tertiary);
 }
 
 /* Select */
 select {
-    appearance: none;
-    background-color: var(--color-input-background);
-    border: var(--xxs) solid var(--color-input-primary);
-    border-radius: var(--br-xs);
-    color: var(--color-text-light);
-    font-size: var(--base-font-size);
-    font-weight: var(--fw-normal);
-    padding: var(--space-m) var(--space-l);
-    transition: border-color var(--tr-fast) ease-in-out, outline-width var(--tr-fast) ease-in-out;
-    cursor: pointer;
+	appearance: none;
+	background-color: var(--color-input-background);
+	border: var(--xxs) solid var(--color-input-primary);
+	border-radius: var(--br-xs);
+	color: var(--color-text-light);
+	font-size: var(--base-font-size);
+	font-weight: var(--fw-normal);
+	padding: var(--space-m) var(--space-l);
+	transition: border-color var(--tr-fast) ease-in-out,
+		outline-width var(--tr-fast) ease-in-out;
+	cursor: pointer;
 }
 
 select:focus {
-    border-color: var(--color-input-secondary);
-    outline: none;
+	border-color: var(--color-input-secondary);
+	outline: none;
 }
 
 select:focus-visible {
-    border-color: var(--color-input-secondary);
-    outline: var(--xs) solid var(--color-input-tertiary);
+	border-color: var(--color-input-secondary);
+	outline: var(--xs) solid var(--color-input-tertiary);
 }
 
 /* Textarea */
 textarea {
-    background-color: var(--color-input-background);
-    border: var(--xxs) solid var(--color-input-primary);
-    border-radius: var(--br-xs);
-    color: var(--color-text-light);
-    font-size: var(--base-font-size);
-    font-weight: var(--fw-normal);
-    padding: var(--space-m) var(--space-l);
-    transition: border-color var(--tr-fast) ease-in-out, outline-width var(--tr-fast) ease-in-out;
-    height: 10em;
-    resize: vertical;
+	background-color: var(--color-input-background);
+	border: var(--xxs) solid var(--color-input-primary);
+	border-radius: var(--br-xs);
+	color: var(--color-text-light);
+	font-size: var(--base-font-size);
+	font-weight: var(--fw-normal);
+	padding: var(--space-m) var(--space-l);
+	transition: border-color var(--tr-fast) ease-in-out,
+		outline-width var(--tr-fast) ease-in-out;
+	height: 10em;
+	resize: vertical;
 }
 
 textarea::placeholder {
-    color: var(--color-text-light);
+	color: var(--color-text-light);
 }
 
 textarea::-webkit-resizer,
@@ -126,118 +129,124 @@ textarea::-webkit-scrollbar-track,
 textarea::-webkit-scrollbar-track-piece,
 textarea::-webkit-scrollbar-thumb,
 textarea::-webkit-scrollbar-corner {
-    display: none;
+	display: none;
 }
 
 textarea:focus {
-    border-color: var(--color-input-secondary);
-    outline: none;
+	border-color: var(--color-input-secondary);
+	outline: none;
 }
 
 textarea:focus-visible {
-    border-color: var(--color-input-secondary);
-    outline: var(--xs) solid var(--color-input-tertiary);
+	border-color: var(--color-input-secondary);
+	outline: var(--xs) solid var(--color-input-tertiary);
 }
 
 /* Button */
 button {
-    background-color: var(--color-accent-primary);
-    border: none;
-    border-radius: var(--br-xs);
-    color: var(--color-text-light);
-    cursor: pointer;
-    font-size: var(--base-font-size);
-    font-weight: var(--fw-normal);
-    padding: calc(var(--space-m) + var(--xxs)) calc(var(--space-xl) + var(--xxs));
-    transition: background-color var(--tr-fast) ease-in-out, outline-width var(--tr-fast) ease-in-out;
+	background-color: var(--color-accent-primary);
+	border: none;
+	border-radius: var(--br-xs);
+	color: var(--color-text-light);
+	cursor: pointer;
+	font-size: var(--base-font-size);
+	font-weight: var(--fw-normal);
+	padding: calc(var(--space-m) + var(--xxs)) calc(var(--space-xl) + var(--xxs));
+	transition: background-color var(--tr-fast) ease-in-out,
+		outline-width var(--tr-fast) ease-in-out;
 }
 
 button.add {
-    background-color: var(--color-on-background-dark);
+	background-color: var(--color-on-background-dark);
 }
 
 button:hover {
-    background-color: var(--color-accent-secondary);
+	background-color: var(--color-accent-secondary);
 }
 
 button:focus {
-    outline: none;
+	outline: none;
 }
 
 button:focus-visible {
-    outline: var(--xs) solid var(--color-accent-tertiary);
+	outline: var(--xs) solid var(--color-accent-tertiary);
+}
+
+button:disabled {
+	background-color: var(--color-code-secondary);
+	cursor: not-allowed;
 }
 
 /* Link */
 a {
-    color: var(--color-accent-primary);
-    text-decoration: none;
-    transition: color var(--tr-fast) ease-in-out;
+	color: var(--color-accent-primary);
+	text-decoration: none;
+	transition: color var(--tr-fast) ease-in-out;
 }
 
 a:hover {
-    color: var(--color-accent-secondary);
+	color: var(--color-accent-secondary);
 }
 
 a:focus {
-    outline: none;
+	outline: none;
 }
 
 a:focus-visible {
-    border-radius: var(--br-xs);
-    outline: var(--xxs) solid var(--color-accent-primary);
+	border-radius: var(--br-xs);
+	outline: var(--xxs) solid var(--color-accent-primary);
 }
 
 /* Switch */
-div[class='switch'] {
-    position: relative;
-    display: inline-block;
-    width: var(--xl);
-    height: var(--l);
+div[class="switch"] {
+	position: relative;
+	display: inline-block;
+	width: var(--xl);
+	height: var(--l);
 }
 
-div[class='switch'] input {
-    position: absolute;
-    width: var(--xl);
-    height: var(--l);
-    opacity: 0;
-    cursor: pointer;
+div[class="switch"] input {
+	position: absolute;
+	width: var(--xl);
+	height: var(--l);
+	opacity: 0;
+	cursor: pointer;
 }
 
-div[class='switch'] label {
-    position: relative;
-    display: inline-block;
-    width: var(--xl);
-    height: var(--l);
-    pointer-events: none;
+div[class="switch"] label {
+	position: relative;
+	display: inline-block;
+	width: var(--xl);
+	height: var(--l);
+	pointer-events: none;
 }
 
-div[class='switch'] label::before {
-    position: absolute;
-    border-radius: var(--br-full);
-    background-color: var(--color-code-secondary);
-    content: '';
-    cursor: pointer;
-    inset: 0;
-    transition: background-color var(--tr-fast) ease-in-out;
+div[class="switch"] label::before {
+	position: absolute;
+	border-radius: var(--br-full);
+	background-color: var(--color-code-secondary);
+	content: "";
+	cursor: pointer;
+	inset: 0;
+	transition: background-color var(--tr-fast) ease-in-out;
 }
 
-div[class='switch'] label::after {
-    position: absolute;
-    top: var(--xxs);
-    left: var(--xxs);
-    width: calc(var(--l) - var(--xxs) * 2);
-    height: calc(var(--l) - var(--xxs) * 2);
-    border-radius: 50%;
-    background-color: var(--color-text-light);
-    content: '';
-    transition: transform var(--tr-fast) ease-in-out;
+div[class="switch"] label::after {
+	position: absolute;
+	top: var(--xxs);
+	left: var(--xxs);
+	width: calc(var(--l) - var(--xxs) * 2);
+	height: calc(var(--l) - var(--xxs) * 2);
+	border-radius: 50%;
+	background-color: var(--color-text-light);
+	content: "";
+	transition: transform var(--tr-fast) ease-in-out;
 }
 
-div[class='switch'] input:checked + label::before {
-    background-color: var(--color-accent-primary);
+div[class="switch"] input:checked + label::before {
+	background-color: var(--color-accent-primary);
 }
 
-div[class='switch'] input:checked+label::after {
-    transform: translateX(var(--l));
+div[class="switch"] input:checked + label::after {
+	transform: translateX(var(--l));
 }
