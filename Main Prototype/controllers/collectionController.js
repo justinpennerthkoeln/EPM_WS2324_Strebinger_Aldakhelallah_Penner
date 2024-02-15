@@ -9,21 +9,16 @@ router.get("/:uuid", (req, res) => {
 	res.sendFile(path.join(__dirname, "../views/collection.html"));
 });
 
+router.get("/:uuid/tasks", (req, res) => {
+	res.sendFile(path.join(__dirname, "../views/collection.html"));
+});
+
 router.get("/:uuid/feedback/:feedbackId", (req, res) => {
 	res.send({ msg: "Feedback" });
 });
 
 router.get("/:uuid/inspection", (req, res) => {
 	res.sendFile(path.join(__dirname, "../views/inspection.html"));
-
-	// 	const COLLECTION = await (
-	// 		await COLLECTIONSMODEL.getCollection(req.params.uuid)
-	// 	).rows[0];
-	// 	const PLATFORMS = await (
-	// 		await PLATFORMSMODEL.getPlatformsByCollectionId(await COLLECTION.id)
-	// 	).rows;
-
-	// 	res.send(PLATFORMS);
 });
 
 router.get("/:uuid/settings", (req, res) => {
