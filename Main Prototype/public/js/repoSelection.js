@@ -175,7 +175,6 @@ document.addEventListener("DOMContentLoaded", () => {
 						});
 					});
 				}
-
 			},
 
 			async selectShot(shot) {
