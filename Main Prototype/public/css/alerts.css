@@ -1,0 +1,33 @@
+main {
+	width: auto;
+}
+
+main > section {
+	width: 100%;
+}
+
+main > section > table {
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0 var(--space-m);
+}
+
+main > section > table > thead > tr > th {
+	font-size: var(--detail-font-size);
+	font-weight: var(--fw-normal);
+	color: var(--color-text-light-detail);
+	text-align: left;
+	padding: 0 var(--space-m) var(--space-m) var(--space-m);
+}
+
+main > section > table > tbody > tr {
+	background-color: var(--color-on-background-dark);
+}
+
+main > section > table > tbody > tr > td {
+	font-size: var(--base-font-size);
+	font-weight: var(--fw-normal);
+	color: var(--color-text-light);
+	text-align: left;
+	padding: var(--space-m);
+}
