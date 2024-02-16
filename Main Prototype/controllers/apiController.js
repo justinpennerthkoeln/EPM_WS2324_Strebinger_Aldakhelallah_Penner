@@ -385,41 +385,16 @@ router.post("/alerts/:uuid/settings", urlencodedParser, async (req, res) => {
 	alertSettingsModel.updateSettingsByCollectionId(req.body.id, req.body.value)
 });
 
-router.post("/hook/:uuid", urlencodedParser, (req, res) => {
+router.post("/hook/:uuid/:platform", urlencodedParser, (req, res) => {
 	const hooks = req.body;
-	if(hooks.issue) {
-        if(hooks.comment) {
-            fetch(`https://wrongly-electric-salmon.ngrok-free.app/api/alerts/${req.params.uuid}`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					Accept: "application/json",
-				},
-				body: JSON.stringify({
-					userId: null,
-					collectionUuid: req.params.uuid,
-					comment: `${hooks.comment.user.login} commented on issue ${hooks.issue.title}`,
-					alertType: "git issue comments",
-					timestamp: new Date().toISOString(),
-				}),
-			});
-        } else {
-            fetch(`https://wrongly-electric-salmon.ngrok-free.app/api/alerts/${req.params.uuid}`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					Accept: "application/json",
-				},
-				body: JSON.stringify({
-					userId: null,
-					collectionUuid: req.params.uuid,
-					comment: `${hooks.issue.user.login} created issue: ${hooks.issue.title}`,
-					alertType: "git issue created",
-					timestamp: new Date().toISOString(),
-				}),
-			});
-        }
-    }
+	switch(req.params.platform) {
+		case "github":
+			if(hooks.issue) {(hooks.comment) ? hookService.handleGithubHook(hooks, "comment", req.params.uuid) : hookService.handleGithubHook(hooks, "issue", req.params.uuid);}
+			break;
+		case "gitlab":
+			hookService.handleGitlabHook(hooks, hooks.event_type, req.params.uuid);
+			break;
+	}
 });
 
 
