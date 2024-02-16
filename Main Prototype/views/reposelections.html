@@ -1,23 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/css/global/reset.css">
-    <link rel="stylesheet" href="/css/global/variables.css">
-    <link rel="stylesheet" href="/css/global/base.css">
-    <link rel="stylesheet" href="/css/reposelection.css">
-    <link rel="stylesheet" href="/css/global/alert.css">
-    <title>Document</title>
-</head>
-<body>
-    <main>
-        <h1>Select a Repo: </h1>
-        <section id="repos">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="/css/global/reset.css" />
+		<link rel="stylesheet" href="/css/global/variables.css" />
+		<link rel="stylesheet" href="/css/global/base.css" />
+		<link rel="stylesheet" href="/css/reposelection.css" />
+		<link rel="stylesheet" href="/css/global/alert.css" />
+		<title>Document</title>
+	</head>
+	<body>
+		<main>
+			<header>
+				<h1>Select a project</h1>
+				<nav>
+					<button id="cancel-selection">Cancel selection</button>
+				</nav>
+			</header>
+			<section id="repositories-container"> </section>
+		</main>
 
-        </section>
-    </main>
-    
-    <script type="module" src="/js/repoSelection.js"></script>
-</body>
+		<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+		<script type="module" src="/js/repoSelection.js"></script>
+	</body>
 </html>
