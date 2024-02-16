@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			};
 		},
 		template: `
-			<ul>
+			<ul v-if="repos.length > 0">
 				<li v-for="repo in repos" class="repo">
 					<h2 v-if="platform === 'github' || platform === 'gitlab'">{{ repo.name }}</h2>
 					<h2 v-else-if="platform === 'dribbble'">{{ repo.title }}</h2>
@@ -32,6 +32,14 @@ document.addEventListener("DOMContentLoaded", () => {
 					<button v-else-if="platform === 'dribbble'" @click="selectShot(repo)">Select shot</button>
 				</li>
 			</ul>
+			<template v-else>
+				<h2>Insert a link to the page</h2>
+				<p>Please make sure to grand view access to the page</p>
+				<form @submit.prevent="submitLink">
+					<input type="text" placeholder="Enter a link...">
+					<button type="submit">Submit</button>
+				</form>
+			</template>
 		`,
 		methods: {
 			async loadRepos(platform, platformId) {
@@ -154,6 +162,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
 				window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Shot`;
 			},
+
+			async submitLink($event) {
+				$event.preventDefault();
+
+				const input = $event.target.querySelector("input");
+				fetch(
+					`/api/platforms/${this.platformId}/target-document?document=${input.value}`,
+					{
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							Accept: "application/json",
+						},
+					}
+				);
+
+				window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Page`;
+			},
 		},
 		mounted() {
 			const params = new URLSearchParams(window.location.search);
@@ -169,7 +195,6 @@ document.addEventListener("DOMContentLoaded", () => {
 					break;
 				case "notion":
 				case "figma":
-					this.setToInput(this.platform);
 					break;
 				case "dribbble":
 					this.loadShots(this.platformId);
