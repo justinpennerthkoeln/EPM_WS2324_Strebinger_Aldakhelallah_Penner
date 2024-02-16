@@ -854,7 +854,7 @@ async function getPlatform(userId, collectionUuid, platform) {
 
 //Connections
 async function connectGithub(uuid, platformId) {
-	window.location.href = `https://github.com/login/oauth/authorize?client_id=e82e9be1c2c8d95f719a&redirect_uri=http://localhost:80/oauth/github/${uuid}/${platformId}&allow_signup=true&scope=repo%20user`;
+	window.location.href = `https://github.com/login/oauth/authorize?client_id=e82e9be1c2c8d95f719a&redirect_uri=http://localhost:80/oauth/github/${uuid}/${platformId}&allow_signup=true&scope=repo,user,admin:repo_hook`;
 }
 
 async function connectGitlab(uuid, platformId) {

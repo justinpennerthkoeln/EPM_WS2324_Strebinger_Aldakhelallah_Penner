@@ -12,6 +12,7 @@ const alertsModel = require("../models/alertsModel");
 const alertSettingsModel = require("../models/alertSettingsModel");
 const emailService = require("../services/emailService");
 const bodyParser = require("body-parser");
+const hookService = require("../services/hookService");
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
@@ -359,9 +360,16 @@ router.get("/alerts/:uuid", async (req, res) => {
 
 router.post('/alerts/:uuid', urlencodedParser, async (req, res) => {
 	const collectionId = await (await collectionsModel.getByUuid(req.params.uuid)).rows[0].collection_id;
-	membershipsModel.getMembershipByCollectionIdAndUserId(collectionId, await req.body.userId).then((member) => {
-		alertsModel.createAlert(member[0].membership_id, collectionId, req.body.comment, req.body.alertType, req.body.timestamp);
-	});
+
+	if(req.body.userId != null) {
+		membershipsModel.getMembershipByCollectionIdAndUserId(collectionId, await req.body.userId).then((member) => {
+			alertsModel.createAlert(member[0].membership_id, collectionId, req.body.comment, req.body.alertType, req.body.timestamp);
+		});
+	} else {
+		alertsModel.createAlert(null, collectionId, req.body.comment, req.body.alertType, req.body.timestamp);
+	}
+
+	
 
 	const members = await membershipsModel.getMembersByCollectionId(collectionId);
 	emailService.sendMailToMembers(await members, req.body.comment, req.body.alertType, collectionId);
@@ -375,6 +383,43 @@ router.get("/alerts/:uuid/settings", async (req, res) => {
 
 router.post("/alerts/:uuid/settings", urlencodedParser, async (req, res) => {
 	alertSettingsModel.updateSettingsByCollectionId(req.body.id, req.body.value)
+});
+
+router.post("/hook/:uuid", urlencodedParser, (req, res) => {
+	const hooks = req.body;
+	if(hooks.issue) {
+        if(hooks.comment) {
+            fetch(`https://wrongly-electric-salmon.ngrok-free.app/api/alerts/${req.params.uuid}`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Accept: "application/json",
+				},
+				body: JSON.stringify({
+					userId: null,
+					collectionUuid: req.params.uuid,
+					comment: `${hooks.comment.user.login} commented on issue ${hooks.issue.title}`,
+					alertType: "git issue comments",
+					timestamp: new Date().toISOString(),
+				}),
+			});
+        } else {
+            fetch(`https://wrongly-electric-salmon.ngrok-free.app/api/alerts/${req.params.uuid}`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Accept: "application/json",
+				},
+				body: JSON.stringify({
+					userId: null,
+					collectionUuid: req.params.uuid,
+					comment: `${hooks.issue.user.login} created issue: ${hooks.issue.title}`,
+					alertType: "git issue created",
+					timestamp: new Date().toISOString(),
+				}),
+			});
+        }
+    }
 });
 
 

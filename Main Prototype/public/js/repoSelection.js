@@ -111,23 +111,36 @@ async function generateRepos(repos, platform) {
                 <button class="select-repo-btn" data-repo-name="${repo.name}">Select Repo</button>
             `;
 
-		REPO.querySelector(".select-repo-btn").addEventListener(
-			"click",
-			($event) => {
+		REPO.querySelector(".select-repo-btn").addEventListener("click", ($event) => {
 				$event.preventDefault();
 				if (platform === "github") {
-					fetch(
-						`/api/platforms/${params.get(
-							"platformId"
-						)}/target-document?document=${repo.name}`,
-						{
+					fetch(`/api/platforms/${params.get("platformId")}/target-document?document=${repo.name}`,{
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							Accept: "application/json",
+						}
+					});
+
+					fetch(`/api/platform/${params.get("platformId")}`, {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+							"Accept": "application/json",
+						}
+					}).then((response) => response.json()).then((data) => {
+						fetch(`https://api.github.com/repos/${data.username}/${data.target_document}/hooks`, {
 							method: "POST",
 							headers: {
-								"Content-Type": "application/json",
-								Accept: "application/json",
+								"Accept": "application/vnd.github+json",
+								"Authorization": `Bearer ${data.platform_key}`,
+								"X-GitHub-Api-Version": "2022-11-28",
 							},
-						}
-					);
+							body: JSON.stringify({"name":"web","active":true,"events":["push","pull_request", "issues", "issue_comment"],"config":{"url":`https://wrongly-electric-salmon.ngrok-free.app/api/hook/${params.get("uuid")}`,"content_type":"json","insecure_ssl":"0"}})
+						}).then((response) => response.json()).then((data) => {
+							window.location = `${window.location.origin}/collection/${params.get("uuid")}/settings/add-projects?success=Added Repository`;
+						});
+					});
 				} else {
 					fetch(
 						`/api/platforms/${params.get(
@@ -142,9 +155,7 @@ async function generateRepos(repos, platform) {
 						}
 					);
 				}
-				window.location = `${window.location.origin}/collection/${params.get(
-					"uuid"
-				)}/settings/add-projects?success=Added Repository`;
+				// window.location = `${window.location.origin}/collection/${params.get("uuid")}/settings/add-projects?success=Added Repository`;
 			}
 		);
 		REPOS.appendChild(REPO);
