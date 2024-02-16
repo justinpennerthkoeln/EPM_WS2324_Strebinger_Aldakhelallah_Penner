@@ -124,6 +124,26 @@ document.addEventListener("DOMContentLoaded", () => {
 							},
 						}
 					);
+
+					fetch(`/api/platform/${this.platformId}`, {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+							"Accept": "application/json",
+						}
+					}).then((response) => response.json()).then((data) => {
+						fetch(`https://api.github.com/repos/${data.username}/${data.target_document}/hooks`, {
+							method: "POST",
+							headers: {
+								"Accept": "application/vnd.github+json",
+								"Authorization": `Bearer ${data.platform_key}`,
+								"X-GitHub-Api-Version": "2022-11-28",
+							},
+							body: JSON.stringify({"name":"web","active":true,"events":["push","pull_request", "issues", "issue_comment"],"config":{"url":`https://wrongly-electric-salmon.ngrok-free.app/api/hook/${this.collection}/github`,"content_type":"json","insecure_ssl":"0"}})
+						}).then((response) => response.json()).then((data) => {
+							window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Repository`;
+						});
+					});
 				} else {
 					fetch(
 						`/api/platforms/${this.platformId}/target-document?document=${repo.id}`,
@@ -134,10 +154,27 @@ document.addEventListener("DOMContentLoaded", () => {
 								Accept: "application/json",
 							},
 						}
-					);
+					)
+					fetch(`/api/platform/${this.platformId}`, {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+							"Accept": "application/json",
+						}
+					}).then((response) => response.json()).then((data) => {
+						fetch(`https://gitlab.com/api/v4/projects/${data.target_document}/hooks`, {
+							method: "POST",
+							headers: {
+								"Accept": "application/json",
+								"Content-Type": "application/x-www-form-urlencoded",
+								"Authorization": `Bearer ${data.platform_key}`,
+							},
+							body: "url=" + `https://wrongly-electric-salmon.ngrok-free.app/api/hook/${this.collection}/gitlab&issues_events=true&push_events=false&note_events=true`
+						}).then((response) => response.json()).then((data) => {
+							window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Repository`;
+						});
+					});
 				}
-
-				window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Repository`;
 			},
 
 			async selectShot(shot) {
