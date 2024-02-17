@@ -12,6 +12,7 @@ const alertsModel = require("../models/alertsModel");
 const alertSettingsModel = require("../models/alertSettingsModel");
 const emailService = require("../services/emailService");
 const bodyParser = require("body-parser");
+const hookService = require("../services/hookService");
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
@@ -359,21 +360,16 @@ router.get("/alerts/:uuid", async (req, res) => {
 	res.send(alerts);
 });
 
-router.post("/alerts/:uuid", urlencodedParser, async (req, res) => {
-	const collectionId = await (
-		await collectionsModel.getByUuid(req.params.uuid)
-	).rows[0].collection_id;
-	membershipsModel
-		.getMembershipByCollectionIdAndUserId(collectionId, await req.body.userId)
-		.then((member) => {
-			alertsModel.createAlert(
-				member[0].membership_id,
-				collectionId,
-				req.body.comment,
-				req.body.alertType,
-				req.body.timestamp
-			);
+router.post('/alerts/:uuid', urlencodedParser, async (req, res) => {
+	const collectionId = await (await collectionsModel.getByUuid(req.params.uuid)).rows[0].collection_id;
+
+	if(req.body.userId != null) {
+		membershipsModel.getMembershipByCollectionIdAndUserId(collectionId, await req.body.userId).then((member) => {
+			alertsModel.createAlert(member[0].membership_id, collectionId, req.body.comment, req.body.alertType, req.body.timestamp);
 		});
+	} else {
+		alertsModel.createAlert(null, collectionId, req.body.comment, req.body.alertType, req.body.timestamp);
+	}
 
 	const members = await membershipsModel.getMembersByCollectionId(collectionId);
 	emailService.sendMailToMembers(
@@ -396,6 +392,18 @@ router.get("/alerts/:uuid/settings", async (req, res) => {
 
 router.post("/alerts/:uuid/settings", urlencodedParser, async (req, res) => {
 	alertSettingsModel.updateSettingsByCollectionId(req.body.id, req.body.value);
+});
+
+router.post("/hook/:uuid/:platform", urlencodedParser, (req, res) => {
+	const hooks = req.body;
+	switch(req.params.platform) {
+		case "github":
+			if(hooks.issue) {(hooks.comment) ? hookService.handleGithubHook(hooks, "comment", req.params.uuid) : hookService.handleGithubHook(hooks, "issue", req.params.uuid);}
+			break;
+		case "gitlab":
+			hookService.handleGitlabHook(hooks, hooks.event_type, req.params.uuid);
+			break;
+	}
 });
 
 module.exports = router;
