@@ -48,7 +48,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 <tbody>
                     <tr v-for="alert in alerts">
                         <td>{{ alert.comment }}</td>
-                        <td>@{{ alert.member.username }}</td>
+						<td v-if="alert.member.member_id != null">{{ alert.username }}</td>
+						<td v-else>System</td>
                         <td>{{ new Date(alert.timestamp).toLocaleString('de-DE', this.dateOptions) }}</td>
                     </tr>
                 </tbody>
@@ -80,7 +81,6 @@ document.addEventListener("DOMContentLoaded", function () {
 							return timestampB - timestampA;
 						});
 
-						console.log(this.alerts);
 					});
 			},
 		},

@@ -834,21 +834,6 @@ async function getPlatform(userId, collectionUuid, platform) {
 					}
 				});
 			});
-
-			fetch(`/api/alerts/${window.location.pathname.split("/")[2]}`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					Accept: "application/json",
-				},
-				body: JSON.stringify({
-					userId: JSON.parse(localStorage.getItem("user")).id,
-					collectionUuid: window.location.pathname.split("/")[2],
-					comment: `Connected to ${platform}`,
-					alertType: "platform changes",
-					timestamp: new Date().toISOString(),
-				}),
-			});
 		});
 }
 

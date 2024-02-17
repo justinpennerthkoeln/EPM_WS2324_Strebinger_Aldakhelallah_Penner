@@ -26,19 +26,19 @@ document.addEventListener("DOMContentLoaded", () => {
 			});
 		});
 
-	window.addEventListener("unload", () => {
-		const platformID = new URLSearchParams(window.location.search).get(
-			"platformId"
-		);
+	// window.addEventListener("unload", () => {
+	// 	const platformID = new URLSearchParams(window.location.search).get(
+	// 		"platformId"
+	// 	);
 
-		fetch(`/api/collections/platform/delete/${platformID}`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				Accept: "application/json",
-			},
-		});
-	});
+	// 	fetch(`/api/collections/platform/delete/${platformID}`, {
+	// 		method: "POST",
+	// 		headers: {
+	// 			"Content-Type": "application/json",
+	// 			Accept: "application/json",
+	// 		},
+	// 	});
+	// });
 
 	// Project selection
 	const repositories = Vue.createApp({
@@ -170,6 +170,22 @@ document.addEventListener("DOMContentLoaded", () => {
 							"Accept": "application/json",
 						}
 					}).then((response) => response.json()).then((data) => {
+
+						fetch(`/api/alerts/${this.collection}`, {
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json",
+								Accept: "application/json",
+							},
+							body: JSON.stringify({
+								userId: JSON.parse(localStorage.getItem("user")).id,
+								collectionUuid: this.collection,
+								comment: `Connected to Github Repository (${data.target_document})`,
+								alertType: "platform changes",
+								timestamp: new Date().toISOString(),
+							}),
+						})
+
 						fetch(`https://api.github.com/repos/${data.username}/${data.target_document}/hooks`, {
 							method: "POST",
 							headers: {
@@ -182,6 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
 							window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Repository`;
 						});
 					});
+
 				} else {
 					fetch(
 						`/api/platforms/${this.platformId}/target-document?document=${repo.id}`,
@@ -200,6 +217,21 @@ document.addEventListener("DOMContentLoaded", () => {
 							"Accept": "application/json",
 						}
 					}).then((response) => response.json()).then((data) => {
+						fetch(`/api/alerts/${this.collection}`, {
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json",
+								Accept: "application/json",
+							},
+							body: JSON.stringify({
+								userId: JSON.parse(localStorage.getItem("user")).id,
+								collectionUuid: this.collection,
+								comment: `Connected to Gitlab Repository (${data.target_document})`,
+								alertType: "platform changes",
+								timestamp: new Date().toISOString(),
+							}),
+						})
+
 						fetch(`https://gitlab.com/api/v4/projects/${data.target_document}/hooks`, {
 							method: "POST",
 							headers: {
