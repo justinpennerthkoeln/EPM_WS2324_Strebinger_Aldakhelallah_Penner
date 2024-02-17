@@ -234,7 +234,7 @@ router.post("/collections/create", urlencodedParser, async (req, res) => {
 				collection.collection_id
 			);
 			alertSettingsModel.createSetting(collection.collection_id);
-		})
+		});
 });
 
 router.get(`/collections/:uuid/infos`, async (req, res) => {
@@ -353,7 +353,9 @@ router.post("/collections/:uuid/delete/:memberShipId", async (req, res) => {
 
 // Alerts
 router.get("/alerts/:uuid", async (req, res) => {
-	const collectionId = await (await collectionsModel.getByUuid(req.params.uuid)).rows[0].collection_id;
+	const collectionId = await (
+		await collectionsModel.getByUuid(req.params.uuid)
+	).rows[0].collection_id;
 	const alerts = await alertsModel.getAlertsByCollectionId(await collectionId);
 	res.send(alerts);
 });
@@ -369,20 +371,27 @@ router.post('/alerts/:uuid', urlencodedParser, async (req, res) => {
 		alertsModel.createAlert(null, collectionId, req.body.comment, req.body.alertType, req.body.timestamp);
 	}
 
-	
-
 	const members = await membershipsModel.getMembersByCollectionId(collectionId);
-	emailService.sendMailToMembers(await members, req.body.comment, req.body.alertType, collectionId);
+	emailService.sendMailToMembers(
+		await members,
+		req.body.comment,
+		req.body.alertType,
+		collectionId
+	);
 });
 
 router.get("/alerts/:uuid/settings", async (req, res) => {
-	const collectionId = await (await collectionsModel.getByUuid(req.params.uuid)).rows[0].collection_id;
-	const settings = await alertSettingsModel.getSettingsByCollectionId(await collectionId);
+	const collectionId = await (
+		await collectionsModel.getByUuid(req.params.uuid)
+	).rows[0].collection_id;
+	const settings = await alertSettingsModel.getSettingsByCollectionId(
+		await collectionId
+	);
 	res.send(settings);
 });
 
 router.post("/alerts/:uuid/settings", urlencodedParser, async (req, res) => {
-	alertSettingsModel.updateSettingsByCollectionId(req.body.id, req.body.value)
+	alertSettingsModel.updateSettingsByCollectionId(req.body.id, req.body.value);
 });
 
 router.post("/hook/:uuid/:platform", urlencodedParser, (req, res) => {
@@ -396,6 +405,5 @@ router.post("/hook/:uuid/:platform", urlencodedParser, (req, res) => {
 			break;
 	}
 });
-
 
 module.exports = router;

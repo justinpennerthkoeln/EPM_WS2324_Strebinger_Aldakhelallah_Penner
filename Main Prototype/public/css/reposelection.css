@@ -27,6 +27,19 @@ main > section {
 	padding: 0 var(--space-2xl) var(--space-2xl) var(--space-2xl);
 }
 
+main > section > div.link-insertion {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-l);
+	padding: 0 var(--space-l);
+}
+
+main > section > div.link-insertion > form {
+	display: flex;
+	flex-direction: row;
+	gap: var(--space-l);
+}
+
 main > section > ul {
 	list-style: none;
 	display: flex;
