@@ -5,12 +5,40 @@ document.addEventListener("DOMContentLoaded", () => {
 		.addEventListener("click", ($event) => {
 			$event.preventDefault();
 
-			window.location = `${
-				window.location.origin
-			}/collection/${new URLSearchParams(window.location.search).get(
-				"uuid"
-			)}/settings/add-projects`;
+			const platformID = new URLSearchParams(window.location.search).get(
+				"platformId"
+			);
+
+			fetch(`/api/collections/platform/delete/${platformID}`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Accept: "application/json",
+				},
+			}).then((response) => {
+				if (response.status === 200) {
+					window.location = `${
+						window.location.origin
+					}/collection/${new URLSearchParams(window.location.search).get(
+						"uuid"
+					)}/settings/add-projects`;
+				}
+			});
 		});
+
+	window.addEventListener("unload", () => {
+		const platformID = new URLSearchParams(window.location.search).get(
+			"platformId"
+		);
+
+		fetch(`/api/collections/platform/delete/${platformID}`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Accept: "application/json",
+			},
+		});
+	});
 
 	// Project selection
 	const repositories = Vue.createApp({
@@ -33,12 +61,14 @@ document.addEventListener("DOMContentLoaded", () => {
 				</li>
 			</ul>
 			<template v-else>
-				<h2>Insert a link to the page</h2>
-				<p>Please make sure to grand view access to the page</p>
-				<form @submit.prevent="submitLink">
-					<input type="text" placeholder="Enter a link...">
-					<button type="submit">Submit</button>
-				</form>
+				<div class="link-insertion">
+					<h2>Insert a link to the page</h2>
+					<p>Please make sure to grand view access to the page.</p>
+					<form @submit.prevent="submitLink">
+						<input type="text" placeholder="Enter a link...">
+						<button type="submit">Submit</button>
+					</form>
+				</div>
 			</template>
 		`,
 		methods: {
