@@ -403,6 +403,9 @@ router.post("/hook/:uuid/:platform", urlencodedParser, (req, res) => {
 		case "gitlab":
 			hookService.handleGitlabHook(hooks, hooks.event_type, req.params.uuid);
 			break;
+		case "figma":
+			(hooks.event_type === "FILE_UPDATE") ? hookService.handleFigmaHook(hooks, "update", req.params.uuid) : (hooks.event_type === "FILE_COMMENT") ? hookService.handleFigmaHook(hooks, "comment", req.params.uuid) : hookService.handleFigmaHook(hooks, "ping", req.params.uuid);
+			break;
 	}
 });
 

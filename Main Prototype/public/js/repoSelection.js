@@ -319,29 +319,34 @@ document.addEventListener("DOMContentLoaded", () => {
 						}),
 					})
 
-					// if (data.platform === "figma") {
-					// 	fetch(`https://api.figma.com/v2/webhooks`, {
-					// 		method: "POST",
-					// 		headers: {
-					// 			"Accept": "application/json",
-					// 			"Content-Type": "application/json",
-					// 			"X-Figma-Token": data.platform_key,
-					// 		},
-					// 		body: JSON.stringify({
-					// 			'event_type': 'FILE_VERSION_PUBLISH',
-					// 			'file_key': data.target_document,
-					// 			'team_id': 1159233650501953557,
-					// 			'url': `https://wrongly-electric-salmon.ngrok-free.app/api/hook/${this.collection}/figma`
-					// 		})
-					// 	}).then((response) => response.json()).then((data) => {
-					// 		window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Page`;
-					// 	}).catch((error) => {
-					// 		console.error('Error:', error);
-					// 	});
-					// } else {
-					// 	window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Page`;
-					// }
-					window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Page`;
+					if (data.platform === "figma") {
+						// fetch(`https://api.figma.com/v2/webhooks`, {
+						// 	method: "POST",
+						// 	headers: {
+						// 		"Accept": "application/json",
+						// 		"Content-Type": "application/json",
+						// 		"X-Figma-Token": data.platform_key,
+						// 	},
+						// 	body: JSON.stringify({
+						// 		"event_type": "FILE_VERSION_PUBLISH",
+						// 		"file_key": input.value.split("/")[4],
+						// 		"team_id": "1159233650501953557",
+						// 		"passcode": "1159233650501953557",
+						// 		"endpoint": `https://wrongly-electric-salmon.ngrok-free.app/api/hook/${this.collection}/figma`
+						// 	})
+						// }).then((response) => {
+						// 	console.log('Response status:', response.status);
+						// 	return response.json();
+						// }).then((data) => {
+						// 	console.log('Response data:', data);
+						// 	window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Page`;
+						// }).catch((error) => {
+						// 	console.error('Error:', error);
+						// });
+						window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Page`;
+					} else {
+						window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Page`;
+					}
 				});
 			},
 		},

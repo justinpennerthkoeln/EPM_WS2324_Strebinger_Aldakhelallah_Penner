@@ -68,3 +68,13 @@ exports.deletePlatform = async (platformId) => {
         throw new Error("Error deleting platform.");
     }
 };
+
+exports.getByCollectionIdAndPlatform = async (collectionId, platform) => {
+    try {
+        const platforms = await pool.query("SELECT * FROM platforms WHERE collection_id = $1 AND platform = $2", [collectionId, platform]);
+        return platforms.rows;
+    } catch (error) {
+        console.log(error);
+        throw new Error("Error getting platforms.");
+    }
+};
