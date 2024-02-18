@@ -259,25 +259,90 @@ document.addEventListener("DOMContentLoaded", () => {
 					}
 				);
 
-				window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Shot`;
+				fetch(`/api/platform/${this.platformId}`, {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+						"Accept": "application/json",
+					}
+				}).then((response) => response.json()).then((data) => {
+					fetch(`/api/alerts/${this.collection}`, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							Accept: "application/json",
+						},
+						body: JSON.stringify({
+							userId: JSON.parse(localStorage.getItem("user")).id,
+							collectionUuid: this.collection,
+							comment: `Connected to ${data.platform}`,
+							alertType: "platform changes",
+							timestamp: new Date().toISOString(),
+						}),
+					});
+
+					window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Shot`;
+				});
 			},
 
 			async submitLink($event) {
 				$event.preventDefault();
 
 				const input = $event.target.querySelector("input");
-				fetch(
-					`/api/platforms/${this.platformId}/target-document?document=${input.value}`,
-					{
+				fetch(`/api/platforms/${this.platformId}/target-document?document=${input.value}`, {
 						method: "POST",
 						headers: {
 							"Content-Type": "application/json",
 							Accept: "application/json",
 						},
-					}
-				);
+					});
 
-				window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Page`;
+				fetch(`/api/platform/${this.platformId}`, {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+						"Accept": "application/json",
+					}
+				}).then((response) => response.json()).then((data) => {
+					fetch(`/api/alerts/${this.collection}`, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							Accept: "application/json",
+						},
+						body: JSON.stringify({
+							userId: JSON.parse(localStorage.getItem("user")).id,
+							collectionUuid: this.collection,
+							comment: `Connected to ${data.platform}`,
+							alertType: "platform changes",
+							timestamp: new Date().toISOString(),
+						}),
+					})
+
+					// if (data.platform === "figma") {
+					// 	fetch(`https://api.figma.com/v2/webhooks`, {
+					// 		method: "POST",
+					// 		headers: {
+					// 			"Accept": "application/json",
+					// 			"Content-Type": "application/json",
+					// 			"X-Figma-Token": data.platform_key,
+					// 		},
+					// 		body: JSON.stringify({
+					// 			'event_type': 'FILE_VERSION_PUBLISH',
+					// 			'file_key': data.target_document,
+					// 			'team_id': 1159233650501953557,
+					// 			'url': `https://wrongly-electric-salmon.ngrok-free.app/api/hook/${this.collection}/figma`
+					// 		})
+					// 	}).then((response) => response.json()).then((data) => {
+					// 		window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Page`;
+					// 	}).catch((error) => {
+					// 		console.error('Error:', error);
+					// 	});
+					// } else {
+					// 	window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Page`;
+					// }
+					window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Page`;
+				});
 			},
 		},
 		mounted() {

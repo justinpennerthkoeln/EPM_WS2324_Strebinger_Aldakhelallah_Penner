@@ -562,11 +562,15 @@ document.addEventListener("DOMContentLoaded", () => {
 			},
 
 			deletePlatform(platformId) {
-				fetch(`/api/collections/platform/delete/${platformId}`, {
-					method: "POST",
-				})
-					.then((response) => response.json())
-					.then((data) => {
+				const platform = fetch(`/api/platform/${platformId}`, {
+					method: "GET", 
+					headers: {"Content-Type": "application/json"}
+				}).then((response) => response.json());
+
+				Promise.resolve(platform).then((platform) => {
+					fetch(`/api/collections/platform/delete/${platformId}`, {
+						method: "POST",
+					}).then((response) => response.json()).then(async (data) => {
 						fetch(`/api/alerts/${window.location.pathname.split("/")[2]}`, {
 							method: "POST",
 							headers: {
@@ -576,13 +580,14 @@ document.addEventListener("DOMContentLoaded", () => {
 							body: JSON.stringify({
 								userId: JSON.parse(localStorage.getItem("user")).id,
 								collectionUuid: window.location.pathname.split("/")[2],
-								comment: `platform ${this.possiblePlatforms[platformId]} deleted.`,
-								alertType: "collection member changes",
+								comment: `platform ${await platform.platform} deleted.`,
+								alertType: "platform changes",
 								timestamp: new Date().toISOString(),
 							}),
 						});
 						window.location = `${window.location.origin}${window.location.pathname}?success=Successfully deleted project`;
 					});
+				})
 			},
 
 			updatePlatform(platformId, targetDocument) {
@@ -855,7 +860,7 @@ async function connectDribbble(uuid, platformId) {
 }
 
 async function connectFigma(uuid, platformId) {
-	window.location.href = `https://www.figma.com/oauth?scope=files:read,file_comments:write&state=${uuid}_${platformId}&response_type=code&client_id=lran9jv5bDLcZamRAN3khE&redirect_uri=http://localhost:80/oauth/figma`;
+	window.location.href = `https://www.figma.com/oauth?scope=files:read,file_comments:write,webhooks:write&state=${uuid}_${platformId}&response_type=code&client_id=lran9jv5bDLcZamRAN3khE&redirect_uri=http://localhost:80/oauth/figma`;
 }
 
 async function connectNotion(uuid, platformId) {

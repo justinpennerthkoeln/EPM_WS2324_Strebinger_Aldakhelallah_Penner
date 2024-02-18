@@ -93,7 +93,7 @@ CREATE TABLE tasks (
 );
 
 ALTER TABLE tasks ADD CONSTRAINT fk_tasks_collection_84376588dsuifhi734 FOREIGN KEY (collection_id) REFERENCES collections (collection_id);
-ALTER TABLE tasks ADD CONSTRAINT fk_tasks_platform_84376588dsuifhi734 FOREIGN KEY (platform_id) REFERENCES platforms (platform_id);
+-- ALTER TABLE tasks ADD CONSTRAINT fk_tasks_platform_84376588dsuifhi734 FOREIGN KEY (platform_id) REFERENCES platforms (platform_id);
 
 CREATE TABLE ownerships (
     ownership_id SERIAL PRIMARY KEY NOT NULL,
