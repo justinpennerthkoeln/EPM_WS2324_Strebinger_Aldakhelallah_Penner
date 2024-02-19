@@ -295,6 +295,10 @@ router.post(
 	}
 );
 
+router.post(`/platform/:platformId/figma-teamid`, async (req, res) => {
+	platformsModel.setTeamId(req.params.platformId, req.query.teamid);
+});
+
 router.post(`/collections/platform/delete/:platformId`, async (req, res) => {
 	platformsModel.deletePlatform(req.params.platformId).then(() => {
 		res.send({ msg: "Platform deleted." });

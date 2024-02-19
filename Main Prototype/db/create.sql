@@ -45,7 +45,8 @@ CREATE TABLE platforms (
     platform platform NOT NULL,
     platform_key VARCHAR(200) NOT NULL,
     target_document VARCHAR(200) NOT NULL,
-    username VARCHAR(200) NULL
+    username VARCHAR(200) NULL,
+    team_id VARCHAR(200) NULL DEFAULT NULL
 );
 
 ALTER TABLE platforms ADD CONSTRAINT fk_platforms_user_3948fbhrgz45i4ts FOREIGN KEY (user_id) REFERENCES users (id);

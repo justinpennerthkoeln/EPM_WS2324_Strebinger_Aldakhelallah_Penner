@@ -66,6 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
 					<p>Please make sure to grand view access to the page.</p>
 					<form @submit.prevent="submitLink">
 						<input type="text" placeholder="Enter a link...">
+						<input v-if="platform == 'figma'" type="text" id="teamId" placeholder="Figma Team ID"></input>
 						<button type="submit">Submit</button>
 					</form>
 				</div>
@@ -295,7 +296,17 @@ document.addEventListener("DOMContentLoaded", () => {
 							"Content-Type": "application/json",
 							Accept: "application/json",
 						},
+				});
+
+				if($event.target.querySelector("#teamId")) {
+					fetch(`/api/platform/${this.platformId}/figma-teamid?teamid=${$event.target.querySelector("#teamId").value}`, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							Accept: "application/json",
+						},
 					});
+				}
 
 				fetch(`/api/platform/${this.platformId}`, {
 					method: "GET",
@@ -320,30 +331,30 @@ document.addEventListener("DOMContentLoaded", () => {
 					})
 
 					if (data.platform === "figma") {
-						// fetch(`https://api.figma.com/v2/webhooks`, {
-						// 	method: "POST",
-						// 	headers: {
-						// 		"Accept": "application/json",
-						// 		"Content-Type": "application/json",
-						// 		"X-Figma-Token": data.platform_key,
-						// 	},
-						// 	body: JSON.stringify({
-						// 		"event_type": "FILE_VERSION_PUBLISH",
-						// 		"file_key": input.value.split("/")[4],
-						// 		"team_id": "1159233650501953557",
-						// 		"passcode": "1159233650501953557",
-						// 		"endpoint": `https://wrongly-electric-salmon.ngrok-free.app/api/hook/${this.collection}/figma`
-						// 	})
-						// }).then((response) => {
-						// 	console.log('Response status:', response.status);
-						// 	return response.json();
-						// }).then((data) => {
-						// 	console.log('Response data:', data);
-						// 	window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Page`;
-						// }).catch((error) => {
-						// 	console.error('Error:', error);
-						// });
-						window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Page`;
+						console.log(data);
+						fetch(`https://api.figma.com/v2/webhooks`, {
+							method: "POST",
+							headers: {
+								"Accept": "application/json",
+								"Content-Type": "application/json",
+								"Authorization": 'Bearer ' + data.platform_key,
+							},
+							body: JSON.stringify({
+								"event_type": "FILE_UPDATE",
+								"file_key": input.value.split("/")[4],
+								"team_id": data.team_id,
+								"passcode": "1159233650501953557",
+								"endpoint": `https://wrongly-electric-salmon.ngrok-free.app/api/hook/${this.collection}/figma`
+							})
+						}).then((response) => {
+							console.log('Response status:', response.status);
+							return response.json();
+						}).then((data) => {
+							console.log('Response data:', data);
+							window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Page`;
+						}).catch((error) => {
+							console.error('Error:', error);
+						});
 					} else {
 						window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Page`;
 					}
