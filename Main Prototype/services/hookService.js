@@ -95,14 +95,16 @@ function handleGitlabIssueHook (hooks, uuid) {
 exports.handleFigmaHook = function (hooks, hookType, uuid) {
     collectionsModel.getByUuid(uuid).then((collection) => {
         platformsModel.getByCollectionIdAndPlatform(collection.rows[0].collection_id, "figma").then((platforms) => {
-            if(platforms[0].target_document.split("/")[4] == hooks.file_key) {
-                switch (hookType) {
-                    case "comment":
-                        handleFigmaCommentHook(hooks, uuid);
-                        break;
-                    case "update":
-                        handleFigmaUpdateHook(hooks, uuid);
-                        break;
+            if(platforms.length > 0){
+                if(platforms[0].target_document.split("/")[4] == hooks.file_key) {
+                    switch (hookType) {
+                        case "comment":
+                            handleFigmaCommentHook(hooks, uuid);
+                            break;
+                        case "update":
+                            handleFigmaUpdateHook(hooks, uuid);
+                            break;
+                    }
                 }
             }
         });

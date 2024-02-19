@@ -331,7 +331,6 @@ document.addEventListener("DOMContentLoaded", () => {
 					})
 
 					if (data.platform === "figma") {
-						console.log(data);
 						fetch(`https://api.figma.com/v2/webhooks`, {
 							method: "POST",
 							headers: {
@@ -342,7 +341,7 @@ document.addEventListener("DOMContentLoaded", () => {
 							body: JSON.stringify({
 								"event_type": "FILE_UPDATE",
 								"file_key": input.value.split("/")[4],
-								"team_id": data.team_id,
+								"team_id": $event.target.querySelector("#teamId").value,
 								"passcode": "1159233650501953557",
 								"endpoint": `https://wrongly-electric-salmon.ngrok-free.app/api/hook/${this.collection}/figma`
 							})
