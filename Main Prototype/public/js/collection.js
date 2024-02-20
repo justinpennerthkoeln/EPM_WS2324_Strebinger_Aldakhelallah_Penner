@@ -1,26 +1,31 @@
 import { io } from "socket.io-client";
 
 document.addEventListener("DOMContentLoaded", async function () {
+	fetch(`/api/collections/${window.location.pathname.split("/")[2]}/infos`)
+		.then((response) => response.json())
+		.then((collection) => {
+			const header = document.querySelector("main > header");
+			const dateOptions = {
+				year: "numeric",
+				month: "numeric",
+				day: "numeric",
+			};
+			const date = new Date(collection.timestamp).toLocaleString(
+				"de-DE",
+				dateOptions
+			);
+			const members = collection.members
+				.map((member) => {
+					return `@${member.username}`;
+				})
+				.join(", ");
 
-	fetch(`/api/collections/${window.location.pathname.split("/")[2]}/infos`).then((response) => response.json()).then((collection) => {
-        const header = document.querySelector('main > header');
-        const dateOptions = {
-            year: 'numeric',
-            month: 'numeric',
-            day: 'numeric'
-        };
-        const date = new Date(collection.timestamp).toLocaleString('de-DE', dateOptions);
-        const members = collection.members.map((member) => {
-            return `@${member.username}`;
-        }).join(', ');
+			document.title = `SynergyHub | ${collection.name}`;
 
-        document.title = `SynergyHub | ${collection.name}`;
-
-        header.children[0].textContent = collection.name;
-        header.children[1].textContent = `${date} — ${members}`;
-        header.children[2].textContent = collection.description;
-    });
-
+			header.children[0].textContent = collection.name;
+			header.children[1].textContent = `${date} — ${members}`;
+			header.children[2].textContent = collection.description;
+		});
 
 	async function getCollectionUUID() {
 		for (const path of window.location.pathname.split("/")) {
@@ -343,38 +348,43 @@ document.addEventListener("DOMContentLoaded", async function () {
 						console.error(error);
 					});
 
-				if(draggedTask.status != 'done') {
-					fetch(`/api/alerts/${window.location.pathname.split('/')[2]}`, {
-						'method': 'POST',
-						'headers': {
-							'Content-Type': 'application/json',
-							'Accept': 'application/json'
+				if (draggedTask.status != "done") {
+					fetch(`/api/alerts/${window.location.pathname.split("/")[2]}`, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							Accept: "application/json",
 						},
-						'body': JSON.stringify({
-							userId: JSON.parse(localStorage.getItem('user')).id,
-							collectionUuid: window.location.pathname.split('/')[2],
-							comment: `@${JSON.parse(localStorage.getItem('user')).username}. has updated status of task "${draggedTask.name}" to "${draggedTask.status}".`,
-							alertType: 'task updated',
-							timestamp: new Date().toISOString()
-						})
-					})
+						body: JSON.stringify({
+							userId: JSON.parse(localStorage.getItem("user")).id,
+							collectionUuid: window.location.pathname.split("/")[2],
+							comment: `@${
+								JSON.parse(localStorage.getItem("user")).username
+							}. has updated status of task "${draggedTask.name}" to "${
+								draggedTask.status
+							}".`,
+							alertType: "task updated",
+							timestamp: new Date().toISOString(),
+						}),
+					});
 				} else {
-					fetch(`/api/alerts/${window.location.pathname.split('/')[2]}`, {
-						'method': 'POST',
-						'headers': {
-							'Content-Type': 'application/json',
-							'Accept': 'application/json'
+					fetch(`/api/alerts/${window.location.pathname.split("/")[2]}`, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							Accept: "application/json",
 						},
-						'body': JSON.stringify({
-							userId: JSON.parse(localStorage.getItem('user')).id,
-							collectionUuid: window.location.pathname.split('/')[2],
-							comment: `@${JSON.parse(localStorage.getItem('user')).username}. has marked "${draggedTask.name}" as done.`,
-							alertType: 'task completed',
-							timestamp: new Date().toISOString()
-						})
-					})
+						body: JSON.stringify({
+							userId: JSON.parse(localStorage.getItem("user")).id,
+							collectionUuid: window.location.pathname.split("/")[2],
+							comment: `@${
+								JSON.parse(localStorage.getItem("user")).username
+							}. has marked "${draggedTask.name}" as done.`,
+							alertType: "task completed",
+							timestamp: new Date().toISOString(),
+						}),
+					});
 				}
-					
 			},
 
 			allowDrop(event) {
@@ -438,6 +448,9 @@ document.addEventListener("DOMContentLoaded", async function () {
                     }}</span></p>
                 </template>
             </header>
+			<section class="delete-task">
+					<p @click="deleteTask">Delete Task</p>
+			</section>
             <section class="task-subtasks">
                 <h2>Subtasks</h2>
                 <ul class="todos">
@@ -640,20 +653,22 @@ document.addEventListener("DOMContentLoaded", async function () {
 							console.error("Error:", error);
 						});
 
-					fetch(`/api/alerts/${window.location.pathname.split('/')[2]}`, {
-						'method': 'POST',
-						'headers': {
-							'Content-Type': 'application/json',
-							'Accept': 'application/json'
+					fetch(`/api/alerts/${window.location.pathname.split("/")[2]}`, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							Accept: "application/json",
 						},
-						'body': JSON.stringify({
-							userId: JSON.parse(localStorage.getItem('user')).id,
-							collectionUuid: window.location.pathname.split('/')[2],
-							comment: `@${JSON.parse(localStorage.getItem('user')).username}. has added feedback to task "${this.task.name}": "${comment}".`,
-							alertType: 'task feedbacks',
-							timestamp: new Date().toISOString()
-						})
-					})
+						body: JSON.stringify({
+							userId: JSON.parse(localStorage.getItem("user")).id,
+							collectionUuid: window.location.pathname.split("/")[2],
+							comment: `@${
+								JSON.parse(localStorage.getItem("user")).username
+							}. has added feedback to task "${this.task.name}": "${comment}".`,
+							alertType: "task feedbacks",
+							timestamp: new Date().toISOString(),
+						}),
+					});
 				}
 			},
 
@@ -693,20 +708,49 @@ document.addEventListener("DOMContentLoaded", async function () {
 						console.error(error);
 					});
 
-				fetch(`/api/alerts/${window.location.pathname.split('/')[2]}`, {
-					'method': 'POST',
-					'headers': {
-						'Content-Type': 'application/json',
-						'Accept': 'application/json'
+				fetch(`/api/alerts/${window.location.pathname.split("/")[2]}`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Accept: "application/json",
 					},
-					'body': JSON.stringify({
-						userId: JSON.parse(localStorage.getItem('user')).id,
-						collectionUuid: window.location.pathname.split('/')[2],
-						comment: `@${JSON.parse(localStorage.getItem('user')).username}. has replied to feedback "${this.feedbacks[index].comment}":  "${comment}".`,
-						alertType: 'task feedback replies',
-						timestamp: new Date().toISOString()
-					})
+					body: JSON.stringify({
+						userId: JSON.parse(localStorage.getItem("user")).id,
+						collectionUuid: window.location.pathname.split("/")[2],
+						comment: `@${
+							JSON.parse(localStorage.getItem("user")).username
+						}. has replied to feedback "${
+							this.feedbacks[index].comment
+						}":  "${comment}".`,
+						alertType: "task feedback replies",
+						timestamp: new Date().toISOString(),
+					}),
+				});
+			},
+
+			async deleteTask() {
+				document.querySelector(".view-task-container").classList.add("hidden");
+
+				fetch(`/api/tasks/${this.task.task_id}`, {
+					method: "DELETE",
+					headers: {
+						"Content-Type": "application/json",
+						Accept: "application/json",
+						"X-Socket-ID": socketID,
+					},
+					body: JSON.stringify({
+						membership_id: this.task.assigned_users[0].membership_id,
+					}),
 				})
+					.then((response) => {
+						return response.json();
+					})
+					.then((task) => {
+						this.clearTaskView();
+					})
+					.catch((error) => {
+						console.error(error);
+					});
 			},
 		},
 	}).mount("#task-view");
@@ -782,6 +826,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 		createTaskForm.querySelector('input[name="name"]').value = "";
 		createTaskForm.querySelector('textarea[name="description"]').value = "";
 		createTaskForm.querySelector("#platform-select").selectedIndex = 0;
+
+		// Assigned user
+		selectResponsibleUser.searchInput = "";
+		selectResponsibleUser.selected = null;
+		selectResponsibleUser.searchResults = [];
 	}
 
 	createTaskButton.forEach((button) => {
@@ -822,6 +871,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 		data.createIssue =
 			createTaskForm.querySelector("#send-notification").checked;
 
+		// Assigned user
+		data.assignedUser = selectResponsibleUser.selected;
+
 		fetch("/api/tasks", {
 			method: "POST",
 			headers: {
@@ -843,21 +895,131 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 		createTaskContainer.classList.add("hidden");
 
-		fetch(`/api/alerts/${window.location.pathname.split('/')[2]}`, {
-			'method': 'POST',
-			'headers': {
-				'Content-Type': 'application/json',
-				'Accept': 'application/json'
+		fetch(`/api/alerts/${window.location.pathname.split("/")[2]}`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Accept: "application/json",
 			},
-			'body': JSON.stringify({
-				userId: JSON.parse(localStorage.getItem('user')).id,
-				collectionUuid: window.location.pathname.split('/')[2],
-				comment: `A new task in ${document.querySelector('main > header').children[0].textContent} by @${JSON.parse(localStorage.getItem('user')).username}. "${data.name}"`,
-				alertType: 'task created',
-				timestamp: new Date().toISOString()
-			})
-		})
+			body: JSON.stringify({
+				userId: JSON.parse(localStorage.getItem("user")).id,
+				collectionUuid: window.location.pathname.split("/")[2],
+				comment: `A new task in ${
+					document.querySelector("main > header").children[0].textContent
+				} by @${JSON.parse(localStorage.getItem("user")).username}. "${
+					data.name
+				}"`,
+				alertType: "task created",
+				timestamp: new Date().toISOString(),
+			}),
+		});
 
 		clearForm();
 	});
+
+	// Select responsible user
+	const selectResponsibleUser = Vue.createApp({
+		data() {
+			return {
+				collectionID: null,
+				searchResults: [],
+				searchInput: "",
+				selected: null,
+			};
+		},
+		template: `
+			<label for="assigned-user-input">Assigned user (optional)</label>
+            <input id="assigned-user-input" type="text" class="search-user" placeholder="Enter a username..." v-model="searchInput" @input="searchUsers" />
+            <ul :class="'suggestedAssignedUserNames ' + (searchResults.length === 0 ? 'disabled' : '')">
+                <li v-for="user in searchResults" :key="user.id" @click="selectUser(user.membership_id)">{{user.username}}</li>
+            </ul>
+        `,
+		methods: {
+			async getCollectionID() {
+				let collectionUUID;
+
+				for (const path of window.location.pathname.split("/")) {
+					if (path.length > 10) {
+						collectionUUID = path;
+					}
+				}
+
+				const collectionID = await fetch(
+					`/api/collections/id/${collectionUUID}`,
+					{
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+						},
+					}
+				)
+					.then((response) => {
+						return response.json();
+					})
+					.then((collection) => {
+						return collection.rows[0].collection_id;
+					});
+
+				this.collectionID = collectionID;
+			},
+
+			async searchUsers() {
+				if (this.collectionID == null) {
+					await this.getCollectionID();
+				}
+
+				// If the full name is written, select the user
+				if (
+					this.searchResults.find(
+						(user) => user.username === this.searchInput
+					) &&
+					this.searchInput.length > 0 &&
+					this.searchResults.length == 1
+				) {
+					Promise.resolve(() => {
+						this.selectUser(
+							this.searchResults.find(
+								(user) => user.username === this.searchInput
+							).id
+						);
+					}).then(() => {
+						this.searchResults = [];
+					});
+				} else {
+					this.selected = null;
+
+					if (this.searchInput.length > 0) {
+						fetch(
+							`/api/memberships/${
+								this.collectionID
+							}/users?searchTerm=${this.searchInput.toLowerCase()}`,
+							{
+								method: "GET",
+								headers: {
+									"Content-Type": "application/json",
+								},
+							}
+						)
+							.then((response) => {
+								return response.json();
+							})
+							.then((users) => {
+								this.searchResults = users;
+							});
+					} else {
+						this.searchResults = [];
+					}
+				}
+			},
+
+			selectUser(membershipId) {
+				this.searchInput = this.searchResults.find(
+					(user) => user.membership_id === membershipId
+				).username;
+				this.searchResults = [];
+
+				this.selected = this.selected == membershipId ? null : membershipId;
+			},
+		},
+	}).mount("#select-responsible-user");
 });
