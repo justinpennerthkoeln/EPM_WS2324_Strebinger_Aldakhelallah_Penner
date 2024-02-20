@@ -258,9 +258,9 @@ router.get(`/collections/:uuid/platforms`, async (req, res) => {
 		await collectionsModel.getByUuid(req.params.uuid)
 	).rows[0].collection_id;
 	const platforms = await platformsModel.getPlatformsByCollectionId(
-		collectionId
+		await collectionId
 	);
-	res.send(platforms);
+	res.send(await platforms);
 });
 
 router.get(`/platform/:platformId`, async (req, res) => {
@@ -382,6 +382,8 @@ router.post('/alerts/:uuid', urlencodedParser, async (req, res) => {
 		req.body.alertType,
 		collectionId
 	);
+
+	res.send({ msg: "Alert created." });
 });
 
 router.get("/alerts/:uuid/settings", async (req, res) => {
