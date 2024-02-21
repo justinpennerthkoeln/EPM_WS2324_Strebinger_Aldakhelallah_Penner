@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>SynergyHub | Alerts</title>
+		<link rel="stylesheet" href="/css/global/reset.css" />
+		<link rel="stylesheet" href="/css/global/variables.css" />
+		<link rel="stylesheet" href="/css/global/base.css" />
+		<link rel="stylesheet" href="/css/collection.css" />
+		<link rel="stylesheet" href="/css/global/alert.css" />
+		<link rel="stylesheet" href="/css/alerts.css" />
+	</head>
+	<body>
+		<main>
+			<header>
+				<h1 id="collection-name"></h1>
+				<p id="collection-details"></p>
+				<p id="collection-description"></p>
+				<nav id="navigation" class="navigation">
+					<a href="/tasks">Tasks</a>
+					<a href="/inspection">Inspection</a>
+					<a href="/settings">Settings</a>
+					<a href="/alerts">Alerts</a>
+				</nav>
+			</header>
+			<section id="alerts-container"></section>
+		</main>
+
+		<script>
+			// Navigation
+			const NAVIGATIONLINKS = document.querySelectorAll("#navigation a");
+
+			NAVIGATIONLINKS.forEach((element) => {
+				element.addEventListener("click", ($event) => {
+					$event.preventDefault();
+
+					const { target } = $event;
+
+					window.location.href = `/collection/${
+						window.location.pathname.split("/")[2]
+					}/${target.href.split("/")[3]}`;
+				});
+
+				if (
+					window.location.pathname.split("/")[3] == element.href.split("/")[3]
+				) {
+					element.classList.add("selected");
+				}
+			});
+		</script>
+
+		<script src="/js/alert.js" type="module"></script>
+		<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+		<script src="/js/alertSystem.js"></script>
+	</body>
+</html>

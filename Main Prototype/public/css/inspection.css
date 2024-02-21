@@ -1,0 +1,182 @@
+main {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-m);
+	height: fit-content;
+}
+
+main > section {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-m);
+	width: 100%;
+}
+
+main > section > div {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2xl);
+	width: 100%;
+}
+
+main > section > div > section {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-xl);
+	width: 100%;
+}
+
+main > section > div > section > article {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-m);
+	width: 100%;
+}
+
+/* Design */
+main > section > div > section > article > figure {
+	width: fit-content;
+	height: fit-content;
+	aspect-ratio: 16 / 9;
+	border-radius: var(--br-xs);
+	overflow: hidden;
+}
+
+main > section > div > section > article > figure > img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+/* Code */
+main > section > div > section > article > .viewer {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-xl);
+	padding: var(--space-m);
+	border-radius: var(--br-xs);
+	border: var(--space-xs) solid var(--color-on-background-dark);
+}
+
+main > section > div > section > article > .viewer > p {
+	font-family: var(--font-family);
+	font-size: var(--base-font-size);
+	line-height: var(--lh-default);
+	color: var(--color-text-light);
+	cursor: pointer;
+	background-color: var(--color-code-primary);
+	padding: var(--space-m);
+	border-radius: var(--br-xs);
+	transition: var(--tr-fast) ease-in-out;
+}
+
+main > section > div > section > article > .viewer > p:hover {
+	background-color: var(--color-code-secondary);
+}
+
+main > section > div > section > article > .viewer > ul {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-m);
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+main > section > div > section > article > .viewer > ul > li {
+	padding: var(--space-m);
+	border-radius: var(--br-xs);
+	background-color: var(--color-code-primary);
+	transition: var(--tr-fast) ease-in-out;
+	cursor: pointer;
+}
+
+main > section > div > section > article > .viewer > ul > li:hover {
+	background-color: var(--color-code-secondary);
+}
+
+main > section > div > section > article > .viewer > ul > li > p {
+	font-family: var(--font-family);
+	font-size: var(--base-font-size);
+	line-height: var(--lh-default);
+	color: var(--color-text-light);
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: var(--space-l);
+}
+
+main > section > div > section > article > .viewer > ul > li > p > svg {
+	max-height: var(--base-font-size);
+	max-width: var(--base-font-size);
+	aspect-ratio: 1 / 1;
+}
+
+main > section > div > section > article > .viewer > ul > li > p > svg > path {
+	fill: var(--color-text-light);
+}
+
+main > section > div > section > article > .viewer > pre {
+	margin: 0;
+	padding: 0;
+	height: fit-content;
+	width: 100%;
+	position: relative;
+	display: flex;
+	max-height: 30rem;
+}
+
+main > section > div > section > article > .viewer > pre > code.hljs {
+	background: var(--color-code-primary);
+	position: relative;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	border-radius: var(--br-xs);
+}
+
+main
+	> section
+	> div
+	> section
+	> article
+	> .viewer
+	> pre
+	> code::-webkit-scrollbar {
+	width: var(--xs);
+	height: var(--xs);
+}
+
+main
+	> section
+	> div
+	> section
+	> article
+	> .viewer
+	> pre
+	> code::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+main
+	> section
+	> div
+	> section
+	> article
+	> .viewer
+	> pre
+	> code::-webkit-scrollbar-thumb {
+	border-radius: var(--br-full);
+	background: var(--color-text-light);
+}
+
+main
+	> section
+	> div
+	> section
+	> article
+	> .viewer
+	> pre
+	> code::-webkit-scrollbar-corner {
+	background: transparent;
+}

@@ -1,58 +1,65 @@
-import { io } from 'socket.io-client';
-import { getHost } from './wsHost.js';
+import { io } from "socket.io-client";
+import { getHost } from "./wsHost.js";
 
 // Establish a socket connection to the server
 const SOCKET = io(getHost(window.location.href));
 
-SOCKET.on('connect', () => {
+SOCKET.on("connect", () => {
+	// Collection details
+	SOCKET.emit("get-details", window.location.pathname.split("/")[1]);
+	SOCKET.on("got-details", (details) => {
+		const HEADER = document.querySelector("main > header");
+		const DATEOPTIONS = {
+			year: "numeric",
+			month: "numeric",
+			day: "numeric",
+		};
+		const DATE = new Date(details.timestamp).toLocaleString(
+			"de-DE",
+			DATEOPTIONS
+		);
+		const MEMBERS = details.members
+			.map((member) => {
+				return `@${member.username}`;
+			})
+			.join(", ");
 
-    // Collection details
-    SOCKET.emit('get-details', (window.location.pathname.split('/')[1]));
-    SOCKET.on('got-details', (details) => {
-        const HEADER = document.querySelector('main > header');
-        const DATEOPTIONS = {
-            year: 'numeric',
-            month: 'numeric',
-            day: 'numeric'
-        };
-        const DATE = new Date(details.timestamp).toLocaleString('de-DE', DATEOPTIONS);
-        const MEMBERS = details.members.map((member) => {
-            return `@${member.username}`;
-        }).join(', ');
+		document.title = `SynergyHub | ${details.name}`;
 
-        document.title = `SynergyHub | ${details.name}`;
+		HEADER.children[0].textContent = details.name;
+		HEADER.children[1].textContent = `${DATE} — ${MEMBERS}`;
+		HEADER.children[2].textContent = details.description;
+	});
 
-        HEADER.children[0].textContent = details.name;
-        HEADER.children[1].textContent = `${DATE} — ${MEMBERS}`;
-        HEADER.children[2].textContent = details.description;
-    });
+	SOCKET.emit("get-member", {
+		userId: localStorage.getItem("userId"),
+		uuid: window.location.pathname.split("/")[1],
+	});
 
-    SOCKET.emit('get-member', {userId: localStorage.getItem('userId'), uuid: window.location.pathname.split('/')[1]});
+	SOCKET.on("got-member", (data) => {
+		localStorage.setItem("username", data.username);
+		localStorage.setItem("membershipId", data.membershipId);
+	});
 
-    SOCKET.on('got-member', (data) => {
-        localStorage.setItem('username', data.username);
-        localStorage.setItem('membershipId', data.membershipId);
-    });
+	// Join taskboard
+	SOCKET.emit("join", { uuid: window.location.pathname.split("/")[1] });
 
-    // Join taskboard
-    SOCKET.emit('join', {uuid: window.location.pathname.split('/')[1]});
-
-    // Create task view
-    const TASKVIEW = Vue.createApp({
-        data() {
-            return {
-                task: {},
-                todos: [],
-                feedbacks: [],
-                possiblePlatforms: ['GitHub', 'GitLab', 'Figma', 'Notion'],
-                dateOptions: {
-                    year: 'numeric',
-                    month: 'numeric',
-                    day: 'numeric'
-                }
-            }
-        },
-        template: `
+	// Create task view
+	const TASKVIEW = Vue.createApp({
+		data() {
+			return {
+				task: {},
+				todos: [],
+				feedbacks: [],
+				possiblePlatforms: ["GitHub", "GitLab", "Figma", "Notion"],
+				dateOptions: {
+					year: "numeric",
+					month: "numeric",
+					day: "numeric",
+				},
+			};
+		},
+		template: `
             <input type="hidden" name="task_id" :value="task.task_id"/>
             <header>
                 <h2>{{ task.name }}</h2>
@@ -146,129 +153,135 @@ SOCKET.on('connect', () => {
                 </ul>
             </section>
         `,
-        methods: {
-            async loadTask(task, todos, feedbacks) {
-                this.task = await task;
-                this.todos = await todos;
-                this.feedbacks = await feedbacks;
-            },
+		methods: {
+			async loadTask(task, todos, feedbacks) {
+				this.task = await task;
+				this.todos = await todos;
+				this.feedbacks = await feedbacks;
+			},
 
-            async clearTaskView() {
-                this.task = {};
-                this.todos = [];
-                this.feedbacks = [];
-            },
+			async clearTaskView() {
+				this.task = {};
+				this.todos = [];
+				this.feedbacks = [];
+			},
 
-            findConnectedPlatform(name) {
-                for (const PLATFORM of this.possiblePlatforms) {
-                    if (PLATFORM.toLowerCase() === name) {
-                        return PLATFORM;
-                    }
-                }
-                return '-';
-            },
+			findConnectedPlatform(name) {
+				for (const PLATFORM of this.possiblePlatforms) {
+					if (PLATFORM.toLowerCase() === name) {
+						return PLATFORM;
+					}
+				}
+				return "-";
+			},
 
-            addTodo($event) {
-                const TODO = $event.target.value;
+			addTodo($event) {
+				const TODO = $event.target.value;
 
-                if (TODO.length > 0 && $event.key == 'Enter') {
-                    SOCKET.emit('save-todo', {
-                        task_id: this.task.task_id,
-                        description: TODO
-                    });
+				if (TODO.length > 0 && $event.key == "Enter") {
+					SOCKET.emit("save-todo", {
+						task_id: this.task.task_id,
+						description: TODO,
+					});
 
-                    $event.target.value = "";
-                }
-            },
+					$event.target.value = "";
+				}
+			},
 
-            async newTodo(todo) {
-                this.todos.push(todo);
-            },
+			async newTodo(todo) {
+				this.todos.push(todo);
+			},
 
-            async updateTodo($event) {
-                const TODOID = $event.target.getAttribute('name');
-                const STATUS = $event.target.checked;
-                const TASKID = this.task.task_id;
+			async updateTodo($event) {
+				const TODOID = $event.target.getAttribute("name");
+				const STATUS = $event.target.checked;
+				const TASKID = this.task.task_id;
 
-                SOCKET.emit('update-todo', {
-                    todo_id: TODOID,
-                    status: STATUS,
-                    task_id: TASKID
-                });
-            },
+				SOCKET.emit("update-todo", {
+					todo_id: TODOID,
+					status: STATUS,
+					task_id: TASKID,
+				});
+			},
 
-            async updatedTodos(todos) {
-                this.todos = await todos;
-            },            
+			async updatedTodos(todos) {
+				this.todos = await todos;
+			},
 
-            addFeedback($event) {
-                $event.preventDefault();
+			addFeedback($event) {
+				$event.preventDefault();
 
-                const COMMENT = $event.target.querySelector('textarea[name="comment"]').value;
+				const COMMENT = $event.target.querySelector(
+					'textarea[name="comment"]'
+				).value;
 
-                if (COMMENT != "") {
-                    SOCKET.emit('save-feedback', {
-                        username: localStorage.getItem('username'),
-                        membership_id: localStorage.getItem('membershipId'),
-                        task_id: this.task.task_id,
-                        comment: COMMENT
-                    });
-                }
+				if (COMMENT != "") {
+					SOCKET.emit("save-feedback", {
+						username: localStorage.getItem("username"),
+						membership_id: localStorage.getItem("membershipId"),
+						task_id: this.task.task_id,
+						comment: COMMENT,
+					});
+				}
 
-                $event.target.querySelector('textarea[name="comment"]').value = "";
-            },
+				$event.target.querySelector('textarea[name="comment"]').value = "";
+			},
 
-            async newFeedback(feedback) {
-                this.feedbacks.push(feedback);
-            },
+			async newFeedback(feedback) {
+				this.feedbacks.push(feedback);
+			},
 
-            toggleReplyOverlay(index) {
-                const OVERLAY = document.querySelector('#reply-overlay-' + index);
-                OVERLAY.classList.toggle('hidden');
-            },
+			toggleReplyOverlay(index) {
+				const OVERLAY = document.querySelector("#reply-overlay-" + index);
+				OVERLAY.classList.toggle("hidden");
+			},
 
-            async saveReplyFeedback(index) {
-                const FEEDBACKID = this.feedbacks[index].feedback_id;
-                const TASKID = this.task.task_id;
-                const COMMENT = document.querySelector('#reply-overlay-' + index + ' textarea[name="reply"]').value;
+			async saveReplyFeedback(index) {
+				const FEEDBACKID = this.feedbacks[index].feedback_id;
+				const TASKID = this.task.task_id;
+				const COMMENT = document.querySelector(
+					"#reply-overlay-" + index + ' textarea[name="reply"]'
+				).value;
 
-                SOCKET.emit('save-reply-feedback', {
-                    username: localStorage.getItem('username'),
-                    feedback_id: FEEDBACKID,
-                    task_id: TASKID,
-                    comment: COMMENT
-                });
+				SOCKET.emit("save-reply-feedback", {
+					username: localStorage.getItem("username"),
+					feedback_id: FEEDBACKID,
+					task_id: TASKID,
+					comment: COMMENT,
+				});
 
-                document.querySelector('#reply-overlay-' + index + ' textarea[name="reply"]').value = "";
-                this.toggleReplyOverlay(index);
-            },
+				document.querySelector(
+					"#reply-overlay-" + index + ' textarea[name="reply"]'
+				).value = "";
+				this.toggleReplyOverlay(index);
+			},
 
-            async newReply(reply) {
-                this.feedbacks.forEach((feedback) => {
-                    if (feedback.feedback_id == reply.feedback_id) {
-                        console.log(feedback);
+			async newReply(reply) {
+				this.feedbacks.forEach((feedback) => {
+					if (feedback.feedback_id == reply.feedback_id) {
+						console.log(feedback);
 
-                        feedback.replies.push({
-                            comment: reply.comment,
-                            reply_id: reply.reply_id,
-                            timestamp: reply.timestamp,
-                            username: reply.username                                                   
-                        });
-                    }
-                });
-            }
-        }
-    }).mount('#task-view');
+						feedback.replies.push({
+							comment: reply.comment,
+							reply_id: reply.reply_id,
+							timestamp: reply.timestamp,
+							username: reply.username,
+						});
+					}
+				});
+			},
+		},
+	}).mount("#task-view");
 
-    // Create taskboard
-    const TASKBOARD = Vue.createApp({
-        data() {
-            return {
-                tasks: [],
-                states: ['todo', 'running', 'review', 'done'],
-            }
-        },
-        template: `
+	// Create taskboard
+	const TASKBOARD = Vue.createApp({
+		data() {
+			return {
+				tasks: [],
+				states: ["todo", "running", "review", "done"],
+			};
+		},
+		template: `
             <section 
                 v-for="state in states" 
                 :class="'state-' + state"
@@ -325,211 +338,217 @@ SOCKET.on('connect', () => {
                 <button :value="state" id="create-task-button">Add Task</button>
             </section>
         `,
-        methods: {
-            async loadTasks(tasks) {
-                this.tasks = await tasks;
-            },
+		methods: {
+			async loadTasks(tasks) {
+				this.tasks = await tasks;
+			},
 
-            hasTasks(state) {
-                return this.tasks.some((task) => {
-                    return task.status == state.replaceAll('-', ' ');
-                });
-            },
+			hasTasks(state) {
+				return this.tasks.some((task) => {
+					return task.status == state.replaceAll("-", " ");
+				});
+			},
 
-            async openTask(index) {
+			async openTask(index) {
+				// Make task view visible
+				const TASKCONTAINER = document.querySelector(".view-task-container");
+				TASKCONTAINER.classList.toggle("hidden");
 
-                // Make task view visible
-                const TASKCONTAINER = document.querySelector('.view-task-container');
-                TASKCONTAINER.classList.toggle('hidden');
+				// Load task view variables
+				const SELECTEDTASK = this.tasks[index];
+				const TODOS = fetch(`/api/tasks/${SELECTEDTASK.task_id}/todos`, {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				}).then((response) => {
+					return response.json();
+				});
+				const FEEDBACKS = fetch(
+					`/api/tasks/${SELECTEDTASK.task_id}/feedbacks`,
+					{
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+						},
+					}
+				).then((response) => {
+					return response.json();
+				});
 
-                // Load task view variables
-                const SELECTEDTASK = this.tasks[index];
-                const TODOS = fetch(`/api/tasks/${SELECTEDTASK.task_id}/todos`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }).then((response) => {
-                    return response.json();
-                });
-                const FEEDBACKS = fetch(`/api/tasks/${SELECTEDTASK.task_id}/feedbacks`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }).then((response) => {
-                    return response.json();
-                });
+				// Pass variables to task view
+				TASKVIEW.loadTask(SELECTEDTASK, await TODOS, await FEEDBACKS);
 
-                // Pass variables to task view
-                TASKVIEW.loadTask(SELECTEDTASK, await TODOS, await FEEDBACKS);
+				// Load task view exit interaction
+				document.addEventListener("keydown", ($event) => {
+					if ($event.key == "Escape") {
+						TASKCONTAINER.classList.add("hidden");
+						TASKVIEW.clearTaskView();
+					}
+				});
 
-                // Load task view exit interaction
-                document.addEventListener('keydown', ($event) => {
-                    if($event.key == 'Escape') {
-                        TASKCONTAINER.classList.add('hidden');
-                        TASKVIEW.clearTaskView();
-                    }
-                });
+				TASKCONTAINER.addEventListener("click", ($event) => {
+					if ($event.target == TASKCONTAINER) {
+						TASKCONTAINER.classList.add("hidden");
+						TASKVIEW.clearTaskView();
+					}
+				});
+			},
 
-                TASKCONTAINER.addEventListener('click', ($event) => {
-                    if($event.target == TASKCONTAINER) {
-                        TASKCONTAINER.classList.add('hidden');
-                        TASKVIEW.clearTaskView();
-                    }
-                });
-            },
+			handleDragStart($event, id) {
+				$event.dataTransfer.setData("text/plain", id.toString());
+			},
 
-            handleDragStart($event, id) {
-                $event.dataTransfer.setData('text/plain', id.toString());
-            },
+			handleDrop($event, targetState) {
+				$event.preventDefault();
 
-            handleDrop($event, targetState) {
-                $event.preventDefault();
-            
-                const TASKID = parseInt($event.dataTransfer.getData('text/plain'), 10);
-                const DRAGGEDTASK = this.tasks.find((task) => {
-                    return task.task_id == TASKID;
-                });
-            
-                DRAGGEDTASK.status = targetState;
+				const TASKID = parseInt($event.dataTransfer.getData("text/plain"), 10);
+				const DRAGGEDTASK = this.tasks.find((task) => {
+					return task.task_id == TASKID;
+				});
 
-                SOCKET.emit('update-task-status', {
-                    task_id: TASKID,
-                    status: DRAGGEDTASK.status
-                });
-            },
+				DRAGGEDTASK.status = targetState;
 
-            allowDrop(event) {
-                event.preventDefault();
-            },
+				SOCKET.emit("update-task-status", {
+					task_id: TASKID,
+					status: DRAGGEDTASK.status,
+				});
+			},
 
-            async newFeedback(feedback) {
-                const AFFECTEDTASK = this.tasks.find((task) => {
-                    return task.task_id == feedback.task_id;
-                });
+			allowDrop(event) {
+				event.preventDefault();
+			},
 
-                AFFECTEDTASK.feedbacks_count = Number(AFFECTEDTASK.feedbacks_count) + 1;
-            },
+			async newFeedback(feedback) {
+				const AFFECTEDTASK = this.tasks.find((task) => {
+					return task.task_id == feedback.task_id;
+				});
 
-            updateTodosProgress(taskID, percentage) {
-                const AFFECTEDTASK = this.tasks.find((task) => {
-                    return task.task_id == taskID;
-                });
+				AFFECTEDTASK.feedbacks_count = Number(AFFECTEDTASK.feedbacks_count) + 1;
+			},
 
-                AFFECTEDTASK.todos_progress = percentage;
-            }
-        }
-    }).mount('#taskboard');
+			updateTodosProgress(taskID, percentage) {
+				const AFFECTEDTASK = this.tasks.find((task) => {
+					return task.task_id == taskID;
+				});
 
-    // Get tasks
-    SOCKET.emit('get-tasks', (window.location.pathname.split('/')[1]));
-    SOCKET.on('got-tasks', (tasks) => {
-        TASKBOARD.loadTasks(tasks);
-    });
+				AFFECTEDTASK.todos_progress = percentage;
+			},
+		},
+	}).mount("#taskboard");
 
-    // Update task status
-    SOCKET.on('updated-task-status', (data) => {
-        TASKBOARD.tasks.forEach((task) => {
-            if(task.task_id == data.task_id) {
-                task.status = data.status;
-            }
-        });
-    });
+	// Get tasks
+	SOCKET.emit("get-tasks", window.location.pathname.split("/")[1]);
+	SOCKET.on("got-tasks", (tasks) => {
+		TASKBOARD.loadTasks(tasks);
+	});
 
-    // Get platforms
-    SOCKET.emit('get-platforms', (window.location.pathname.split('/')[1]));
-    SOCKET.on('got-platforms', (platforms) => {
-        const SELECT = document.querySelector('#platform-select');
-        platforms.forEach((platform) => {
-            SELECT.innerHTML += `<option value="${platform.platform_id}">${platform.platform.charAt(0).toUpperCase() + platform.platform.slice(1)}</option>`;
-        });
-    });
+	// Update task status
+	SOCKET.on("updated-task-status", (data) => {
+		TASKBOARD.tasks.forEach((task) => {
+			if (task.task_id == data.task_id) {
+				task.status = data.status;
+			}
+		});
+	});
 
-    // Create task
-    const CREATETASK = document.querySelector('#create-task-container');
-    const FORM = document.querySelector('#create-task-form');
-    const CREATETASKBUTTONS = document.querySelectorAll('#create-task-button');
+	// Get platforms
+	SOCKET.emit("get-platforms", window.location.pathname.split("/")[1]);
+	SOCKET.on("got-platforms", (platforms) => {
+		const SELECT = document.querySelector("#platform-select");
+		platforms.forEach((platform) => {
+			SELECT.innerHTML += `<option value="${platform.platform_id}">${
+				platform.platform.charAt(0).toUpperCase() + platform.platform.slice(1)
+			}</option>`;
+		});
+	});
 
-    function clearForm() {
-        FORM.querySelector('input[name="status"]').value = "";
-        FORM.querySelector('input[name="name"]').value = "";
-        FORM.querySelector('textarea[name="description"]').value = "";
-        FORM.querySelector('#platform-select').selectedIndex = 0;
-    }
+	// Create task
+	const CREATETASK = document.querySelector("#create-task-container");
+	const FORM = document.querySelector("#create-task-form");
+	const CREATETASKBUTTONS = document.querySelectorAll("#create-task-button");
 
-    CREATETASKBUTTONS.forEach((button) => {
-        button.addEventListener('click', ($event) => {
-            CREATETASK.classList.remove('hidden');
-            FORM.querySelector('input[name="status"]').value = $event.target.value;
-        });
-    });
+	function clearForm() {
+		FORM.querySelector('input[name="status"]').value = "";
+		FORM.querySelector('input[name="name"]').value = "";
+		FORM.querySelector('textarea[name="description"]').value = "";
+		FORM.querySelector("#platform-select").selectedIndex = 0;
+	}
 
-    CREATETASK.addEventListener('click', ($event) => {
-        if ($event.target == CREATETASK) {
-            CREATETASK.classList.add('hidden');
-            
-            clearForm();
-        }
-    });
+	CREATETASKBUTTONS.forEach((button) => {
+		button.addEventListener("click", ($event) => {
+			CREATETASK.classList.remove("hidden");
+			FORM.querySelector('input[name="status"]').value = $event.target.value;
+		});
+	});
 
-    FORM.addEventListener('submit', ($event) => {
-        $event.preventDefault();
+	CREATETASK.addEventListener("click", ($event) => {
+		if ($event.target == CREATETASK) {
+			CREATETASK.classList.add("hidden");
 
-        const DATA = {
-            status: FORM.querySelector('input[name="status"]').value.replace('-', ' '),
-            name: FORM.querySelector('input[name="name"]').value,
-            description: FORM.querySelector('textarea[name="description"]').value,
-            uuid: window.location.pathname.split('/')[1],
-            platform: FORM.querySelector('#platform-select').value,
-            createIssue: FORM.querySelector('#send-notification').checked
-        };
+			clearForm();
+		}
+	});
 
-        SOCKET.emit('create-task', DATA);
+	FORM.addEventListener("submit", ($event) => {
+		$event.preventDefault();
 
-        CREATETASK.classList.add('hidden');
-        
-        clearForm();
-    });
+		const DATA = {
+			status: FORM.querySelector('input[name="status"]').value.replace(
+				"-",
+				" "
+			),
+			name: FORM.querySelector('input[name="name"]').value,
+			description: FORM.querySelector('textarea[name="description"]').value,
+			uuid: window.location.pathname.split("/")[1],
+			platform: FORM.querySelector("#platform-select").value,
+			createIssue: FORM.querySelector("#send-notification").checked,
+		};
 
-    SOCKET.on('created-tasks', (task) => {
-        task.todos_progress = 0;
-        TASKBOARD.tasks.push(task);
-    });
+		SOCKET.emit("create-task", DATA);
 
+		CREATETASK.classList.add("hidden");
 
-    // Feedback
-    SOCKET.on('saved-feedback', (feedback) => {
-        TASKBOARD.newFeedback(feedback);
-        TASKVIEW.newFeedback(feedback);
-    });
+		clearForm();
+	});
 
+	SOCKET.on("created-tasks", (task) => {
+		task.todos_progress = 0;
+		TASKBOARD.tasks.push(task);
+	});
 
-    // Todos
-    SOCKET.on('saved-todo', (todo) => {
-        TASKVIEW.newTodo(todo);
-    });
+	// Feedback
+	SOCKET.on("saved-feedback", (feedback) => {
+		TASKBOARD.newFeedback(feedback);
+		TASKVIEW.newFeedback(feedback);
+	});
 
-    SOCKET.on('updated-todo', (data) => {
-        const TASKID = data.rows[0].task_id;
-        const TODOSDONE = data.rows.filter((todo) => {
-            return todo.done == true;
-        }).length / data.todo_count * 100;
+	// Todos
+	SOCKET.on("saved-todo", (todo) => {
+		TASKVIEW.newTodo(todo);
+	});
 
-        TASKVIEW.updatedTodos(data.rows);
-        TASKBOARD.updateTodosProgress(TASKID, TODOSDONE);
-    });
+	SOCKET.on("updated-todo", (data) => {
+		const TASKID = data.rows[0].task_id;
+		const TODOSDONE =
+			(data.rows.filter((todo) => {
+				return todo.done == true;
+			}).length /
+				data.todo_count) *
+			100;
 
+		TASKVIEW.updatedTodos(data.rows);
+		TASKBOARD.updateTodosProgress(TASKID, TODOSDONE);
+	});
 
-    // Replies
-    SOCKET.on('saved-reply-feedback', (reply) => {
-        TASKVIEW.newReply(reply);
-    });
+	// Replies
+	SOCKET.on("saved-reply-feedback", (reply) => {
+		TASKVIEW.newReply(reply);
+	});
 
-
-    // Disconnect from server
-    SOCKET.on('disconnect', () => {
-        SOCKET.emit('leave', window.location.pathname.split('/')[1]);
-        console.log('Disconnected from server');
-    });
-})
+	// Disconnect from server
+	SOCKET.on("disconnect", () => {
+		SOCKET.emit("leave", window.location.pathname.split("/")[1]);
+		console.log("Disconnected from server");
+	});
+});
