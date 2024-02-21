@@ -165,21 +165,46 @@ router.put("/tasks/:taskId/todo/:todoId", async (req, res) => {
 
 // Delete task
 router.delete("/tasks/:taskId", async (req, res) => {
-	// Delete ownership
-	const ownership = await ownershipsModel.deleteOwnership(
-		req.params.taskId,
-		await req.body.membership_id
-	);
+	try {
+		// Delete ownership
+		if (req.body.membership_id != null) {
+			await ownershipsModel.deleteOwnership(
+				req.params.taskId,
+				req.body.membership_id
+			);
+		}
 
-	// Then delete task
-	const task = await tasksModel.deleteTask(req.params.taskId).then(() => {
+		// Delete all todos
+		await todoModel.deleteTodosByTaskId(req.params.taskId);
+
+		// Get all feedbacks
+		const feedbacks = await feedbackModel.getFeedbacksByTaskId(
+			req.params.taskId
+		);
+
+		// Delete all replies
+		for (const feedback of feedbacks) {
+			await repliesModel.deleteRepliesByFeedbackId(feedback.feedback_id);
+		}
+
+		// Delete all feedbacks
+		await feedbackModel.deleteFeedbacksByTaskId(req.params.taskId);
+
+		// Then delete task
+		await tasksModel.deleteTask(req.params.taskId);
+
 		notifyClients({
 			targets: ["task-board"],
 			initiator: req.headers["x-socket-id"],
 		});
-	});
 
-	res.send({ msg: "Task deleted." });
+		res.send({ msg: "Task deleted." });
+	} catch (error) {
+		console.error("Error deleting task:", error);
+		res
+			.status(500)
+			.send({ error: "An error occurred while deleting the task." });
+	}
 });
 
 // FEEDBACK

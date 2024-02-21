@@ -489,7 +489,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                                 </header>
                                 <p>{{ feedback.comment }}</p>
                                 <ul class="interaction">
-                                    <li>
+                                    <!-- <li>
                                         <svg width="18" height="17" viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M11.1105 6.28424H16.1399C17.008 6.28424 17.7116 6.9879 17.7116 7.85588V9.50958C17.7116 9.71483 17.6714 9.91813 17.5932 10.108L15.1616 16.0134C15.0403 16.3079 14.7533 16.5 14.4349 16.5H1.20917C0.775171 16.5 0.42334 16.1482 0.42334 15.7142V7.85588C0.42334 7.42189 0.775171 7.07007 1.20917 7.07007H3.9453C4.20064 7.07007 4.44005 6.94601 4.5873 6.73741L8.87274 0.666365C8.98472 0.507731 9.19579 0.454681 9.36946 0.541519L10.795 1.25429C11.6214 1.6675 12.0482 2.60074 11.8203 3.49613L11.1105 6.28424ZM5.13832 8.31755V14.9283H13.9086L16.1399 9.50958V7.85588H11.1105C10.0852 7.85588 9.33449 6.89008 9.58737 5.8965L10.2972 3.1084C10.3428 2.92931 10.2574 2.74266 10.0921 2.66003L9.5726 2.40025L5.8713 7.64376C5.67492 7.92196 5.42389 8.15001 5.13832 8.31755ZM3.56666 8.64171H1.995V14.9283H3.56666V8.64171Z" fill="#F5F5F5"/>
                                         </svg>
@@ -500,7 +500,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                                             <path d="M7.31252 10.7158H2.28308C1.41508 10.7158 0.711426 10.0121 0.711426 9.14411V7.49049C0.711426 7.28516 0.751644 7.08186 0.829803 6.89209L3.26145 0.986624C3.38269 0.692174 3.66965 0.5 3.98809 0.5H17.2138C17.6478 0.5 17.9997 0.851831 17.9997 1.28583V9.14411C17.9997 9.57813 17.6478 9.92994 17.2138 9.92994H14.4777C14.2223 9.92994 13.983 10.054 13.8357 10.2626L9.55027 16.3337C9.43829 16.4922 9.22721 16.5454 9.05354 16.4584L7.628 15.7457C6.80158 15.3325 6.37479 14.3993 6.60273 13.5039L7.31252 10.7158ZM13.2847 8.68244V2.07166H4.51436L2.28308 7.49049V9.14411H7.31252C8.33781 9.14411 9.08851 10.1099 8.83563 11.1035L8.12579 13.8916C8.08022 14.0707 8.16556 14.2573 8.3309 14.34L8.85041 14.5997L12.5517 9.35629C12.7481 9.07802 12.9991 8.84998 13.2847 8.68244ZM14.8563 8.35828H16.428V2.07166H14.8563V8.35828Z" fill="#F5F5F5"/>
                                         </svg>
                                         <p>0</p>
-                                    </li>
+                                    </li> -->
                                     <li>
                                         <p @click="toggleReplyOverlay(index)">Reply</p>
                                     </li>
@@ -731,6 +731,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 			async deleteTask() {
 				document.querySelector(".view-task-container").classList.add("hidden");
 
+				const assignedUser = this.task.assigned_users
+					? this.task.assigned_users[0].membership_id
+					: null;
+
 				fetch(`/api/tasks/${this.task.task_id}`, {
 					method: "DELETE",
 					headers: {
@@ -739,7 +743,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 						"X-Socket-ID": socketID,
 					},
 					body: JSON.stringify({
-						membership_id: this.task.assigned_users[0].membership_id,
+						membership_id: assignedUser,
 					}),
 				})
 					.then((response) => {
