@@ -1,4 +1,6 @@
 //Github hook service
+const platformsModel = require("../models/platformsModel.js");
+const collectionsModel = require("../models/collectionsModel.js");
 
 exports.handleGithubHook = function (hooks, hookType, uuid) {
     switch (hookType) {
@@ -85,6 +87,61 @@ function handleGitlabIssueHook (hooks, uuid) {
             collectionUuid: uuid,
             comment: `${hooks.user.name} created issue in Gitlab Repo (${hooks.project.name}) : ${hooks.object_attributes.title}`,
             alertType: "git issue created",
+            timestamp: new Date().toISOString(),
+        }),
+    });
+};
+
+exports.handleFigmaHook = function (hooks, hookType, uuid) {
+    collectionsModel.getByUuid(uuid).then((collection) => {
+        if(collection.rowCount > 0) {
+            platformsModel.getByCollectionIdAndPlatform(collection.rows[0].collection_id, "figma").then((platforms) => {
+                if(platforms.length > 0){
+                    if(platforms[0].target_document.split("/")[4] == hooks.file_key) {
+                        switch (hookType) {
+                            case "comment":
+                                handleFigmaCommentHook(hooks, uuid);
+                                break;
+                            case "update":
+                                handleFigmaUpdateHook(hooks, uuid);
+                                break;
+                        }
+                    }
+                }
+            });
+        }
+    });
+};
+
+function handleFigmaCommentHook (hooks, uuid) {
+    fetch(`https://wrongly-electric-salmon.ngrok-free.app/api/alerts/${uuid}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+        },
+        body: JSON.stringify({
+            userId: null,
+            collectionUuid: uuid,
+            comment: `new comment on Figma file ${hooks.file_name}`,
+            alertType: "design comment",
+            timestamp: new Date().toISOString(),
+        }),
+    });
+};
+
+function handleFigmaUpdateHook (hooks, uuid) {
+    fetch(`https://wrongly-electric-salmon.ngrok-free.app/api/alerts/${uuid}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+        },
+        body: JSON.stringify({
+            userId: null,
+            collectionUuid: uuid,
+            comment: `design changes on Figma file ${hooks.file_name}`,
+            alertType: "design changes",
             timestamp: new Date().toISOString(),
         }),
     });

@@ -258,9 +258,9 @@ router.get(`/collections/:uuid/platforms`, async (req, res) => {
 		await collectionsModel.getByUuid(req.params.uuid)
 	).rows[0].collection_id;
 	const platforms = await platformsModel.getPlatformsByCollectionId(
-		collectionId
+		await collectionId
 	);
-	res.send(platforms);
+	res.send(await platforms);
 });
 
 router.get(`/platform/:platformId`, async (req, res) => {
@@ -294,6 +294,10 @@ router.post(
 			});
 	}
 );
+
+router.post(`/platform/:platformId/figma-teamid`, async (req, res) => {
+	platformsModel.setTeamId(req.params.platformId, req.query.teamid);
+});
 
 router.post(`/collections/platform/delete/:platformId`, async (req, res) => {
 	platformsModel.deletePlatform(req.params.platformId).then(() => {
@@ -378,6 +382,8 @@ router.post('/alerts/:uuid', urlencodedParser, async (req, res) => {
 		req.body.alertType,
 		collectionId
 	);
+
+	res.send({ msg: "Alert created." });
 });
 
 router.get("/alerts/:uuid/settings", async (req, res) => {
@@ -402,6 +408,9 @@ router.post("/hook/:uuid/:platform", urlencodedParser, (req, res) => {
 			break;
 		case "gitlab":
 			hookService.handleGitlabHook(hooks, hooks.event_type, req.params.uuid);
+			break;
+		case "figma":
+			(hooks.event_type === "FILE_UPDATE") ? hookService.handleFigmaHook(hooks, "update", req.params.uuid) : (hooks.event_type === "FILE_COMMENT") ? hookService.handleFigmaHook(hooks, "comment", req.params.uuid) : hookService.handleFigmaHook(hooks, "ping", req.params.uuid);
 			break;
 	}
 });
