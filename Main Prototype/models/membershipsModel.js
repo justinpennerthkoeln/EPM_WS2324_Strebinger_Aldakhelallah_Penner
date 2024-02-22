@@ -90,3 +90,35 @@ exports.getMembershipByCollectionIdAndUserId = async (collectionId, userId) => {
 		throw new Error("Error getting memberships by collection id and user id.");
 	}
 };
+
+exports.searchMemberships = async (collectionID, searchTerm) => {
+	try {
+		const memberships = await pool.query(
+			`
+			SELECT m.*, u.*
+			FROM memberships m
+			JOIN users u ON m.user_id = u.id
+			WHERE m.collection_id = $1 AND u.username ILIKE $2
+		`,
+			[collectionID, `${searchTerm}%`]
+		);
+
+		return memberships.rows;
+	} catch (error) {
+		console.log(error);
+		throw new Error("Error searching memberships.");
+	}
+};
+
+exports.getMembershipByMemberShipId = async (membershipId) => {
+	try {
+		const memberships = await pool.query(
+			"SELECT memberships.*, users.email FROM memberships JOIN users ON memberships.user_id = users.id  WHERE membership_id = $1",
+			[membershipId]
+		);
+		return await memberships.rows;
+	} catch (error) {
+		console.log(error);
+		throw new Error("Error getting memberships by membership id.");
+	}
+}

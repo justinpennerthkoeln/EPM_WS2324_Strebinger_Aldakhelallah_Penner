@@ -10,9 +10,11 @@ const repliesModel = require("../models/repliesModel");
 const platformsModel = require("../models/platformsModel");
 const alertsModel = require("../models/alertsModel");
 const alertSettingsModel = require("../models/alertSettingsModel");
+const ownershipsModel = require("../models/ownershipsModel");
 const emailService = require("../services/emailService");
 const bodyParser = require("body-parser");
 const hookService = require("../services/hookService");
+const notificationService = require("../services/notificationService");
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
@@ -25,6 +27,16 @@ router.get("/users", async (req, res) => {
 
 	// Sicherheit: uuid der collection o. des Users der request mitgeben
 	// Maybe cors.js
+});
+
+// Get all members of a collection by username
+router.get("/memberships/:collectionID/users", async (req, res) => {
+	const users = await membershipsModel.searchMemberships(
+		req.params.collectionID,
+		req.query.searchTerm.toLowerCase()
+	);
+
+	res.send(users);
 });
 
 // TASK
@@ -93,8 +105,10 @@ router.post("/tasks", async (req, res) => {
 		collectionID: req.body.collectionID,
 		platform: req.body.platform,
 		createIssue: req.body.createIssue,
+		assignedUser: req.body.assignedUser,
 	};
 
+	// Create task
 	const task = await tasksModel.createTask(data).then((task) => {
 		notifyClients({
 			targets: ["task-board"],
@@ -102,6 +116,13 @@ router.post("/tasks", async (req, res) => {
 		});
 		return task;
 	});
+
+	// Create ownership
+	if (data.assignedUser != null) {
+		data.taskID = await task.rows[0].task_id;
+
+		const createdOwnership = await ownershipsModel.createOwnership(data);
+	}
 
 	res.send(task);
 
@@ -141,6 +162,25 @@ router.put("/tasks/:taskId/todo/:todoId", async (req, res) => {
 		});
 
 	res.send(todo);
+});
+
+// Delete task
+router.delete("/tasks/:taskId", async (req, res) => {
+	// Delete ownership
+	const ownership = await ownershipsModel.deleteOwnership(
+		req.params.taskId,
+		await req.body.membership_id
+	);
+
+	// Then delete task
+	const task = await tasksModel.deleteTask(req.params.taskId).then(() => {
+		notifyClients({
+			targets: ["task-board"],
+			initiator: req.headers["x-socket-id"],
+		});
+	});
+
+	res.send({ msg: "Task deleted." });
 });
 
 // FEEDBACK
@@ -364,15 +404,38 @@ router.get("/alerts/:uuid", async (req, res) => {
 	res.send(alerts);
 });
 
-router.post('/alerts/:uuid', urlencodedParser, async (req, res) => {
-	const collectionId = await (await collectionsModel.getByUuid(req.params.uuid)).rows[0].collection_id;
+router.post("/alerts/:uuid", urlencodedParser, async (req, res) => {
+	const collectionId = await (
+		await collectionsModel.getByUuid(req.params.uuid)
+	).rows[0].collection_id;
 
-	if(req.body.userId != null) {
-		membershipsModel.getMembershipByCollectionIdAndUserId(collectionId, await req.body.userId).then((member) => {
-			alertsModel.createAlert(member[0].membership_id, collectionId, req.body.comment, req.body.alertType, req.body.timestamp);
-		});
+	if (req.body.userId != null) {
+		membershipsModel
+			.getMembershipByCollectionIdAndUserId(collectionId, await req.body.userId)
+			.then((member) => {
+				alertsModel.createAlert(
+					member[0].membership_id,
+					collectionId,
+					req.body.comment,
+					req.body.alertType,
+					req.body.timestamp
+				);
+			});
 	} else {
-		alertsModel.createAlert(null, collectionId, req.body.comment, req.body.alertType, req.body.timestamp);
+		alertsModel.createAlert(
+			null,
+			collectionId,
+			req.body.comment,
+			req.body.alertType,
+			req.body.timestamp
+		);
+	}
+	if(req.body.alertType == "task created") {
+		if(req.body.assignee != null) {
+			membershipsModel.getMembershipByMemberShipId(req.body.assignee).then((member) => {
+				emailService.sendMailToMemberBypassRules(member, req.body.comment + ". It is assigned to you", req.body.alertType, collectionId);
+			});
+		}
 	}
 
 	const members = await membershipsModel.getMembersByCollectionId(collectionId);
@@ -402,9 +465,13 @@ router.post("/alerts/:uuid/settings", urlencodedParser, async (req, res) => {
 
 router.post("/hook/:uuid/:platform", urlencodedParser, (req, res) => {
 	const hooks = req.body;
-	switch(req.params.platform) {
+	switch (req.params.platform) {
 		case "github":
-			if(hooks.issue) {(hooks.comment) ? hookService.handleGithubHook(hooks, "comment", req.params.uuid) : hookService.handleGithubHook(hooks, "issue", req.params.uuid);}
+			if (hooks.issue) {
+				hooks.comment
+					? hookService.handleGithubHook(hooks, "comment", req.params.uuid)
+					: hookService.handleGithubHook(hooks, "issue", req.params.uuid);
+			}
 			break;
 		case "gitlab":
 			hookService.handleGitlabHook(hooks, hooks.event_type, req.params.uuid);
@@ -413,6 +480,12 @@ router.post("/hook/:uuid/:platform", urlencodedParser, (req, res) => {
 			(hooks.event_type === "FILE_UPDATE") ? hookService.handleFigmaHook(hooks, "update", req.params.uuid) : (hooks.event_type === "FILE_COMMENT") ? hookService.handleFigmaHook(hooks, "comment", req.params.uuid) : hookService.handleFigmaHook(hooks, "ping", req.params.uuid);
 			break;
 	}
+});
+
+router.post("/create-notification/:uuid/:platformId", urlencodedParser, async (req, res) => {
+	const platform = await platformsModel.getPlatformById(req.params.platformId);
+	const collection = await collectionsModel.getByUuid(req.params.uuid);
+	notificationService.handleNotification(req.body, await platform.rows[0], await collection.rows[0]);
 });
 
 module.exports = router;
