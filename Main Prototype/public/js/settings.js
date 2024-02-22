@@ -599,7 +599,7 @@ async function removeWebhooks(platforms, link) {
 	if(platforms.length > 0) {
 		for (const platform of platforms) {
 			counter++;
-			await removeWebhook(platform, window.location.pathname.split("/")[2], counter == platforms.length-1, link);
+			await removeWebhook(platform, window.location.pathname.split("/")[2], counter == platforms.length, link);
 		}
 	} else {
 		window.location = link;
@@ -628,11 +628,10 @@ async function removeWebhook(repo, uuid, isEnd, link) {
 									"Accept": "application/json",
 									"Authorization": `Bearer ${repo.platform_key}`
 								}
-							}).then(() => {
-								if(isEnd) {
-									window.location = link;
-								}
-							});
+							})
+							if(isEnd) {
+								window.location = link;
+							}
 						}
 					});
 				} else {
@@ -660,11 +659,10 @@ async function removeWebhook(repo, uuid, isEnd, link) {
 									"Accept": "application/json",
 									"Authorization": `Bearer ${repo.platform_key}`
 								}
-							}).then(() => {
-								if(isEnd) {
-									window.location = link;
-								}
-							});
+							})
+							if(isEnd) {
+								window.location = link;
+							}
 						}
 					});
 				} else {
@@ -692,11 +690,10 @@ async function removeWebhook(repo, uuid, isEnd, link) {
 									"Accept": "application/json",
 									"Authorization": `Bearer ${repo.platform_key}`
 								}
-							}).then(() => {
-								if(isEnd) {
-									window.location = link;
-								}
-							});
+							})
+							if(isEnd) {
+								window.location = link;
+							}
 						}
 					});
 				} else {
