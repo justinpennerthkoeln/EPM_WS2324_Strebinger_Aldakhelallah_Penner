@@ -6,8 +6,10 @@ exports.handleGithubHook = function (hooks, hookType, uuid) {
     switch (hookType) {
         case "comment":
             handleGithubCommentHook(hooks, uuid);
+            break;
         case "issue":
             handleGithubIssueHook(hooks, uuid);
+            break;
     }
 };
 
@@ -68,7 +70,7 @@ function handleGitlabCommentHook (hooks, uuid) {
         body: JSON.stringify({
             userId: null,
             collectionUuid: uuid,
-            comment: `${hooks.user.name} commented on issue in Gitlab (${hooks.project.name}) ${hooks.object_attributes.note}}`,
+            comment: `${hooks.user.name} commented on issue in Gitlab (${hooks.project.name}) ${hooks.object_attributes.note}`,
             alertType: "git issue comments",
             timestamp: new Date().toISOString(),
         }),

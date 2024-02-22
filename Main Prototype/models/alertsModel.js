@@ -12,7 +12,18 @@ const pool = new Pool(JSON.parse(credentials));
 exports.getAlertsByCollectionId = async (collectionId) => {
     try {
         const alerts = await pool.query(`
-            SELECT *, json_build_object('member_id', memberships.user_id, 'username', users.username, 'email', users.email) as member FROM alerts LEFT JOIN memberships ON alerts.membership_id = memberships.membership_id LEFT JOIN users ON memberships.membership_id = users.id WHERE alerts.collection_id = $1;
+            SELECT 
+                alerts.*, 
+                users.username,
+                COALESCE(json_build_object('member_id', memberships.user_id, 'username', users.username), json_build_object('member_id', NULL, 'username', 'System')) as member 
+            FROM 
+                alerts 
+            LEFT JOIN 
+                memberships ON memberships.membership_id = alerts.membership_id 
+            LEFT JOIN 
+                users ON memberships.user_id = users.id 
+            WHERE 
+                alerts.collection_id = $1;
         `, [collectionId]);
         return alerts;
     } catch (error) {
