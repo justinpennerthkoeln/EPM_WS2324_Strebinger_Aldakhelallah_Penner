@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     </template>
                 </article>
             </section>
-            <section class="code">
+            <section v-if="gitHub != null || gitLab != null" class="code">
                 <h2>Code</h2>
                 <article v-if="gitHub !== null" class="github">
                     <h3>Connected GitHub repository</h3>
