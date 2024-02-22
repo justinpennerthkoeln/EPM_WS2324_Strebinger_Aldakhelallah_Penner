@@ -95,3 +95,10 @@ Die vorgeschlagene Lösung zur integrierten Projektarbeit und Bewertung bietet e
 - Design
 - Rapid Prototypes
 - Artefakte für Audit 4
+
+# Artefakte zu Audit 4
+
+- Architekturdiagramm
+- Main Prototype
+- Kritisch reflektiertes Prozessassessment
+- Ausblick
