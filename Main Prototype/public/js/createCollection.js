@@ -83,8 +83,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 					collections: [],
 					dateOptions: {
 						year: "numeric",
-						month: "numeric",
-						day: "numeric",
+						month: "2-digit",
+						day: "2-digit",
 					},
 				};
 			},

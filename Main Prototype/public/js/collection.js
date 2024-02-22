@@ -7,8 +7,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 			const header = document.querySelector("main > header");
 			const dateOptions = {
 				year: "numeric",
-				month: "numeric",
-				day: "numeric",
+				month: "2-digit",
+				day: "2-digit",
 			};
 			const date = new Date(collection.timestamp).toLocaleString(
 				"de-DE",
@@ -422,8 +422,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 				possiblePlatforms: ["GitHub", "GitLab", "Figma", "Notion"],
 				dateOptions: {
 					year: "numeric",
-					month: "numeric",
-					day: "numeric",
+					month: "2-digit",
+					day: "2-digit",
 				},
 			};
 		},
