@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 							return timestampB - timestampA;
 						});
-
+						console.log(this.alerts);
 					});
 			},
 		},
