@@ -52,35 +52,27 @@ document.addEventListener("DOMContentLoaded", async function () {
 	);
 	CREATECOLLECTIONFORM.addEventListener("submit", async ($event) => {
 		$event.preventDefault();
-
-		// Create collection
-		const CREATECOLLECTIONFORM = document.querySelector(
-			"#collection-create-form"
-		);
-		CREATECOLLECTIONFORM.addEventListener("submit", async ($event) => {
-			$event.preventDefault();
-			fetch(`/api/collections/create`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/x-www-form-urlencoded",
-					Accept: "application/json",
-				},
-				body:
-					"name=" +
-					CREATECOLLECTIONFORM.querySelector("#name").value +
-					"&userId=" +
-					JSON.parse(window.localStorage.getItem("user")).id +
-					"&description=" +
-					CREATECOLLECTIONFORM.querySelector("#description").value,
+		fetch(`/api/collections/create`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded",
+				Accept: "application/json",
+			},
+			body:
+				"name=" +
+				CREATECOLLECTIONFORM.querySelector("#name").value +
+				"&userId=" +
+				JSON.parse(window.localStorage.getItem("user")).id +
+				"&description=" +
+				CREATECOLLECTIONFORM.querySelector("#description").value,
+		})
+			.then((response) => response.json())
+			.then((data) => {
+				window.location.href = `/collection/${data.uuid}/`;
 			})
-				.then((response) => response.json())
-				.then((data) => {
-					window.location.href = `/collection/${data.uuid}/`;
-				})
-				.catch((error) => {
-					console.error("Error creating collection:", error);
-				});
-		});
+			.catch((error) => {
+				console.error("Error creating collection:", error);
+			});
 	});
 
 	// Generate collection list
