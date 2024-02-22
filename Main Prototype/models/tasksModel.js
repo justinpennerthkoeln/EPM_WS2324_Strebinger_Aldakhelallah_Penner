@@ -147,6 +147,7 @@ exports.createTask = async function (data) {
 	}
 };
 
+//TODO überprüfen
 exports.deleteTask = async function (taskID) {
 	try {
 		const query = "DELETE FROM tasks WHERE task_id = $1";

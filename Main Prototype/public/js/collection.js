@@ -730,7 +730,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 			async deleteTask() {
 				document.querySelector(".view-task-container").classList.add("hidden");
-
+				const assignedUser = (this.task.assigned_users != null) ? this.task.assigned_users[0].membership_id : null;
+				
 				fetch(`/api/tasks/${this.task.task_id}`, {
 					method: "DELETE",
 					headers: {
@@ -739,7 +740,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 						"X-Socket-ID": socketID,
 					},
 					body: JSON.stringify({
-						membership_id: this.task.assigned_users[0].membership_id,
+						membership_id: await assignedUser,
 					}),
 				})
 					.then((response) => {
