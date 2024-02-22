@@ -903,6 +903,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 			},
 			body: JSON.stringify({
 				userId: JSON.parse(localStorage.getItem("user")).id,
+				assignee: data.assignedUser,
 				collectionUuid: window.location.pathname.split("/")[2],
 				comment: `A new task in ${
 					document.querySelector("main > header").children[0].textContent
@@ -913,6 +914,17 @@ document.addEventListener("DOMContentLoaded", async function () {
 				timestamp: new Date().toISOString(),
 			}),
 		});
+
+		if(data.createIssue) {
+			fetch(`/api/create-notification/${window.location.pathname.split("/")[2]}/${data.platform}`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Accept: "application/json",
+				},
+				body: JSON.stringify(data)
+			});
+		}
 
 		clearForm();
 	});

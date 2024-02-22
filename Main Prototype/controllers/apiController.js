@@ -14,6 +14,7 @@ const ownershipsModel = require("../models/ownershipsModel");
 const emailService = require("../services/emailService");
 const bodyParser = require("body-parser");
 const hookService = require("../services/hookService");
+const notificationService = require("../services/notificationService");
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
@@ -425,6 +426,13 @@ router.post("/alerts/:uuid", urlencodedParser, async (req, res) => {
 			req.body.timestamp
 		);
 	}
+	if(req.body.alertType == "task created") {
+		if(req.body.assignee != null) {
+			membershipsModel.getMembershipByMemberShipId(req.body.assignee).then((member) => {
+				emailService.sendMailToMemberBypassRules(member, req.body.comment + ". It is assigned to you", req.body.alertType, collectionId);
+			});
+		}
+	}
 
 	const members = await membershipsModel.getMembersByCollectionId(collectionId);
 	emailService.sendMailToMembers(
@@ -463,6 +471,12 @@ router.post("/hook/:uuid/:platform", urlencodedParser, (req, res) => {
 			hookService.handleGitlabHook(hooks, hooks.event_type, req.params.uuid);
 			break;
 	}
+});
+
+router.post("/create-notification/:uuid/:platformId", urlencodedParser, async (req, res) => {
+	const platform = await platformsModel.getPlatformById(req.params.platformId);
+	const collection = await collectionsModel.getByUuid(req.params.uuid);
+	notificationService.handleNotification(req.body, await platform.rows[0], await collection.rows[0]);
 });
 
 module.exports = router;

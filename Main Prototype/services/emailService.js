@@ -1,12 +1,16 @@
 const nodemailer = require('nodemailer');
 const alertSettingsModel = require('../models/alertSettingsModel');
 
-let sendMail = function(to){
+let sendMailToMemberBypassRules = function(members, comment, alertType, collectionId){
     const mailConfig = JSON.parse(process.env.MAIL_CONFIG);
-    let transporter = nodemailer.createTransport(JSON.parse(process.env.TRANSPORT_CONFIG));
-    mailConfig.from = '"SynergyHub" <pitsprak@gmail.com>';
-    mailConfig.to = to;
-    transporter.sendMail(mailConfig, (error, info) => {});
+    members.forEach(member => {
+        let transporter = nodemailer.createTransport(JSON.parse(process.env.TRANSPORT_CONFIG));
+        mailConfig.from = '"SynergyHub" <pitsprak@gmail.com>';
+        mailConfig.to = member.email;
+        mailConfig.subject = alertType;
+        mailConfig.text = comment
+        transporter.sendMail(mailConfig, (error, info) => {});
+    })
 };
 
 let sendMailToMembers = async function(members, comment, alertType, collectionId) {
@@ -32,4 +36,4 @@ checkAlertSettings = async function(collectionId, alertType) {
     });
 }
 
-module.exports = {sendMail, sendMailToMembers}
+module.exports = {sendMailToMemberBypassRules, sendMailToMembers}
