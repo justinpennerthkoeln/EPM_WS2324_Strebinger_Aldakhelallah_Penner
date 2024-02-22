@@ -124,6 +124,7 @@ main > section > div > section > article > .viewer > pre {
 	position: relative;
 	display: flex;
 	max-height: 30rem;
+	overflow: auto;
 }
 
 main > section > div > section > article > .viewer > pre > code.hljs {
@@ -131,18 +132,10 @@ main > section > div > section > article > .viewer > pre > code.hljs {
 	position: relative;
 	width: 100%;
 	height: 100%;
-	overflow: auto;
 	border-radius: var(--br-xs);
 }
 
-main
-	> section
-	> div
-	> section
-	> article
-	> .viewer
-	> pre
-	> code::-webkit-scrollbar {
+main > section > div > section > article > .viewer > pre::-webkit-scrollbar {
 	width: var(--xs);
 	height: var(--xs);
 }
@@ -153,8 +146,7 @@ main
 	> section
 	> article
 	> .viewer
-	> pre
-	> code::-webkit-scrollbar-track {
+	> pre::-webkit-scrollbar-track {
 	background: transparent;
 }
 
@@ -164,8 +156,7 @@ main
 	> section
 	> article
 	> .viewer
-	> pre
-	> code::-webkit-scrollbar-thumb {
+	> pre::-webkit-scrollbar-thumb {
 	border-radius: var(--br-full);
 	background: var(--color-text-light);
 }
@@ -176,7 +167,6 @@ main
 	> section
 	> article
 	> .viewer
-	> pre
-	> code::-webkit-scrollbar-corner {
+	> pre::-webkit-scrollbar-corner {
 	background: transparent;
 }

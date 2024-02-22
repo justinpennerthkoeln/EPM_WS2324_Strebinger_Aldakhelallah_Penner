@@ -26,7 +26,8 @@ exports.getTasksByCollectionId = async (collectionId) => {
                 THEN jsonb_agg(DISTINCT jsonb_build_object(
                     'user_id', users.id,
                     'username', users.username,
-                    'email', users.email
+                    'email', users.email,
+                    'membership_id', memberships.membership_id
                 ))
                 ELSE NULL
             END AS assigned_users,
@@ -82,8 +83,8 @@ exports.getTasksByCollectionId = async (collectionId) => {
             tasks.status,
             tasks.status_index, 
             tasks.name, 
-            tasks.description
-        ORDER BY tasks.task_id;`,
+            tasks.description;
+        `,
 			[collectionId]
 		);
 		return tasks;
@@ -139,6 +140,17 @@ exports.createTask = async function (data) {
 			data.name,
 			data.description,
 		];
+		return await pool.query(query, values);
+	} catch (err) {
+		console.log(err);
+		return false;
+	}
+};
+
+exports.deleteTask = async function (taskID) {
+	try {
+		const query = "DELETE FROM tasks WHERE task_id = $1";
+		const values = [taskID];
 		return await pool.query(query, values);
 	} catch (err) {
 		console.log(err);

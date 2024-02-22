@@ -26,3 +26,14 @@ exports.createReply = async function (reply) {
 		return false;
 	}
 };
+
+exports.deleteRepliesByFeedbackId = async function (feedbackID) {
+	try {
+		const query = "DELETE FROM replies WHERE feedback_id = $1";
+		const values = [feedbackID];
+		return await pool.query(query, values);
+	} catch (error) {
+		console.log(error);
+		return false;
+	}
+};
