@@ -5,8 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
 			const header = document.querySelector("main > header");
 			const dateOptions = {
 				year: "numeric",
-				month: "numeric",
-				day: "numeric",
+				month: "2-digit",
+				day: "2-digit",
 			};
 			const date = new Date(collection.timestamp).toLocaleString(
 				"de-DE",
@@ -112,16 +112,19 @@ document.addEventListener("DOMContentLoaded", () => {
 		const deleteInput = document.querySelector("#delete-collection form input");
 		const collectionName = document.querySelector("#collection-name").innerHTML;
 		if (deleteInput.value == collectionName && deleteInput.value.length > 0) {
-			fetch(
-				`/api/collections/${window.location.pathname.split("/")[2]}/delete`,
-				{
-					method: "POST",
-				}
-			)
-				.then((response) => response.json())
-				.then((data) => {
-					window.location = `${window.location.origin}/?success=Collection deleted.`;
+			fetch(`/api/collections/${window.location.pathname.split("/")[2]}/platforms`, {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					"Accept": "application/json",
+				},
+			}).then((response) => response.json()).then((platforms) => {
+				removeWebhooks(platforms, `${window.location.origin}?success=Collection deleted`).then((data) => {
+					fetch(`/api/collections/${window.location.pathname.split("/")[2]}/delete`, {
+						method: "POST",
+					});
 				});
+			});
 		} else {
 			window.location = `${window.location.origin}${window.location.pathname}?error=Collections name doesn't match`;
 		}
@@ -257,107 +260,6 @@ document.addEventListener("DOMContentLoaded", () => {
 		},
 	}).mount("#invite-users-container");
 
-	// const searchInput = document.querySelector(".invite-collaborators input");
-	// const searchResults = document.querySelector(".invite-collaborators ul");
-	// const inviteButton = document.querySelector(".invite-collaborators button");
-
-	// searchInput.addEventListener("input", () => {
-	// 	if (searchInput.value.length > 0) {
-	// 		searchResults.classList.add("disabled");
-	// 		inviteButton.setAttribute("disabled", true);
-	// 		fetch(`/api/users?searchTerm=${searchInput.value.toLowerCase()}`, {
-	// 			method: "GET",
-	// 			headers: {
-	// 				"Content-Type": "application/json",
-	// 			},
-	// 		})
-	// 			.then((response) => {
-	// 				return response.json();
-	// 			})
-	// 			.then((users) => {
-	// 				searchResults.classList.remove("disabled");
-	// 				searchResults.innerHTML = "";
-	// 				users.forEach((user) => {
-	// 					const li = document.createElement("li");
-	// 					li.setAttribute("userId", user.id);
-	// 					li.innerHTML = user.username;
-	// 					searchResults.appendChild(li);
-	// 					li.addEventListener("click", () => {
-	// 						searchResults.innerHTML = "";
-	// 						searchResults.appendChild(li);
-	// 						li.classList.toggle("selected");
-	// 						inviteButton.toggleAttribute("disabled");
-	// 					});
-	// 				});
-	// 			});
-	// 	} else {
-	// 		searchResults.innerHTML = "";
-	// 	}
-	// });
-
-	// inviteButton.addEventListener("click", async ($event) => {
-	// 	$event.preventDefault();
-	// 	const userId = searchResults
-	// 		.querySelector(".selected")
-	// 		.getAttribute("userid");
-	// 	var alreadyMember = false;
-
-	// 	fetch(
-	// 		`/api/collections/${window.location.pathname.split("/")[2]}/members`,
-	// 		{
-	// 			method: "GET",
-	// 			headers: {
-	// 				"Content-Type": "application/x-www-form-urlencoded",
-	// 				Accept: "application/json",
-	// 			},
-	// 		}
-	// 	)
-	// 		.then((response) => response.json())
-	// 		.then((members) => {
-	// 			members.forEach((member) => {
-	// 				if (Number(member.user_id) == Number(userId)) {
-	// 					console.log(true);
-	// 					alreadyMember = true;
-	// 				}
-	// 			});
-	// 		})
-	// 		.then(() => {
-	// 			if (alreadyMember == false) {
-	// 				fetch(
-	// 					`/api/collections/${window.location.pathname.split("/")[2]}/invite`,
-	// 					{
-	// 						method: "POST",
-	// 						headers: {
-	// 							"Content-Type": "application/x-www-form-urlencoded",
-	// 							Accept: "application/json",
-	// 						},
-	// 						body: "userId=" + userId,
-	// 					}
-	// 				)
-	// 					.then((response) => response.json())
-	// 					.then((data) => {
-	// 						window.location = `${window.location.origin}${window.location.pathname}?success=${data.msg}`;
-	// 					});
-	// 				fetch(`/api/alerts/${window.location.pathname.split("/")[2]}`, {
-	// 					method: "POST",
-	// 					headers: {
-	// 						"Content-Type": "application/json",
-	// 						Accept: "application/json",
-	// 					},
-	// 					body: JSON.stringify({
-	// 						userId: JSON.parse(localStorage.getItem("user")).id,
-	// 						collectionUuid: window.location.pathname.split("/")[2],
-	// 						comment: `New User invited`,
-	// 						alertType: "collection member changes",
-	// 						timestamp: new Date().toISOString(),
-	// 					}),
-	// 				});
-	// 			} else {
-	// 				window.location = `${window.location.origin}${window.location.pathname}?error=This user is already a member.`;
-	// 			}
-	// 		});
-	// });
-
 	// Manage Collaborators
 	const manageCollaborators = Vue.createApp({
 		data() {
@@ -427,70 +329,6 @@ document.addEventListener("DOMContentLoaded", () => {
 		},
 	}).mount("#manage-collaborators .collaborators");
 
-	// const collaboratorsDiv = document.querySelector(
-	// 	"#manage-collaborators .collaborators"
-	// );
-	// fetch(`/api/collections/${window.location.pathname.split("/")[2]}/members`)
-	// 	.then((response) => response.json())
-	// 	.then((collaborators) => {
-	// 		collaboratorsDiv.innerHTML = "";
-	// 		collaborators.forEach((collaborator) => {
-	// 			const div = document.createElement("div");
-	// 			div.classList.add("collaborator");
-	// 			div.innerHTML = `
-	//                 <h3>@${collaborator.username}</h3>
-	//                 <form>
-	//                     <div class="collaborator-setting-buttons">
-	//                         <button class="delete-collaborator" value="${collaborator.membership_id}">Delete</button>
-	//                     </div>
-	//                 </form>
-	//         `;
-	// 			collaboratorsDiv.appendChild(div);
-
-	// 			const deleteButton = div.querySelector(".delete-collaborator");
-	// 			deleteButton.addEventListener("click", ($event) => {
-	// 				$event.preventDefault();
-	// 				const username =
-	// 					deleteButton.parentElement.parentElement.parentElement.querySelector(
-	// 						"h3"
-	// 					).innerHTML;
-	// 				if (
-	// 					JSON.parse(localStorage.getItem("user"))
-	// 						.username.toLowerCase()
-	// 						.trim() != username.toLowerCase().trim().replace("@", "")
-	// 				) {
-	// 					fetch(
-	// 						`/api/collections/${
-	// 							window.location.pathname.split("/")[2]
-	// 						}/delete/${deleteButton.value}`,
-	// 						{
-	// 							method: "POST",
-	// 						}
-	// 					)
-	// 						.then((response) => response.json())
-	// 						.then((data) => {
-	// 							window.location = `${window.location.origin}${window.location.pathname}?success=Successfully deleted collaborator.`;
-	// 							fetch(`/api/alerts/${window.location.pathname.split("/")[2]}`, {
-	// 								method: "POST",
-	// 								headers: {
-	// 									"Content-Type": "application/json",
-	// 									Accept: "application/json",
-	// 								},
-	// 								body: JSON.stringify({
-	// 									userId: JSON.parse(localStorage.getItem("user")).id,
-	// 									collectionUuid: window.location.pathname.split("/")[2],
-	// 									comment: `User ${username} deleted.`,
-	// 									alertType: "collection member changes",
-	// 									timestamp: new Date().toISOString(),
-	// 								}),
-	// 							});
-	// 						});
-	// 				} else {
-	// 					window.location = `${window.location.origin}${window.location.pathname}?error=You can't delete yourself.`;
-	// 				}
-	// 			});
-	// 		});
-	// 	});
 
 	// Add project
 	const buttons = document.querySelectorAll(".connections button");
@@ -562,27 +400,35 @@ document.addEventListener("DOMContentLoaded", () => {
 			},
 
 			deletePlatform(platformId) {
-				fetch(`/api/collections/platform/delete/${platformId}`, {
-					method: "POST",
-				})
-					.then((response) => response.json())
-					.then((data) => {
-						fetch(`/api/alerts/${window.location.pathname.split("/")[2]}`, {
+				const platform = fetch(`/api/platform/${platformId}`, {
+					method: "GET", 
+					headers: {"Content-Type": "application/json"}
+				}).then((response) => response.json());
+
+				Promise.resolve(platform).then((platform) => {
+					var arr = [];
+					arr.push(platform);
+					removeWebhooks(arr, `${window.location.origin}${window.location.pathname}?success=Successfully deleted project.`).then((data) => {
+						fetch(`/api/collections/platform/delete/${platformId}`, {
 							method: "POST",
-							headers: {
-								"Content-Type": "application/json",
-								Accept: "application/json",
-							},
-							body: JSON.stringify({
-								userId: JSON.parse(localStorage.getItem("user")).id,
-								collectionUuid: window.location.pathname.split("/")[2],
-								comment: `platform ${this.possiblePlatforms[platformId]} deleted.`,
-								alertType: "collection member changes",
-								timestamp: new Date().toISOString(),
-							}),
+						}).then((response) => response.json()).then(async (data) => {
+							fetch(`/api/alerts/${window.location.pathname.split("/")[2]}`, {
+								method: "POST",
+								headers: {
+									"Content-Type": "application/json",
+									Accept: "application/json",
+								},
+								body: JSON.stringify({
+									userId: JSON.parse(localStorage.getItem("user")).id,
+									collectionUuid: window.location.pathname.split("/")[2],
+									comment: `platform ${await platform.platform} deleted.`,
+									alertType: "platform changes",
+									timestamp: new Date().toISOString(),
+								})
+							});
 						});
-						window.location = `${window.location.origin}${window.location.pathname}?success=Successfully deleted project`;
 					});
+				})
 			},
 
 			updatePlatform(platformId, targetDocument) {
@@ -609,96 +455,6 @@ document.addEventListener("DOMContentLoaded", () => {
 		},
 	}).mount("#manage-projects-container");
 
-	// const projectsDiv = document.querySelector("#manage-projects .platforms");
-	// fetch(
-	// 	`/api/collections/${window.location.pathname.split("/")[2]}/platforms`,
-	// 	{
-	// 		method: "GET",
-	// 		headers: {
-	// 			"Content-Type": "application/json",
-	// 		},
-	// 	}
-	// )
-	// 	.then((response) => response.json())
-	// 	.then((platforms) => {
-	// 		projectsDiv.innerHTML = "";
-	// 		platforms.forEach((platform) => {
-	// 			const div = document.createElement("div");
-	// 			div.classList.add("platform");
-	// 			div.innerHTML = `
-	//             <h3>${capitalizeFirstLetter(platform.platform)}</h3>
-	//             <form>
-	//                 <div>
-	//                     <label for="target-document">Target Document</label>
-	//                     <input type="text" name="target-document" value="${
-	// 												platform.target_document
-	// 											}" id="target-document" class="target-document">
-	//                 </div>
-	//                 <div class="platform-setting-buttons">
-	//                     <button class="update-platform" value="${
-	// 												platform.platform_id
-	// 											}">Update</button>
-	//                     <button class="delete-platform" value="${
-	// 												platform.platform_id
-	// 											}">Delete</button>
-	//                 </div>
-	//             </form>
-	//         `;
-	// 			projectsDiv.appendChild(div);
-
-	// 			const deleteButton = div.querySelector(".delete-platform");
-	// 			deleteButton.addEventListener("click", ($event) => {
-	// 				$event.preventDefault();
-	// 				fetch(`/api/collections/platform/delete/${deleteButton.value}`, {
-	// 					method: "POST",
-	// 				})
-	// 					.then((response) => response.json())
-	// 					.then((data) => {
-	// 						fetch(`/api/alerts/${window.location.pathname.split("/")[2]}`, {
-	// 							method: "POST",
-	// 							headers: {
-	// 								"Content-Type": "application/json",
-	// 								Accept: "application/json",
-	// 							},
-	// 							body: JSON.stringify({
-	// 								userId: JSON.parse(localStorage.getItem("user")).id,
-	// 								collectionUuid: window.location.pathname.split("/")[2],
-	// 								comment: `platform ${platform.platform} deleted.`,
-	// 								alertType: "collection member changes",
-	// 								timestamp: new Date().toISOString(),
-	// 							}),
-	// 						});
-	// 						window.location = `${window.location.origin}${window.location.pathname}?success=Successfully deleted project.`;
-	// 					});
-	// 			});
-
-	// 			const updateButton = div.querySelector(".update-platform");
-	// 			updateButton.addEventListener("click", ($event) => {
-	// 				$event.preventDefault();
-	// 				fetch(
-	// 					`/api/platforms/${updateButton.value}/target-document?document=${
-	// 						div.querySelector(".target-document").value
-	// 					}`,
-	// 					{
-	// 						method: "POST",
-	// 						headers: {
-	// 							"Content-Type": "application/x-www-form-urlencoded",
-	// 							Accept: "application/json",
-	// 						},
-	// 					}
-	// 				)
-	// 					.then((response) => response.json())
-	// 					.then((data) => {
-	// 						window.location = `${window.location.origin}${window.location.pathname}?success=Successfully updated project.`;
-	// 					});
-	// 			});
-	// 		});
-	// 	});
-
-	function capitalizeFirstLetter(word) {
-		return word.slice(0, 1).toUpperCase() + word.slice(1);
-	}
-
 	const alerts = Vue.createApp({
 		data() {
 			return {
@@ -706,8 +462,8 @@ document.addEventListener("DOMContentLoaded", () => {
 				setting_options: {},
 				dateOptions: {
 					year: "numeric",
-					month: "numeric",
-					day: "numeric",
+					month: "2-digit",
+					day: "2-digit",
 				},
 			};
 		},
@@ -837,6 +593,128 @@ async function getPlatform(userId, collectionUuid, platform) {
 		});
 }
 
+// Webhooks
+async function removeWebhooks(platforms, link) {
+	var counter = 0;
+	if(platforms.length > 0) {
+		for (const platform of platforms) {
+			counter++;
+			await removeWebhook(platform, window.location.pathname.split("/")[2], counter == platforms.length-1, link);
+		}
+	} else {
+		window.location = link;
+	}
+}
+
+async function removeWebhook(repo, uuid, isEnd, link) {
+	try {
+		if(repo.platform == "figma" && repo.team_id != null) {
+			fetch(`https://api.figma.com/v2/teams/${repo.team_id}/webhooks`, {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					"Accept": "application/json",
+					"Authorization": `Bearer ${repo.platform_key}`
+				}
+			}).then((response) => response.json()).then((webhooks) => {
+				webhooks = webhooks.webhooks;
+				if(webhooks.length > 0) {
+					webhooks.forEach((webhook) => {
+						if(webhook.endpoint == `https://wrongly-electric-salmon.ngrok-free.app/api/hook/${uuid}/figma`) {
+							fetch(`https://api.figma.com/v2/webhooks/${webhook.id}`, {
+								method: "DELETE",
+								headers: {
+									"Content-Type": "application/json",
+									"Accept": "application/json",
+									"Authorization": `Bearer ${repo.platform_key}`
+								}
+							}).then(() => {
+								if(isEnd) {
+									window.location = link;
+								}
+							});
+						}
+					});
+				} else {
+					if(isEnd) {
+						window.location = link;
+					}
+				}
+			});
+		} else if(repo.platform == "github") {
+			fetch(`https://api.github.com/repos/${repo.username}/${repo.target_document}/hooks`, {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					"Accept": "application/json",
+					"Authorization": `Bearer ${repo.platform_key}`
+				}
+			}).then((response) => response.json()).then((webhooks) => {
+				if(webhooks.length > 0) {
+					webhooks.forEach((webhook) => {
+						if(webhook.config.url == `https://wrongly-electric-salmon.ngrok-free.app/api/hook/${uuid}/github`) {
+							fetch(`https://api.github.com/repos/${repo.username}/${repo.target_document}/hooks/${webhook.id}`, {
+								method: "DELETE",
+								headers: {
+									"Content-Type": "application/json",
+									"Accept": "application/json",
+									"Authorization": `Bearer ${repo.platform_key}`
+								}
+							}).then(() => {
+								if(isEnd) {
+									window.location = link;
+								}
+							});
+						}
+					});
+				} else {
+					if(isEnd) {
+						window.location = link;
+					}
+				}
+			});
+		} else if (repo.platform == "gitlab") {
+			fetch(`https://gitlab.com/api/v4/projects/${repo.target_document}/hooks`, {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					"Accept": "application/json",
+					"Authorization": `Bearer ${repo.platform_key}`
+				}
+			}).then((response) => response.json()).then((webhooks) => {
+				if(webhooks.length > 0) {
+					webhooks.forEach((webhook) => {
+						if(webhook.url == `https://wrongly-electric-salmon.ngrok-free.app/api/hook/${uuid}/gitlab`) {
+							fetch(`https://gitlab.com/api/v4/projects/${repo.target_document}/hooks/${webhook.id}`, {
+								method: "DELETE",
+								headers: {
+									"Content-Type": "application/json",
+									"Accept": "application/json",
+									"Authorization": `Bearer ${repo.platform_key}`
+								}
+							}).then(() => {
+								if(isEnd) {
+									window.location = link;
+								}
+							});
+						}
+					});
+				} else {
+					if(isEnd) {
+						window.location = link;
+					}
+				}
+			});
+		}
+	} catch (error) {
+		console.log("Error deleteing webhook: " + error);
+		throw error;
+	} finally {
+		return true;
+	}
+	
+}	
+
 //Connections
 async function connectGithub(uuid, platformId) {
 	window.location.href = `https://github.com/login/oauth/authorize?client_id=e82e9be1c2c8d95f719a&redirect_uri=http://localhost:80/oauth/github/${uuid}/${platformId}&allow_signup=true&scope=repo,user,admin:repo_hook`;
@@ -855,7 +733,7 @@ async function connectDribbble(uuid, platformId) {
 }
 
 async function connectFigma(uuid, platformId) {
-	window.location.href = `https://www.figma.com/oauth?scope=files:read,file_comments:write&state=${uuid}_${platformId}&response_type=code&client_id=lran9jv5bDLcZamRAN3khE&redirect_uri=http://localhost:80/oauth/figma`;
+	window.location.href = `https://www.figma.com/oauth?scope=files:read,file_comments:write,webhooks:write&state=${uuid}_${platformId}&response_type=code&client_id=lran9jv5bDLcZamRAN3khE&redirect_uri=http://localhost:80/oauth/figma`;
 }
 
 async function connectNotion(uuid, platformId) {

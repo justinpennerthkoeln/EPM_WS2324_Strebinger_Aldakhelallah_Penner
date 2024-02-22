@@ -45,7 +45,8 @@ CREATE TABLE platforms (
     platform platform NOT NULL,
     platform_key VARCHAR(200) NOT NULL,
     target_document VARCHAR(200) NOT NULL,
-    username VARCHAR(200) NULL
+    username VARCHAR(200) NULL,
+    team_id VARCHAR(200) NULL DEFAULT NULL
 );
 
 ALTER TABLE platforms ADD CONSTRAINT fk_platforms_user_3948fbhrgz45i4ts FOREIGN KEY (user_id) REFERENCES users (id);
@@ -93,7 +94,7 @@ CREATE TABLE tasks (
 );
 
 ALTER TABLE tasks ADD CONSTRAINT fk_tasks_collection_84376588dsuifhi734 FOREIGN KEY (collection_id) REFERENCES collections (collection_id);
-ALTER TABLE tasks ADD CONSTRAINT fk_tasks_platform_84376588dsuifhi734 FOREIGN KEY (platform_id) REFERENCES platforms (platform_id);
+-- ALTER TABLE tasks ADD CONSTRAINT fk_tasks_platform_84376588dsuifhi734 FOREIGN KEY (platform_id) REFERENCES platforms (platform_id);
 
 CREATE TABLE ownerships (
     ownership_id SERIAL PRIMARY KEY NOT NULL,

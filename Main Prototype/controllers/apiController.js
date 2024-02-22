@@ -14,6 +14,7 @@ const ownershipsModel = require("../models/ownershipsModel");
 const emailService = require("../services/emailService");
 const bodyParser = require("body-parser");
 const hookService = require("../services/hookService");
+const notificationService = require("../services/notificationService");
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
@@ -165,46 +166,46 @@ router.put("/tasks/:taskId/todo/:todoId", async (req, res) => {
 
 // Delete task
 router.delete("/tasks/:taskId", async (req, res) => {
-	try {
-		// Delete ownership
-		if (req.body.membership_id != null) {
-			await ownershipsModel.deleteOwnership(
-				req.params.taskId,
-				req.body.membership_id
-			);
-		}
+    try {
+        // Delete ownership
+        if (req.body.membership_id != null) {
+            await ownershipsModel.deleteOwnership(
+                req.params.taskId,
+                req.body.membership_id
+            );
+        }
 
-		// Delete all todos
-		await todoModel.deleteTodosByTaskId(req.params.taskId);
+        // Delete all todos
+        await todoModel.deleteTodosByTaskId(req.params.taskId);
 
-		// Get all feedbacks
-		const feedbacks = await feedbackModel.getFeedbacksByTaskId(
-			req.params.taskId
-		);
+        // Get all feedbacks
+        const feedbacks = await feedbackModel.getFeedbacksByTaskId(
+            req.params.taskId
+        );
 
-		// Delete all replies
-		for (const feedback of feedbacks) {
-			await repliesModel.deleteRepliesByFeedbackId(feedback.feedback_id);
-		}
+        // Delete all replies
+        for (const feedback of feedbacks) {
+            await repliesModel.deleteRepliesByFeedbackId(feedback.feedback_id);
+        }
 
-		// Delete all feedbacks
-		await feedbackModel.deleteFeedbacksByTaskId(req.params.taskId);
+        // Delete all feedbacks
+        await feedbackModel.deleteFeedbacksByTaskId(req.params.taskId);
 
-		// Then delete task
-		await tasksModel.deleteTask(req.params.taskId);
+        // Then delete task
+        await tasksModel.deleteTask(req.params.taskId);
 
-		notifyClients({
-			targets: ["task-board"],
-			initiator: req.headers["x-socket-id"],
-		});
+        notifyClients({
+            targets: ["task-board"],
+            initiator: req.headers["x-socket-id"],
+        });
 
-		res.send({ msg: "Task deleted." });
-	} catch (error) {
-		console.error("Error deleting task:", error);
-		res
-			.status(500)
-			.send({ error: "An error occurred while deleting the task." });
-	}
+        res.send({ msg: "Task deleted." });
+    } catch (error) {
+        console.error("Error deleting task:", error);
+        res
+            .status(500)
+            .send({ error: "An error occurred while deleting the task." });
+    }
 });
 
 // FEEDBACK
@@ -322,9 +323,9 @@ router.get(`/collections/:uuid/platforms`, async (req, res) => {
 		await collectionsModel.getByUuid(req.params.uuid)
 	).rows[0].collection_id;
 	const platforms = await platformsModel.getPlatformsByCollectionId(
-		collectionId
+		await collectionId
 	);
-	res.send(platforms);
+	res.send(await platforms);
 });
 
 router.get(`/platform/:platformId`, async (req, res) => {
@@ -358,6 +359,10 @@ router.post(
 			});
 	}
 );
+
+router.post(`/platform/:platformId/figma-teamid`, async (req, res) => {
+	platformsModel.setTeamId(req.params.platformId, req.query.teamid);
+});
 
 router.post(`/collections/platform/delete/:platformId`, async (req, res) => {
 	platformsModel.deletePlatform(req.params.platformId).then(() => {
@@ -450,6 +455,13 @@ router.post("/alerts/:uuid", urlencodedParser, async (req, res) => {
 			req.body.timestamp
 		);
 	}
+	if(req.body.alertType == "task created") {
+		if(req.body.assignee != null) {
+			membershipsModel.getMembershipByMemberShipId(req.body.assignee).then((member) => {
+				emailService.sendMailToMemberBypassRules(member, req.body.comment + ". It is assigned to you", req.body.alertType, collectionId);
+			});
+		}
+	}
 
 	const members = await membershipsModel.getMembersByCollectionId(collectionId);
 	emailService.sendMailToMembers(
@@ -458,6 +470,8 @@ router.post("/alerts/:uuid", urlencodedParser, async (req, res) => {
 		req.body.alertType,
 		collectionId
 	);
+
+	res.send({ msg: "Alert created." });
 });
 
 router.get("/alerts/:uuid/settings", async (req, res) => {
@@ -487,7 +501,16 @@ router.post("/hook/:uuid/:platform", urlencodedParser, (req, res) => {
 		case "gitlab":
 			hookService.handleGitlabHook(hooks, hooks.event_type, req.params.uuid);
 			break;
+		case "figma":
+			(hooks.event_type === "FILE_UPDATE") ? hookService.handleFigmaHook(hooks, "update", req.params.uuid) : (hooks.event_type === "FILE_COMMENT") ? hookService.handleFigmaHook(hooks, "comment", req.params.uuid) : hookService.handleFigmaHook(hooks, "ping", req.params.uuid);
+			break;
 	}
+});
+
+router.post("/create-notification/:uuid/:platformId", urlencodedParser, async (req, res) => {
+	const platform = await platformsModel.getPlatformById(req.params.platformId);
+	const collection = await collectionsModel.getByUuid(req.params.uuid);
+	notificationService.handleNotification(req.body, await platform.rows[0], await collection.rows[0]);
 });
 
 module.exports = router;

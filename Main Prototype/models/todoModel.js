@@ -48,12 +48,12 @@ exports.updateTodo = async function (todo) {
 };
 
 exports.deleteTodosByTaskId = async function (taskId) {
-	try {
-		const query = "DELETE FROM todos WHERE task_id = $1";
-		const values = [taskId];
-		return await pool.query(query, values);
-	} catch (err) {
-		console.log(err);
-		return false;
-	}
+    try {
+        const query = "DELETE FROM todos WHERE task_id = $1";
+        const values = [taskId];
+        return await pool.query(query, values);
+    } catch (err) {
+        console.log(err);
+        return false;
+    }
 };

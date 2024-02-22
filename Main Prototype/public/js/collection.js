@@ -7,8 +7,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 			const header = document.querySelector("main > header");
 			const dateOptions = {
 				year: "numeric",
-				month: "numeric",
-				day: "numeric",
+				month: "2-digit",
+				day: "2-digit",
 			};
 			const date = new Date(collection.timestamp).toLocaleString(
 				"de-DE",
@@ -422,8 +422,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 				possiblePlatforms: ["GitHub", "GitLab", "Figma", "Notion"],
 				dateOptions: {
 					year: "numeric",
-					month: "numeric",
-					day: "numeric",
+					month: "2-digit",
+					day: "2-digit",
 				},
 			};
 		},
@@ -730,11 +730,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 			async deleteTask() {
 				document.querySelector(".view-task-container").classList.add("hidden");
-
-				const assignedUser = this.task.assigned_users
-					? this.task.assigned_users[0].membership_id
-					: null;
-
+				const assignedUser = (this.task.assigned_users != null) ? this.task.assigned_users[0].membership_id : null;
 				fetch(`/api/tasks/${this.task.task_id}`, {
 					method: "DELETE",
 					headers: {
@@ -743,7 +739,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 						"X-Socket-ID": socketID,
 					},
 					body: JSON.stringify({
-						membership_id: assignedUser,
+						membership_id: await assignedUser,
 					}),
 				})
 					.then((response) => {
@@ -907,6 +903,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 			},
 			body: JSON.stringify({
 				userId: JSON.parse(localStorage.getItem("user")).id,
+				assignee: data.assignedUser,
 				collectionUuid: window.location.pathname.split("/")[2],
 				comment: `A new task in ${
 					document.querySelector("main > header").children[0].textContent
@@ -917,6 +914,17 @@ document.addEventListener("DOMContentLoaded", async function () {
 				timestamp: new Date().toISOString(),
 			}),
 		});
+
+		if(data.createIssue) {
+			fetch(`/api/create-notification/${window.location.pathname.split("/")[2]}/${data.platform}`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Accept: "application/json",
+				},
+				body: JSON.stringify(data)
+			});
+		}
 
 		clearForm();
 	});

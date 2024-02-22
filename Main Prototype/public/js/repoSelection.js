@@ -66,6 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
 					<p>Please make sure to grand view access to the page.</p>
 					<form @submit.prevent="submitLink">
 						<input type="text" placeholder="Enter a link...">
+						<input v-if="platform == 'figma'" type="text" id="teamId" placeholder="Figma Team ID"></input>
 						<button type="submit">Submit</button>
 					</form>
 				</div>
@@ -259,25 +260,104 @@ document.addEventListener("DOMContentLoaded", () => {
 					}
 				);
 
-				window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Shot`;
+				fetch(`/api/platform/${this.platformId}`, {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+						"Accept": "application/json",
+					}
+				}).then((response) => response.json()).then((data) => {
+					fetch(`/api/alerts/${this.collection}`, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							Accept: "application/json",
+						},
+						body: JSON.stringify({
+							userId: JSON.parse(localStorage.getItem("user")).id,
+							collectionUuid: this.collection,
+							comment: `Connected to ${data.platform}`,
+							alertType: "platform changes",
+							timestamp: new Date().toISOString(),
+						}),
+					});
+
+					window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Shot`;
+				});
 			},
 
 			async submitLink($event) {
 				$event.preventDefault();
 
 				const input = $event.target.querySelector("input");
-				fetch(
-					`/api/platforms/${this.platformId}/target-document?document=${input.value}`,
-					{
+				fetch(`/api/platforms/${this.platformId}/target-document?document=${input.value}`, {
 						method: "POST",
 						headers: {
 							"Content-Type": "application/json",
 							Accept: "application/json",
 						},
-					}
-				);
+				});
 
-				window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Page`;
+				if($event.target.querySelector("#teamId")) {
+					fetch(`/api/platform/${this.platformId}/figma-teamid?teamid=${$event.target.querySelector("#teamId").value}`, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							Accept: "application/json",
+						},
+					});
+				}
+
+				fetch(`/api/platform/${this.platformId}`, {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+						"Accept": "application/json",
+					}
+				}).then((response) => response.json()).then((data) => {
+					fetch(`/api/alerts/${this.collection}`, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							Accept: "application/json",
+						},
+						body: JSON.stringify({
+							userId: JSON.parse(localStorage.getItem("user")).id,
+							collectionUuid: this.collection,
+							comment: `Connected to ${data.platform}`,
+							alertType: "platform changes",
+							timestamp: new Date().toISOString(),
+						}),
+					})
+
+					if (data.platform === "figma") {
+						fetch(`https://api.figma.com/v2/webhooks`, {
+							method: "POST",
+							headers: {
+								"Accept": "application/json",
+								"Content-Type": "application/json",
+								"Authorization": 'Bearer ' + data.platform_key,
+							},
+							body: JSON.stringify({
+								"event_type": "FILE_UPDATE",
+								"file_key": input.value.split("/")[4],
+								"team_id": $event.target.querySelector("#teamId").value,
+								"passcode": "1159233650501953557",
+								"endpoint": `https://wrongly-electric-salmon.ngrok-free.app/api/hook/${this.collection}/figma`
+							})
+						}).then((response) => {
+							console.log('Response status:', response.status);
+							return response.json();
+						}).then((data) => {
+							console.log('Response data:', data);
+							window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Page`;
+						}).catch((error) => {
+							console.error('Error:', error);
+						});
+					} else {
+						window.location = `${window.location.origin}/collection/${this.collection}/settings/add-projects?success=Added Page`;
+					}
+				});
 			},
 		},
 		mounted() {

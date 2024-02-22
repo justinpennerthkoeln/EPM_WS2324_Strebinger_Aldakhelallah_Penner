@@ -109,3 +109,16 @@ exports.searchMemberships = async (collectionID, searchTerm) => {
 		throw new Error("Error searching memberships.");
 	}
 };
+
+exports.getMembershipByMemberShipId = async (membershipId) => {
+	try {
+		const memberships = await pool.query(
+			"SELECT memberships.*, users.email FROM memberships JOIN users ON memberships.user_id = users.id  WHERE membership_id = $1",
+			[membershipId]
+		);
+		return await memberships.rows;
+	} catch (error) {
+		console.log(error);
+		throw new Error("Error getting memberships by membership id.");
+	}
+}
