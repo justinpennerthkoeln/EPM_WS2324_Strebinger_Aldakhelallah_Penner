@@ -46,3 +46,14 @@ exports.updateTodo = async function (todo) {
 		return false;
 	}
 };
+
+exports.deleteTodosByTaskId = async function (taskId) {
+    try {
+        const query = "DELETE FROM todos WHERE task_id = $1";
+        const values = [taskId];
+        return await pool.query(query, values);
+    } catch (err) {
+        console.log(err);
+        return false;
+    }
+};

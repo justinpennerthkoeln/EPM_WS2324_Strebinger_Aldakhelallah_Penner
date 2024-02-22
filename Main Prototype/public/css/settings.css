@@ -299,6 +299,7 @@ main > section > aside:not(:first-child):not(.hidden) > div {
 /* Manage projects */
 .manage-projects > div {
 	width: 100% !important;
+	padding-bottom: var(--space-2xl);
 }
 
 .manage-projects > div > ul {

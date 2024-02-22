@@ -62,3 +62,27 @@ exports.createFeedback = async function (feedback) {
 		return false;
 	}
 };
+
+exports.getFeedbacksByTaskId = async function (taskId) {
+    try {
+        const query = "SELECT * FROM feedbacks WHERE task_id = $1";
+        const values = [taskId];
+        return await (
+            await pool.query(query, values)
+        ).rows;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+};
+
+exports.deleteFeedbacksByTaskId = async function (taskId) {
+    try {
+        const query = "DELETE FROM feedbacks WHERE task_id = $1";
+        const values = [taskId];
+        return await pool.query(query, values);
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+};

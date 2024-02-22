@@ -7,8 +7,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 			const header = document.querySelector("main > header");
 			const dateOptions = {
 				year: "numeric",
-				month: "numeric",
-				day: "numeric",
+				month: "2-digit",
+				day: "2-digit",
 			};
 			const date = new Date(collection.timestamp).toLocaleString(
 				"de-DE",
@@ -422,8 +422,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 				possiblePlatforms: ["GitHub", "GitLab", "Figma", "Notion"],
 				dateOptions: {
 					year: "numeric",
-					month: "numeric",
-					day: "numeric",
+					month: "2-digit",
+					day: "2-digit",
 				},
 			};
 		},
@@ -730,7 +730,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 			async deleteTask() {
 				document.querySelector(".view-task-container").classList.add("hidden");
-
+				const assignedUser = (this.task.assigned_users != null) ? this.task.assigned_users[0].membership_id : null;
+				
 				fetch(`/api/tasks/${this.task.task_id}`, {
 					method: "DELETE",
 					headers: {
@@ -739,7 +740,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 						"X-Socket-ID": socketID,
 					},
 					body: JSON.stringify({
-						membership_id: this.task.assigned_users[0].membership_id,
+						membership_id: await assignedUser,
 					}),
 				})
 					.then((response) => {
