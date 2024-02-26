@@ -14,7 +14,6 @@ exports.getGithubReadme = async function (uuid) {
             if (PLATFORM.platform === "github")
                 github = PLATFORM;
 
-
 // connect to github api
         const octokit = new Octokit({
             auth: github.platform_key,

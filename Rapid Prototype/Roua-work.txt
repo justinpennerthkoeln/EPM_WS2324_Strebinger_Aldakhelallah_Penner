@@ -1,0 +1,15 @@
+# add new files
+Rapid Prototype/views/github.htm
+Rapid Prototype/static/js/github-readme.js
+Rapid Prototype/static/js/github-show-button.js
+Rapid Prototype/models/GithubModel.js
+
+
+## updated files
+Rapid Prototype/views/collection.html  add lines 24, 130
+Rapid Prototype/views/settings.html    add lines 25, 160
+Rapid Prototype/static/css/global/base.css add lines from 245 to 251
+Rapid Prototype/server.js add lines
+1- from 312 to 315
+2- from 431 to 447
+
