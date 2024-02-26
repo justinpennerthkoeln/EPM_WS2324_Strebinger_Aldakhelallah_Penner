@@ -13,3 +13,9 @@ Rapid Prototype/server.js add lines
 1- from 312 to 315
 2- from 431 to 447
 
+Notes:
+I put github account data in platform table in database manualy as below:
+- username  -> github account username
+- target_document  -> repo name
+- platform_key  -> github account access token   // just needed if repo is private
+
