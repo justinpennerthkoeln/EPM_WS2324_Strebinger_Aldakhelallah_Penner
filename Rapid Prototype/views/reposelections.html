@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/global/reset.css">
+    <link rel="stylesheet" href="/css/global/variables.css">
+    <link rel="stylesheet" href="/css/global/base.css">
+    <link rel="stylesheet" href="/css/reposelection.css">
+    <link rel="stylesheet" href="/css/global/alert.css">
+    <title>Document</title>
+</head>
+<body>
+    <main>
+        <h1>Select a Repo: </h1>
+        <section id="repos">
+
+        </section>
+    </main>
+    <script type="importmap">
+        {
+            "imports": {
+                "socket.io-client": "https://cdn.socket.io/4.4.1/socket.io.esm.min.js",
+                "wsHost.js": "/js/wsHost.js"
+            }
+        }
+    </script>
+    <script type="module">
+        import { io } from "socket.io-client";
+        import { getHost } from 'wsHost.js';
+
+        // Establish a socket connection to the server
+        const SOCKET = io(getHost(window.location.href));
+        
+        SOCKET.on("connect", () => {
+            console.log("Connected to server");
+
+            const PARAMS = new URLSearchParams(window.location.search);
+            switch(PARAMS.get("platform")) {
+                case "github":
+                case "gitlab":
+                    SOCKET.emit("get-repos", {
+                        uuid: PARAMS.get("uuid"),
+                        platformId: PARAMS.get("platformId"),
+                        platform: PARAMS.get("platform")
+                    });
+                    break;
+                case "notion":
+                case "figma":
+                    setToInput(PARAMS.get("platform"));
+                    break;
+                case "dribbble":
+                    SOCKET.emit("get-dribbble-shots", {
+                        uuid: PARAMS.get("uuid"),
+                        platformId: PARAMS.get("platformId"),
+                        platform: PARAMS.get("platform")
+                    });
+            }
+
+            function setToInput(platform) {
+                const H1 = document.querySelector("h1");
+                H1.innerText = `Enter a ${platform} Page ID`;
+                const REPOS = document.getElementById("repos");
+
+                REPOS.innerHTML = `
+                    <form id="repo-form">
+                        <input type="text" placeholder="Enter a link to ${platform} File/Page">
+                        <button type="submit">Submit</button>
+                    </form>
+                
+                `;
+
+                const FORM = document.getElementById("repo-form");
+                FORM.addEventListener("submit", ($event) => {
+                    $event.preventDefault();
+                    SOCKET.emit("update-target-document", {
+                        platformId: PARAMS.get("platformId"),
+                        targetDocument: getTargetFromLink(FORM.querySelector("input").value, platform)
+                    });
+                    window.location = `${window.location.origin}/${PARAMS.get("uuid")}/settings/add-projects?success=Added Notion Page`;
+                });
+            }
+
+            function getTargetFromLink(link, platform) {
+                switch(platform) {
+                    case "notion":
+                        return link.split("-")[2];
+                        break;
+                    case "figma":
+                        return link.split("file/")[1].split("/")[0];
+                        break;
+                }
+            }
+
+            SOCKET.on('got-repos', (repos) => {
+                if(PARAMS.get("platform") == "github") {
+                    const REPOS = document.getElementById("repos");
+                    repos.forEach(repo => {
+                        const REPO = document.createElement("div");
+                        REPO.classList.add("repo");
+                        REPO.innerHTML = `
+                            <h2>${repo.name}</h2>
+                            <button class="select-repo-btn" data-repo-name="${repo.name}">Select Repo</button>
+                        `;
+
+                        REPO.querySelector(".select-repo-btn").addEventListener("click", ($event) => {
+                            $event.preventDefault();
+                            SOCKET.emit("update-target-document", {
+                                platformId: PARAMS.get("platformId"),
+                                targetDocument: $event.target.dataset.repoName
+                            });
+                            window.location = `${window.location.origin}/${PARAMS.get("uuid")}/settings/add-projects?success=Added Repository`;
+                        });
+                        REPOS.appendChild(REPO);
+                    });
+                } else {
+                    const REPOS = document.getElementById("repos");
+                    repos.forEach(repo => {
+                        const REPO = document.createElement("div");
+                        REPO.classList.add("repo");
+                        REPO.innerHTML = `
+                            <h2>${repo.name}</h2>
+                            <button class="select-repo-btn" data-repo-name="${repo.id}">Select Repo</button>
+                        `;
+
+                        REPO.querySelector(".select-repo-btn").addEventListener("click", ($event) => {
+                            $event.preventDefault();
+                            SOCKET.emit("update-target-document", {
+                                platformId: PARAMS.get("platformId"),
+                                targetDocument: $event.target.dataset.repoName
+                            });
+                            window.location = `${window.location.origin}/${PARAMS.get("uuid")}/settings/add-projects?success=Added Repository`;
+                        });
+                        REPOS.appendChild(REPO);
+                    });
+                }
+            });
+
+            SOCKET.on('got-dribbble-shots', (shots) => {
+                const REPOS = document.getElementById("repos");
+                const H1 = document.querySelector("h1");
+                H1.innerText = `Select a Shot: `;
+                shots.forEach(shot => {
+                    const REPO = document.createElement("div");
+                    REPO.classList.add("repo");
+                    REPO.innerHTML = `
+                        <h2>${shot.title}</h2>
+                        <button class="select-repo-btn" data-repo-name="${shot.id}">Select Shot</button>
+                    `;
+
+                    REPO.querySelector(".select-repo-btn").addEventListener("click", ($event) => {
+                        $event.preventDefault();
+                        SOCKET.emit("update-target-document", {
+                            platformId: PARAMS.get("platformId"),
+                            targetDocument: $event.target.dataset.repoName
+                        });
+                        window.location = `${window.location.origin}/${PARAMS.get("uuid")}/settings/add-projects?success=Added Shot`;
+                    });
+                    REPOS.appendChild(REPO);
+                });
+            })
+        });
+
+        
+    </script>
+</body>
+</html>

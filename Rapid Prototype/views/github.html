@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/global/reset.css">
+    <link rel="stylesheet" href="/css/global/variables.css">
+    <link rel="stylesheet" href="/css/global/base.css">
+    <link rel="stylesheet" href="/css/collection.css">
+    <link rel="stylesheet" href="/css/global/alert.css">
+    <title>SynergyHub</title>
+</head>
+<body>
+    <main>
+        <header>
+            <h1 id="collection-name"></h1>
+            <p id="collection-details"></p>
+            <p id="collection-description"></p>
+            <nav id="navigation" class="navigation">
+                <a href="/tasks">Tasks</a>
+                <a href="/inspection">Inspection</a>
+                <a href="/settings">Settings</a>
+                <a href="/alerts">Alerts</a>
+                <a id="btn-github" href="/github" style="visibility: hidden;">Github</a>
+            </nav>
+        </header>
+
+        <!-- Taskboard -->
+        <section id="taskboard" class="taskboard">
+
+        </section>
+
+        <!-- Create task -->
+        <section >
+            <div>
+                <header>
+                    <h2 style="color:red">Github README.md Document</h2>
+                    <div id="readme"></div>
+                </header>
+
+            </div>
+        </section>
+        
+        <!-- View task -->
+
+    </main>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "socket.io-client": "https://cdn.socket.io/4.4.1/socket.io.esm.min.js"
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <script>
+        // Navigation
+        const NAVIGATIONLINKS = document.querySelectorAll('#navigation a');
+
+        NAVIGATIONLINKS.forEach((element) => {
+            element.addEventListener('click', ($event) => {
+                $event.preventDefault();
+                
+                const { target } = $event;
+
+                window.location.href = `/${window.location.pathname.split('/')[1]}/${target.href.split('/')[3]}`;
+            });
+
+            if(window.location.pathname.split('/')[2] == element.href.split('/')[3]) {
+                element.classList.add('selected');
+            }
+        });
+    </script>
+
+    <script src="/js/github-readme.js" type="module"></script>
+    <script type="module" src="/js/github-show-button.js"></script>
+</body>
+</html>

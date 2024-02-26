@@ -1,0 +1,324 @@
+main {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+}
+
+main>header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+}
+
+main>header>p:nth-child(2) {
+    font-size: var(--detail-font-size);
+}
+
+main>header>p:nth-child(3) {
+    color: var(--color-text-light);
+}
+
+.navigation {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-xl);
+}
+
+.navigation>a {
+    background-color: var(--color-on-background-dark);
+    color: var(--color-text-light);
+    border: none;
+    border-radius: var(--br-xs);
+    padding: var(--space-s) var(--space-xl);
+}
+
+.navigation>a.selected {
+    background-color: var(--color-accent-primary);
+}
+
+main .content {
+    display: flex;
+    flex-direction: row;
+    margin-top: var(--space-2xl);
+}
+
+main .content aside {
+    display: flex;
+    flex-direction: column;
+}
+
+main .content aside:first-child {
+    width: 15vw;
+    height: 60vh;
+    background-color: var(--color-on-background-dark);
+    border-radius: var(--br-xs);
+}
+
+#aside-nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+}
+
+#aside-nav ul {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+    list-style: none;
+    padding: var(--space-l) var(--space-xl);
+}
+
+#aside-nav ul li {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-l);
+    align-items: center;
+}
+
+#aside-nav ul li a {
+    color: var(--color-text-light);
+    text-decoration: none;
+    margin-left: var(--space-l);
+}
+
+#aside-nav ul li a:hover {
+    color: var(--color-accent-primary);
+}
+
+.content>:not(:first-child) {
+    display: flex;
+    flex-direction: column;
+    margin-left: var(--space-2xl);
+    gap: var(--space-l);
+}
+
+.content aside h2 {
+    margin-bottom: var(--space-l);
+}
+
+.content > aside:not(:first-child).hidden {
+    display: none;
+}
+
+#aside-nav ul li a.active {
+    color: var(--color-accent-primary);
+}
+
+/* Invite collaborators
+******************************************************************************************************************************/
+.invite-collaborators div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+}
+
+.invite-collaborators div button {
+    padding: var(--space-s) var(--space-xl);
+}
+
+.invite-collaborators div button:disabled {
+    opacity: 50%;
+}
+
+.invite-collaborators div .disabled {
+    opacity: 50%;
+}
+
+.invite-collaborators ul {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+    list-style: none;
+    padding: var(--space-l) var(--space-xl);
+}
+
+.invite-collaborators ul li {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-l);
+    align-items: center;
+    background-color: var(--color-on-background-dark);
+    padding: var(--space-s) var(--space-xl);
+}
+
+.invite-collaborators ul li.selected {
+    background-color: var(--color-accent-primary);
+}
+
+#delete-collection div button {
+    background-color: red;
+}
+
+/* Add a platform
+******************************************************************************************************************************/
+
+.connections {
+    display: grid;
+    grid-template-columns: repeat(2, 3fr);
+    gap: var(--space-xl);
+}
+
+.connections button {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-s);
+    padding: var(--space-m) var(--space-2xl);
+}
+
+.connections button p {
+    color: var(--color-code-primary);
+}
+
+.connections button[value="gitlab"] {
+    background-color: var(--color-gitlab-primary);
+}
+
+.connections button[value="gitlab"]:hover {
+    background-color: var(--color-gitlab-secondary);
+}
+
+.connections button[value="gitlab"]:focus {
+    background-color: var(--color-gitlab-secondary);
+    outline: var(--color-gitlab-tertiary) solid var(--xs);
+}
+
+.connections button[value="github"] {
+    background-color: var(--color-github-primary);
+}
+
+.connections button[value="github"]:hover {
+    background-color: var(--color-github-secondary);
+}
+
+.connections button[value="github"]:focus {
+    background-color: var(--color-github-secondary);
+    outline: var(--color-github-tertiary) solid var(--xs);
+}
+
+.connections button[value="figma"] {
+    background-color: var(--color-figma-primary);
+}
+
+.connections button[value="figma"]:hover {
+    background-color: var(--color-figma-secondary);
+}
+
+.connections button[value="figma"]:focus {
+    background-color: var(--color-figma-secondary);
+    outline: var(--color-figma-tertiary) solid var(--xs);
+}
+
+.connections button[value="dribbble"] {
+    background-color: var(--color-dribbble-primary);
+}
+
+.connections button[value="dribbble"]:hover {
+    background-color: var(--color-dribbble-secondary);
+}
+
+.connections button[value="dribbble"]:focus {
+    background-color: var(--color-dribbble-secondary);
+    outline: var(--color-dribbble-tertiary) solid var(--xs);
+}
+
+.connections button[value="notion"] {
+    background-color: var(--color-notion-primary);
+}
+
+.connections button[value="notion"]:hover {
+    background-color: var(--color-notion-secondary);
+}
+
+.connections button[value="notion"]:focus {
+    background-color: var(--color-notion-secondary);
+    outline: var(--color-notion-tertiary) solid var(--xs);
+}
+
+/* Manage platforms
+******************************************************************************************************************************/
+
+.platform {
+    margin-top: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+}
+
+.platform form {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-l);
+    justify-self: center;
+    align-items: flex-end;
+}
+
+.platform form div:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.platform form button {
+    background-color: var(--color-accent-primary);
+    color: var(--color-text-light);
+    border: none;
+    border-radius: var(--br-xs);
+    padding: var(--space-s) var(--space-xl);
+    margin-left: var(--space-xs);
+}
+
+.platform form input {
+    background-color: var(--color-on-background-dark);
+    color: var(--color-text-light);
+    border: none;
+    border-radius: var(--br-xs);
+    padding: var(--space-s) var(--space-xl);
+}
+
+.platform form input::placeholder {
+    color: var(--color-text-light-detail);
+}
+
+.platform form input:focus {
+    outline: var(--color-accent-primary) solid var(--xs);
+}
+
+/* Manage collaborators
+******************************************************************************************************************************/
+
+.collaborators > div {
+    margin-top: var(--space-l);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-l);
+    background-color: var(--color-on-background-dark);
+    padding: var(--space-s) var(--space-xl);
+}
+
+.collaborators button {
+    background-color: var(--color-accent-primary);
+    color: var(--color-text-light);
+    border: none;
+    border-radius: var(--br-xs);
+    padding: var(--space-s) var(--space-xl);
+    margin-left: var(--space-xs);
+}
+
+/* Rename collection
+*****************************************************************************************/
+.rename-collection-container {
+    margin-top: var(--space-s);
+}
+
+.rename-collection-container p.error {
+    color: var(--color-error);
+}
+
+.rename-collection-container p.hidden {
+    display: none;
+}

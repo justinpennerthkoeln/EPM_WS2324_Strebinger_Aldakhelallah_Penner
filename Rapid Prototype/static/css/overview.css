@@ -1,0 +1,122 @@
+main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xl);
+    height: 100vh;
+    width: 100vw;
+}
+
+main > header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+main section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+}
+
+main section table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+main section table tr {
+    color: var(--color-text-light);
+}
+
+tr:first-child td:first-child { 
+    border-top-left-radius: var(--br-xs); 
+}
+
+tr:first-child td:last-child { 
+    border-top-right-radius: var(--br-xs); 
+}
+
+tr:last-child td:first-child { 
+    border-bottom-left-radius: var(--br-xs); 
+}
+
+tr:last-child td:last-child { 
+    border-bottom-right-radius: var(--br-xs); 
+}
+
+main section table thead tr th,
+main section table tbody tr td {
+    text-align: left;
+    padding: var(--space-l) var(--space-xl);
+}
+
+main section table tbody tr {
+    background-color: var(--color-code-primary);
+    cursor: pointer;
+    transition: var(--tr-fast) ease-in-out;
+}
+
+main section table tbody tr:hover {
+    background-color: var(--color-code-secondary);
+}
+
+main section table tbody tr td:last-child {
+    color: var(--color-text-light-detail);
+}
+
+.create-collection {
+    width: fit-content;
+}
+
+.create-collection-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    background-color: var(--color-background-dark-transparent);
+    backdrop-filter: blur(var(--xxs));
+    transition: var(--tr-fast) ease-in-out;
+}
+
+.create-collection-container.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.create-collection-container > div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+    background-color: var(--color-on-background-dark);
+    border-radius: var(--br-xs);
+    padding: var(--space-xl);
+}
+
+.create-collection-container > div > header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+}
+
+.create-collection-container > div > form {
+    display: flex;
+    flex-direction: column;
+}
+
+.create-collection-container > div > form > div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xxs);
+}
+
+.create-collection-container > div > form > div:nth-child(2) {
+    margin-top: var(--space-l);
+}
+
+.create-collection-container > div > form > button {
+    margin-top: var(--space-xl);
+}
