@@ -15,7 +15,7 @@ const credentials = {
 // Connect to PostgreSQL
 const pool = new Pool(credentials);
 
-exports.getCollection = async function (uuid) {
+exports = async function (uuid) {
 	try {
 		const query = 'SELECT * FROM collections WHERE uuid = $1';
 		const values = [uuid];
